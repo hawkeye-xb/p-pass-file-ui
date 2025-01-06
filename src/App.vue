@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
-// import HelloWorld from './components/HelloWorld.vue'
+import IndexLayout from './layout/Index.vue';
 </script>
 
 <template>
-  <RouterView />
+  <IndexLayout />
 </template>
 
 <!-- <style scoped>
