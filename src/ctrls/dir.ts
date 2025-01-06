@@ -1,0 +1,38 @@
+import { request, jsonHeaders as headers } from "@/apis/request";
+
+export const createTemporaryDir = () => {
+	return request('/dir/temporary', {
+		method: 'POST',
+	})
+}
+
+interface CreateDirType {
+	target: string,
+	name: string,
+}
+export const createDir = (data: CreateDirType) => {
+	return request('/dir', {
+		method: 'POST',
+		headers,
+		body: JSON.stringify(data)
+	})
+}
+
+interface RenameDirType {
+	target: string,
+	name: string,
+}
+export const renameDir = (data: RenameDirType) => {
+	return request('/dir', {
+		method: 'PATCH',
+		headers,
+		body: JSON.stringify(data)
+	})
+}
+
+export const downloadDirZip = (target: string) => {
+	const url = `/dir/download?target=${target}`
+	return request(url, {
+		method: 'Get',
+	})
+}

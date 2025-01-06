@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Dir from './Dir.vue'
 
 const beforeUploadFile = () => {
   console.log('beforeUploadFile')
@@ -17,5 +18,7 @@ const handleCreateDir = () => {
 
     <a-divider />
 
+    <!-- dir -->
+    <Dir />
   </div>
 </template>
