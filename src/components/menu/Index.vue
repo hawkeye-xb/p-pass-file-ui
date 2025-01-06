@@ -4,23 +4,24 @@ import {
   IconSettings,
   IconApps,
 } from '@arco-design/web-vue/es/icon';
+import { useRouter } from 'vue-router';
+
+const Router = useRouter();
+
 </script>
 
 <template>
-  <a-menu
-    :style="{
+  <a-menu :style="{
       width: '200px',
       height: '100%',
-    }"
-    show-collapse-button breakpoint="xl"
-  >
-  <a-menu-item key="conn" v-on:click="() => { }">
+    }" show-collapse-button breakpoint="xl">
+    <a-menu-item key="conn" v-on:click="() => { }">
       <template #icon>
         <IconApps></IconApps>
       </template>
       Connections
     </a-menu-item>
-    <a-menu-item key="storage-folder" v-on:click="() => { }">
+    <a-menu-item key="storage-folder" v-on:click="() => { Router.push('/folder') }">
       <template #icon>
         <IconFolder></IconFolder>
       </template>

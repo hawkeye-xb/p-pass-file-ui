@@ -1,9 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import FinderView from '../views/folder/Index.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: '/folder',
+      name: 'folder',
+      component: FinderView,
+    },
     {
       path: '/',
       name: 'home',

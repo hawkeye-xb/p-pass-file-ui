@@ -6,7 +6,7 @@ import Menu from '@/components/menu/Index.vue'
 <template>
   <div class="index-layout">
     <Menu />
-    <RouterView />
+    <RouterView style="flex: 1;" />
   </div>
 </template>
 
