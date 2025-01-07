@@ -48,37 +48,35 @@ const handleTrashConfigChange = (value: string | number | boolean) => {
 </script>
 <template>
 	<div>
-		<div style="width: 800px;">
-			<div v-for="target in targets" :key="target" class="settings-list-item">
-				<div class="settings-list-item-label">Watch Target:</div>
-				<div class="settings-list-item-content">
-					<div>{{ target }}</div>
-				</div>
-				<a-space class="settings-list-item-options">
-					<!-- <a-button>
+		<div v-for="target in targets" :key="target" class="settings-list-item">
+			<div class="settings-list-item-label">Watch Target:</div>
+			<div class="settings-list-item-content">
+				<div>{{ target }}</div>
+			</div>
+			<a-space class="settings-list-item-options">
+				<!-- <a-button>
 						<template #icon>
 							<IconRefresh />
 						</template>
 </a-button> -->
-					<a-button @click="handleRemove(target)">
-						<template #icon>
-							<IconDelete />
-						</template>
-					</a-button>
-				</a-space>
-			</div>
-			<div class="settings-list-item">
-				<div class="settings-list-item-label"></div>
-				<a-space>
-					<a-button @click="handleClick">Add Target</a-button>
-				</a-space>
-			</div>
+				<a-button @click="handleRemove(target)">
+					<template #icon>
+						<IconDelete />
+					</template>
+				</a-button>
+			</a-space>
+		</div>
+		<div class="settings-list-item">
+			<div class="settings-list-item-label"></div>
+			<a-space>
+				<a-button @click="handleClick">Add Target</a-button>
+			</a-space>
+		</div>
 
-			<a-divider />
-			<div class="settings-list-item">
-				<div class="settings-list-item-label">Move To Trash</div>
-				<a-switch :model-value="trash" type="round" @change="handleTrashConfigChange" />
-			</div>
+		<a-divider />
+		<div class="settings-list-item">
+			<div class="settings-list-item-label">Move To Trash</div>
+			<a-switch :model-value="trash" type="round" @change="handleTrashConfigChange" />
 		</div>
 
 		<a-modal v-model:visible="visible" title="Add Watch Target" @cancel="handleCancel" @before-ok="handleBeforeOk">
@@ -120,6 +118,7 @@ const handleTrashConfigChange = (value: string | number | boolean) => {
 	display: flex;
 	align-items: center;
 	flex: 1;
+	max-width: 800px;
 }
 
 .settings-list-item-options {

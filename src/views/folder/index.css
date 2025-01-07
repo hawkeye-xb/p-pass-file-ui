@@ -1,0 +1,20 @@
+
+.arco-table-td-content .home-view-table-file-name-class,
+.arco-breadcrumb .home-view-table-breadcrumb-class {
+  cursor: pointer;
+}
+
+.arco-table-td-content .home-view-table-file-name-class:hover,
+.arco-breadcrumb .home-view-table-breadcrumb-class:hover {
+  color: rgb(var(--primary-6));
+}
+
+/* todo */
+/* .dir-main .arco-breadcrumb-item */
+.dir-main .arco-icon {
+  cursor: pointer;
+}
+
+.dir-main .arco-icon:hover {
+  color: rgb(var(--primary-6));
+}

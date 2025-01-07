@@ -4,6 +4,8 @@ import { createDir, deleteRes } from '@/ctrls/index'
 import { MetadataTypeDefaultValue, type MetadataType } from '@/types';
 import Options from './Options.vue';
 import { useMetadatasStore } from '@/stores/metadatas'
+import { getCurrentFolder } from './utils'
+import { handleCreateDir } from './folder'
 
 const metadataStore = useMetadatasStore();
 
@@ -23,27 +25,13 @@ const data: ComputedRef<MetadataType[]> = computed(() => {
     return { ...el, children: undefined }
   }) || [];
 });
-function getCurrentFolder(metadatas: MetadataType[], names: string[]) {
-  let currentFolder: MetadataType | null = null;
-  for (const name of names) {
-    const node = metadatas.find((el: { name: string; }) => el.name === name);
-    if (node) {
-      currentFolder = node;
-      metadatas = node.children || [];
-    } else {
-      break;
-    }
-  }
 
-  return currentFolder || {
-    ...MetadataTypeDefaultValue,
-    children: metadatas,
-  };
-}
 
 const cellClick = (record: any) => {
   if (record.type === 'directory') {
     breadcrumb.value.push(record.name)
+  } else if (record.type === 'file') {
+    // todo: preview file
   }
 };
 
@@ -62,33 +50,6 @@ const handleCreateDirButtonClick = () => {
   }
 }
 
-async function handleCreateDir(target: string) {
-  const res = await createDir({
-    target,
-    name: '新建文件夹' + new Date(),
-  });
-  const result = await res.json();
-  if (result.code !== 200) {
-    return;
-  }
-}
-
-const handleEditRecord = (record: any) => {
-  console.log('handleEditRecord', record);
-}
-const handleDeleteRecord = async (record: any) => {
-  const res = await deleteRes({
-    targets: [record.path],
-  });
-  const result = await res.json();
-  if (result.code !== 200) {
-    return;
-  }
-}
-const handleDownloadRecord = (record: any) => {
-  // todo: 客户端才能做到创建目录按照内容下载
-  console.log('handleDownloadRecord', record);
-}
 </script>
 
 <template>
@@ -139,23 +100,5 @@ const handleDownloadRecord = (record: any) => {
 </template>
 
 <style scoped>
-.arco-table-td-content .home-view-table-file-name-class,
-.arco-breadcrumb .home-view-table-breadcrumb-class {
-  cursor: pointer;
-}
-
-.arco-table-td-content .home-view-table-file-name-class:hover,
-.arco-breadcrumb .home-view-table-breadcrumb-class:hover {
-  color: rgb(var(--primary-6));
-}
-
-/* todo */
-/* .dir-main .arco-breadcrumb-item */
-.dir-main .arco-icon {
-  cursor: pointer;
-}
-
-.dir-main .arco-icon:hover {
-  color: rgb(var(--primary-6));
-}
+@import url('./index.css')
 </style>
