@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
-import { addWatchTarget, removeWatchTarget, getWatchTargets } from '@/services/index';
+import { addWatchTarget, removeWatchTarget, getWatchTargets, getConfig, setConfig } from '@/services/index';
 import { IconDelete, IconRefresh } from '@arco-design/web-vue/es/icon';
 
 const targets = ref([])
@@ -37,6 +37,14 @@ function init() {
 	targets.value = getWatchTargets()
 }
 init()
+
+const trash = ref(true)
+trash.value = getConfig('trash') || true;
+const handleTrashConfigChange = (value: string | number | boolean) => {
+	trash.value = Boolean(value);
+	setConfig('trash', Boolean(value))
+}
+
 </script>
 <template>
 	<div>
@@ -64,6 +72,12 @@ init()
 				<a-space>
 					<a-button @click="handleClick">Add Target</a-button>
 				</a-space>
+			</div>
+
+			<a-divider />
+			<div class="settings-list-item">
+				<div class="settings-list-item-label">Move To Trash</div>
+				<a-switch :model-value="trash" type="round" @change="handleTrashConfigChange" />
 			</div>
 		</div>
 
