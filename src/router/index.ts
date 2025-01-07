@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import FinderView from '../views/folder/Index.vue'
+import Settings from '@/views/Settings.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -9,6 +10,11 @@ const router = createRouter({
       path: '/folder',
       name: 'folder',
       component: FinderView,
+    },
+    {
+      path: '/settings',
+      name: 'settings',
+      component: Settings,
     },
     {
       path: '/',

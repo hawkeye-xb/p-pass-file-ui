@@ -27,7 +27,7 @@ const Router = useRouter();
       </template>
       Folder
     </a-menu-item>
-    <a-menu-item key="settings" v-on:click="() => { }">
+    <a-menu-item key="settings" v-on:click="() => { Router.push('/settings') }">
       <template #icon>
         <IconSettings></IconSettings>
       </template>
