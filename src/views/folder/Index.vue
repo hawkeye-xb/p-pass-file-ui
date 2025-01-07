@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, type ComputedRef, type Ref } from 'vue';
-import { createDir, deleteRes, getWatchTargetsMetadata } from '@/ctrls/index'
+import { createDir, deleteRes } from '@/ctrls/index'
 import { MetadataTypeDefaultValue, type MetadataType } from '@/types';
 import Options from './Options.vue';
+import { useMetadatasStore } from '@/stores/metadatas'
 
-const allMetadData: Ref<MetadataType[]> = ref([]);
+const metadataStore = useMetadatasStore();
 
 const breadcrumb: Ref<string[]> = ref([]);
 const resetBreadcrumb = () => {
@@ -17,7 +18,7 @@ const handleBreadcrumbClick = (name: string) => {
 }
 
 const data: ComputedRef<MetadataType[]> = computed(() => {
-  const currentFolder = getCurrentFolder(allMetadData.value, breadcrumb.value);
+  const currentFolder = getCurrentFolder(metadataStore.metadatas, breadcrumb.value);
   return currentFolder?.children?.map((el) => {
     return { ...el, children: undefined }
   }) || [];
@@ -55,7 +56,7 @@ const handleCreateDirButtonClick = () => {
     return;
   }
 
-  const currentFolder = getCurrentFolder(allMetadData.value, breadcrumb.value);
+  const currentFolder = getCurrentFolder(metadataStore.metadatas, breadcrumb.value);
   if (currentFolder.path) {
     handleCreateDir(currentFolder.path);
   }
@@ -88,19 +89,6 @@ const handleDownloadRecord = (record: any) => {
   // todo: 客户端才能做到创建目录按照内容下载
   console.log('handleDownloadRecord', record);
 }
-
-// todo: delete
-async function getWatchMetadata() {
-  const res = await getWatchTargetsMetadata();
-  const result = await res.json();
-  if (result.code !== 200) {
-    return;
-  }
-  allMetadData.value = result.data;
-}
-onMounted(() => {
-  getWatchMetadata();
-});
 </script>
 
 <template>
@@ -140,7 +128,7 @@ onMounted(() => {
             <template #cell="{ record }">
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>{{ record.mtime }}</div>
-                <Options />
+                <Options :record="record" />
               </div>
             </template>
           </a-table-column>

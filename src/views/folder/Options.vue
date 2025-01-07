@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { MetadataTypeDefaultValue } from '@/types';
 import {
 	IconDelete,
 	IconDownload,
@@ -11,22 +12,56 @@ import {
 	IconPaste,
 } from '@arco-design/web-vue/es/icon';
 
-enum DOPTION_VALUES {
-	Share,
-	Link,
-	Copy,
-	Paste,
-	Export,
-	Rename,
-	MoveTo,
-	Download,
-	Delete,
-}
+const props = defineProps({
+	record: {
+		type: Object,
+		default: () => MetadataTypeDefaultValue,
+	}
+});
 
+enum DOPTION_VALUES { Share, Link, Copy, Paste, Export, Rename, MoveTo, Download, Delete }
 
 const handleSelect: ((value: string | number | Record<string, any> | undefined, ev: Event) => any) | undefined
 	= (key) => {
-		console.log(key);
+		if (key === undefined)
+			return;
+		if (key === DOPTION_VALUES.MoveTo) {
+			console.log('move to');
+			return;
+		}
+		if (key === DOPTION_VALUES.Delete) {
+			console.log('delete');
+			return;
+		}
+		if (key === DOPTION_VALUES.Rename) {
+			console.log('rename');
+			return;
+		}
+		if (key === DOPTION_VALUES.Download) {
+			console.log('download');
+			return;
+		}
+		if (key === DOPTION_VALUES.Export) {
+			console.log('export');
+			return;
+		}
+		if (key === DOPTION_VALUES.Paste) {
+			console.log('paste');
+			return;
+		}
+		if (key === DOPTION_VALUES.Copy) {
+			console.log('copy');
+			return;
+		}
+		if (key === DOPTION_VALUES.Link) {
+			console.log('link');
+			return;
+		}
+		if (key === DOPTION_VALUES.Share) {
+			console.log('share');
+			return;
+		}
+		console.log('unknown');
 	};
 </script>
 
@@ -54,7 +89,7 @@ const handleSelect: ((value: string | number | Record<string, any> | undefined, 
 				</template>
 				<template #default>Copy</template>
 			</a-doption>
-			<a-doption :value="DOPTION_VALUES.Paste">
+			<a-doption :value="DOPTION_VALUES.Paste" v-show="props.record.type === 'directory'">
 				<template #icon>
 					<IconPaste />
 				</template>
