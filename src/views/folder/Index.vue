@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, type ComputedRef, type Ref } from 'vue';
-import { createDir, getWatchTargetsMetadata } from '@/ctrls/index'
+import { createDir, deleteRes, getWatchTargetsMetadata } from '@/ctrls/index'
 import { MetadataTypeDefaultValue, type MetadataType } from '@/types';
+import Options from './Options.vue';
 
 const allMetadData: Ref<MetadataType[]> = ref([]);
 
@@ -71,6 +72,23 @@ async function handleCreateDir(target: string) {
   }
 }
 
+const handleEditRecord = (record: any) => {
+  console.log('handleEditRecord', record);
+}
+const handleDeleteRecord = async (record: any) => {
+  const res = await deleteRes({
+    targets: [record.path],
+  });
+  const result = await res.json();
+  if (result.code !== 200) {
+    return;
+  }
+}
+const handleDownloadRecord = (record: any) => {
+  // todo: 客户端才能做到创建目录按照内容下载
+  console.log('handleDownloadRecord', record);
+}
+
 // todo: delete
 async function getWatchMetadata() {
   const res = await getWatchTargetsMetadata();
@@ -94,7 +112,6 @@ onMounted(() => {
 
     <a-divider />
 
-    <!-- dir -->
     <div class="dir-main">
       <a-breadcrumb>
         <a-breadcrumb-item v-on:click="resetBreadcrumb">Root</a-breadcrumb-item>
@@ -104,6 +121,7 @@ onMounted(() => {
         </a-breadcrumb-item>
       </a-breadcrumb>
 
+      <!-- dir 还是得提取出来，在move的时候需要，分不同风格的视图 -->
       <a-table :data="data">
         <template #columns>
           <a-table-column title="Name" data-index="mtime">
@@ -118,7 +136,14 @@ onMounted(() => {
               {{ record.type === 'directory' ? '-' : record.readableSize }}
             </template>
           </a-table-column>
-          <a-table-column title="Mtime" data-index="mtime" :width="360"></a-table-column>
+          <a-table-column title="Mtime" data-index="mtime" :width="360">
+            <template #cell="{ record }">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>{{ record.mtime }}</div>
+                <Options />
+              </div>
+            </template>
+          </a-table-column>
         </template>
       </a-table>
     </div>
