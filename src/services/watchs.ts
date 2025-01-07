@@ -43,3 +43,10 @@ export const removeWatchTarget = (target: string) => {
 export const clearAllWatchTargets = () => {
 	setWatchTargets([]);
 }
+
+export const initWatchTargets = () => {
+	const targets = getWatchTargets();
+	targets.forEach((target: string) => {
+		watchTarget({ target });
+	});
+}

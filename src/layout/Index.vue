@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
 import Menu from '@/components/menu/Index.vue'
+
+import { initWatchTargets } from '@/services/index'
+
+initWatchTargets()
 </script>
 
 <template>
