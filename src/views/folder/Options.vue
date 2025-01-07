@@ -11,6 +11,12 @@ import {
 	IconExport,
 	IconPaste,
 } from '@arco-design/web-vue/es/icon';
+import {
+	deleteRes
+} from '@/ctrls/index'
+import { getConfig } from '@/services/index'
+
+const trashConfig = getConfig('trash')
 
 const props = defineProps({
 	record: {
@@ -19,6 +25,7 @@ const props = defineProps({
 	}
 });
 
+// todo：把这些操作的代码提取出去，避免创建多份
 enum DOPTION_VALUES { Share, Link, Copy, Paste, Export, Rename, MoveTo, Download, Delete }
 
 const handleSelect: ((value: string | number | Record<string, any> | undefined, ev: Event) => any) | undefined
@@ -30,7 +37,16 @@ const handleSelect: ((value: string | number | Record<string, any> | undefined, 
 			return;
 		}
 		if (key === DOPTION_VALUES.Delete) {
-			console.log('delete');
+			const unlink = async () => {
+				const res = await deleteRes({
+					targets: [props.record.path],
+					trash: trashConfig,
+					force: trashConfig
+				})
+				const result = res.json()
+				console.log(result)
+			}
+			unlink();
 			return;
 		}
 		if (key === DOPTION_VALUES.Rename) {
@@ -66,7 +82,7 @@ const handleSelect: ((value: string | number | Record<string, any> | undefined, 
 </script>
 
 <template>
-	<a-dropdown @select="handleSelect" :popup-max-height="false">
+	<a-dropdown @select="handleSelect" :popup-max-height="false" position="br">
 		<IconMore style="cursor: pointer;" />
 		<template #content>
 			<a-doption :value="DOPTION_VALUES.Share">
@@ -119,7 +135,7 @@ const handleSelect: ((value: string | number | Record<string, any> | undefined, 
 				<template #icon>
 					<IconDelete />
 				</template>
-				<template #default>Delete</template>
+				<template #default>{{ trashConfig ? 'Move To Trash' : 'Delete' }}</template>
 			</a-doption>
 		</template>
 	</a-dropdown>

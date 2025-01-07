@@ -20,7 +20,7 @@ function debounceUpdateMetadatas() {
 
   timer = setTimeout(() => {
     updateMetadatas();
-  }, 100)
+  }, 20)
 }
 
 async function updateMetadatas() {
@@ -46,5 +46,6 @@ async function updateMetadatas() {
   height: 100%;
 
   padding-top: 80px;
+  padding-right: 24px;
 }
 </style>
