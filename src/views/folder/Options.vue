@@ -67,7 +67,7 @@ const handleSelect: ((value: string | number | Record<string, any> | undefined, 
 				</template>
 				<template #default>Paste</template>
 			</a-doption>
-			<a-doption :value="DOPTION_VALUES.Export">
+			<a-doption :value="DOPTION_VALUES.MoveTo">
 				<template #icon>
 					<IconExport />
 				</template>

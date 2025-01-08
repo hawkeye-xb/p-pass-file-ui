@@ -2,7 +2,7 @@ import { request, jsonHeaders as headers } from "@/apis/request";
 
 // todo:
 interface MoveResType {
-	src: [string], // 源路径
+	src: string[], // 源路径
 	dest: string, // 目标路径
 }
 export const moveRes = (data: MoveResType) => {

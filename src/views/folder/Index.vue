@@ -8,6 +8,7 @@ import { DOPTION_VALUES, getCurrentFolder } from './utils'
 import { handleCreateDir, handleOptionSelected } from './folder'
 import { PATH_TYPE } from '@/const';
 import { Message } from '@arco-design/web-vue';
+import MoveToModal from './MoveToModal.vue';
 
 const metadataStore = useMetadatasStore();
 
@@ -52,17 +53,19 @@ const handleCreateDirButtonClick = () => {
   }
 }
 
+// 重命名
 const inputRef = ref<HTMLInputElement | null>(null);
 const newName = ref('')
 const renameRecord = ref<MetadataType | undefined>(undefined)
 const handleRename = async (message: string | number | Record<string, any> | undefined, record: MetadataType) => {
-  if (message === DOPTION_VALUES.Rename) {
-    renameRecord.value = record;
-    newName.value = record.name;
-    await nextTick();
-    if (inputRef.value) {
-      inputRef.value.focus();
-    }
+  if (message !== DOPTION_VALUES.Rename) {
+    return;
+  }
+  renameRecord.value = record;
+  newName.value = record.name;
+  await nextTick();
+  if (inputRef.value) {
+    inputRef.value.focus();
   }
 }
 const resetRenameStatus = () => {
@@ -91,6 +94,23 @@ const handleRenameBlurCheck = async () => {
   setTimeout(() => {
     resetRenameStatus();
   }, 100);
+}
+
+const moveToVisible = ref(false)
+const moveSrc = ref<string[]>([])
+const handleMoveTo = (k: string | number | Record<string, any> | undefined, record: MetadataType) => {
+  if (k !== DOPTION_VALUES.MoveTo) {
+    return;
+  }
+  moveToVisible.value = true;
+  moveSrc.value = [record.path]; // 设置单个，批量操作再设置多个
+}
+
+// option
+const handleCellOptionSelected = (k: string | number | Record<string, any> | undefined, record: any) => {
+  handleMoveTo(k, record)
+  handleRename(k, record)
+  handleOptionSelected(k, record)
 }
 </script>
 
@@ -121,9 +141,10 @@ const handleRenameBlurCheck = async () => {
                 v-on:click="cellClick(record)">
                 {{ record.name }}
               </span>
-              <a-input v-if="record.ino === renameRecord?.ino" ref="inputRef" :style="{ width: '320px' }"
-                @blur="handleRenameBlurCheck" @press-enter="handleRenameBlurCheck" v-model="newName"
-                placeholder="Please enter new name" allow-clear />
+              <a-input v-if="record.ino === renameRecord?.ino" ref="inputRef"
+                :style="{ width: '320px', margin: '-10px 0 -10px -10px' }" @blur="handleRenameBlurCheck"
+                @press-enter="handleRenameBlurCheck" v-model="newName" placeholder="Please enter new name"
+                allow-clear />
             </template>
           </a-table-column>
           <a-table-column title="Size" data-index="size" :width="180">
@@ -136,8 +157,7 @@ const handleRenameBlurCheck = async () => {
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>{{ record.mtime }}</div>
                 <Options @selected="(k) => {
-  handleRename(k, record)
-                  handleOptionSelected(k, record)
+  handleCellOptionSelected(k, record)
                 }" :record="record" />
               </div>
             </template>
@@ -145,6 +165,9 @@ const handleRenameBlurCheck = async () => {
         </template>
       </a-table>
     </div>
+
+    <!-- MoveToModal -->
+    <MoveToModal v-model:visible="moveToVisible" :src="moveSrc" />
   </div>
 </template>
 
