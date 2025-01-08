@@ -1,8 +1,10 @@
-import { createDir, deleteRes } from "@/ctrls/index";
+import { createDir, deleteRes, downloadDirZip, downloadFile } from "@/ctrls/index";
 import type { MetadataType } from "@/types";
 import { Message } from "@arco-design/web-vue";
-import { DOPTION_VALUES } from "./utils";
+import { DOPTION_VALUES, processStream } from "./utils";
 import { getConfig } from '@/services/index'
+import { PATH_TYPE } from "@/const";
+import path from 'path-browserify';
 
 // todo: 统一处理下请求返回信息
 export async function handleCreateDir(target: string) {
@@ -44,7 +46,18 @@ export const handleOptionSelected = (key: string | number | Record<string, any> 
 		return;
 	}
 	if (key === DOPTION_VALUES.Download) {
-		console.log('download');
+		const dl = async () => {
+			const params = {
+				target: record.path,
+				// offset, size not used
+			}
+			const fn = record.type === PATH_TYPE.DIR ? downloadDirZip : downloadFile
+			const filename = record.type === PATH_TYPE.DIR ? path.basename(record.path) + '.zip' : path.basename(record.path)
+			const res: any = await fn(params)
+			processStream(res.body, filename)
+			// todo: error
+		}
+		dl();
 		return;
 	}
 	if (key === DOPTION_VALUES.Export) {

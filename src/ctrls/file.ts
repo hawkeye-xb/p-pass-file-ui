@@ -27,7 +27,7 @@ export const downloadFile = (data: DownloadFileType) => {
 		params.append('size', data.size.toString())
 	}
 
-	return request(`/file?${params.toString()}`, {
+	return request(`/file/download?${params.toString()}`, {
 		method: 'GET',
 	})
 }

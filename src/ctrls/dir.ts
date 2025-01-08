@@ -30,8 +30,10 @@ export const renameDir = (data: RenameDirType) => {
 	})
 }
 
-export const downloadDirZip = (target: string) => {
-	const url = `/dir/download?target=${target}`
+export const downloadDirZip = (data: {
+	target: string
+}) => {
+	const url = `/dir/download?target=${data.target}`
 	return request(url, {
 		method: 'Get',
 	})
