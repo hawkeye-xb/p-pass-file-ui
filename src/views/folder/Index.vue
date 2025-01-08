@@ -9,6 +9,8 @@ import { handleCreateDir, handleOptionSelected } from './folder'
 import { PATH_TYPE } from '@/const';
 import { Message } from '@arco-design/web-vue';
 import MoveToModal from './MoveToModal.vue';
+import Icon from './Icon.vue';
+import { convertBytes, dateFormat } from '@/utils';
 
 const metadataStore = useMetadatasStore();
 
@@ -139,6 +141,7 @@ const handleCellOptionSelected = (k: string | number | Record<string, any> | und
             <template #cell="{ record }">
               <span v-show="record.ino !== renameRecord?.ino" class="home-view-table-file-name-class"
                 v-on:click="cellClick(record)">
+                <Icon :type="record.type" :path="record.path" />
                 {{ record.name }}
               </span>
               <a-input v-if="record.ino === renameRecord?.ino" ref="inputRef"
@@ -149,13 +152,13 @@ const handleCellOptionSelected = (k: string | number | Record<string, any> | und
           </a-table-column>
           <a-table-column title="Size" data-index="size" :width="180">
             <template #cell="{ record }">
-              {{ record.type === 'directory' ? '-' : record.readableSize }}
+              {{ record.type === 'directory' ? '-' : convertBytes(Number(record.size)) }}
             </template>
           </a-table-column>
           <a-table-column title="Mtime" data-index="mtime" :width="360">
             <template #cell="{ record }">
               <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>{{ record.mtime }}</div>
+                <div>{{ dateFormat(record.mtime) }}</div>
                 <Options @selected="(k) => {
   handleCellOptionSelected(k, record)
                 }" :record="record" />

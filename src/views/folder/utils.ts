@@ -1,3 +1,4 @@
+import { getWatchTargets } from "@/services";
 import { MetadataTypeDefaultValue, type MetadataType } from "@/types";
 
 export enum DOPTION_VALUES { Share, Link, Copy, Paste, Rename, MoveTo, Download, Delete }
@@ -51,4 +52,9 @@ export function processStream(stream: ReadableStream<Uint8Array>, filename: stri
 	pump().catch((error: Error) => {
 		console.error('Error reading stream:', error);
 	});
+}
+
+export function rootPath(target: string): boolean {
+	const roots = getWatchTargets();
+	return roots.includes(target);
 }

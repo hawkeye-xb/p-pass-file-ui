@@ -12,7 +12,8 @@ import {
 	IconPaste,
 } from '@arco-design/web-vue/es/icon';
 import { getConfig } from '@/services/index'
-import { DOPTION_VALUES } from './utils'
+import { DOPTION_VALUES, rootPath } from './utils'
+import { computed } from 'vue';
 
 const trashConfig = getConfig('trash')
 
@@ -35,6 +36,10 @@ const handleSelect: ((value: string | number | Record<string, any> | undefined, 
 		emit('selected', key)
 		return;
 	};
+
+const isRoot = computed(() => {
+	return rootPath(props.record.path)
+});
 </script>
 
 <template>
@@ -45,35 +50,35 @@ const handleSelect: ((value: string | number | Record<string, any> | undefined, 
 				<template #icon>
 					<IconShareInternal />
 				</template>
-				<template #default>Share</template>
+				<template #default>Share (todo)</template>
 			</a-doption>
 			<a-doption :value="DOPTION_VALUES.Link">
 				<template #icon>
 					<IconLink />
 				</template>
-				<template #default>Copy Link</template>
+				<template #default>Copy Link (todo)</template>
 			</a-doption>
 			<a-divider style="margin: 0;" />
 
-			<a-doption :value="DOPTION_VALUES.Copy">
+			<a-doption :value="DOPTION_VALUES.Copy" v-if="!isRoot">
 				<template #icon>
 					<IconCopy />
 				</template>
-				<template #default>Copy</template>
+				<template #default>Copy (todo)</template>
 			</a-doption>
-			<a-doption :value="DOPTION_VALUES.Paste" v-show="props.record.type === 'directory'">
+			<a-doption :value="DOPTION_VALUES.Paste" v-if="props.record.type === 'directory'">
 				<template #icon>
 					<IconPaste />
 				</template>
-				<template #default>Paste</template>
+				<template #default>Paste (todo)</template>
 			</a-doption>
-			<a-doption :value="DOPTION_VALUES.MoveTo">
+			<a-doption :value="DOPTION_VALUES.MoveTo" v-if="!isRoot">
 				<template #icon>
 					<IconExport />
 				</template>
 				<template #default>Move To</template>
 			</a-doption>
-			<a-doption :value="DOPTION_VALUES.Rename">
+			<a-doption :value="DOPTION_VALUES.Rename" v-if="!isRoot">
 				<template #icon>
 					<IconEdit />
 				</template>
@@ -85,9 +90,9 @@ const handleSelect: ((value: string | number | Record<string, any> | undefined, 
 				</template>
 				<template #default>Download</template>
 			</a-doption>
-			<a-divider style="margin: 0;" />
+			<a-divider style="margin: 0;" v-if="!isRoot" />
 
-			<a-doption :value="DOPTION_VALUES.Delete">
+			<a-doption :value="DOPTION_VALUES.Delete" v-if="!isRoot">
 				<template #icon>
 					<IconDelete />
 				</template>
