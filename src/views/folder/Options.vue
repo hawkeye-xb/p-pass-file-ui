@@ -11,10 +11,8 @@ import {
 	IconExport,
 	IconPaste,
 } from '@arco-design/web-vue/es/icon';
-import {
-	deleteRes
-} from '@/ctrls/index'
 import { getConfig } from '@/services/index'
+import { DOPTION_VALUES } from './utils'
 
 const trashConfig = getConfig('trash')
 
@@ -25,59 +23,17 @@ const props = defineProps({
 	}
 });
 
+const emit = defineEmits<{
+	(e: 'selected', message: string | number | Record<string, any> | undefined): void
+}>();
 // todo：把这些操作的代码提取出去，避免创建多份
-enum DOPTION_VALUES { Share, Link, Copy, Paste, Export, Rename, MoveTo, Download, Delete }
 
 const handleSelect: ((value: string | number | Record<string, any> | undefined, ev: Event) => any) | undefined
 	= (key) => {
 		if (key === undefined)
 			return;
-		if (key === DOPTION_VALUES.MoveTo) {
-			console.log('move to');
-			return;
-		}
-		if (key === DOPTION_VALUES.Delete) {
-			const unlink = async () => {
-				const res = await deleteRes({
-					targets: [props.record.path],
-					trash: trashConfig,
-					force: trashConfig
-				})
-				const result = res.json()
-				console.log(result)
-			}
-			unlink();
-			return;
-		}
-		if (key === DOPTION_VALUES.Rename) {
-			console.log('rename');
-			return;
-		}
-		if (key === DOPTION_VALUES.Download) {
-			console.log('download');
-			return;
-		}
-		if (key === DOPTION_VALUES.Export) {
-			console.log('export');
-			return;
-		}
-		if (key === DOPTION_VALUES.Paste) {
-			console.log('paste');
-			return;
-		}
-		if (key === DOPTION_VALUES.Copy) {
-			console.log('copy');
-			return;
-		}
-		if (key === DOPTION_VALUES.Link) {
-			console.log('link');
-			return;
-		}
-		if (key === DOPTION_VALUES.Share) {
-			console.log('share');
-			return;
-		}
-		console.log('unknown');
+		emit('selected', key)
+		return;
 	};
 </script>
 

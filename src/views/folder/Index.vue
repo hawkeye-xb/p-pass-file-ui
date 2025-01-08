@@ -5,7 +5,7 @@ import { MetadataTypeDefaultValue, type MetadataType } from '@/types';
 import Options from './Options.vue';
 import { useMetadatasStore } from '@/stores/metadatas'
 import { getCurrentFolder } from './utils'
-import { handleCreateDir } from './folder'
+import { handleCreateDir, handleOptionSelected } from './folder'
 
 const metadataStore = useMetadatasStore();
 
@@ -89,7 +89,9 @@ const handleCreateDirButtonClick = () => {
             <template #cell="{ record }">
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>{{ record.mtime }}</div>
-                <Options :record="record" />
+                <Options @selected="(k) => {
+                  handleOptionSelected(k, record)
+                }" :record="record" />
               </div>
             </template>
           </a-table-column>
