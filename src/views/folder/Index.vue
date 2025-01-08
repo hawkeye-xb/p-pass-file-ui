@@ -5,15 +5,17 @@ import { MetadataTypeDefaultValue, type MetadataType } from '@/types';
 import Options from './Options.vue';
 import { useMetadatasStore } from '@/stores/metadatas'
 import { DOPTION_VALUES, getCurrentFolder } from './utils'
-import { handleCreateDir, handleOptionSelected } from './folder'
+import { handleCreateDir, handleOptionSelected, unlink } from './folder'
 import { PATH_TYPE } from '@/const';
 import { Message } from '@arco-design/web-vue';
 import MoveToModal from './MoveToModal.vue';
 import Icon from './Icon.vue';
 import { convertBytes, dateFormat } from '@/utils';
+import Footer from './Footer.vue';
 
 const metadataStore = useMetadatasStore();
 
+// breadcrumb
 const breadcrumb: Ref<string[]> = ref([]);
 const resetBreadcrumb = () => {
   breadcrumb.value = [];
@@ -24,12 +26,15 @@ const handleBreadcrumbClick = (name: string) => {
   breadcrumb.value = breadcrumb.value.slice(0, index + 1);
 }
 
+// table
 const data: ComputedRef<MetadataType[]> = computed(() => {
   const currentFolder = getCurrentFolder(metadataStore.metadatas, breadcrumb.value);
   return currentFolder?.children?.map((el) => {
     return { ...el, children: undefined }
   }) || [];
 });
+
+const selectedKeys = ref<number[]>([]);
 
 
 const cellClick = (record: any) => {
@@ -55,7 +60,7 @@ const handleCreateDirButtonClick = () => {
   }
 }
 
-// 重命名
+// rename
 const inputRef = ref<HTMLInputElement | null>(null);
 const newName = ref('')
 const renameRecord = ref<MetadataType | undefined>(undefined)
@@ -98,26 +103,42 @@ const handleRenameBlurCheck = async () => {
   }, 100);
 }
 
+// move src
 const moveToVisible = ref(false)
 const moveSrc = ref<string[]>([])
-const handleMoveTo = (k: string | number | Record<string, any> | undefined, record: MetadataType) => {
+
+// option
+const handleMoveTo = (k: string | number | Record<string, any> | undefined, src: string[]) => {
   if (k !== DOPTION_VALUES.MoveTo) {
     return;
   }
   moveToVisible.value = true;
-  moveSrc.value = [record.path]; // 设置单个，批量操作再设置多个
+  moveSrc.value = src; // 设置单个，批量操作再设置多个
 }
-
-// option
 const handleCellOptionSelected = (k: string | number | Record<string, any> | undefined, record: any) => {
-  handleMoveTo(k, record)
+  handleMoveTo(k, [record.path])
   handleRename(k, record)
   handleOptionSelected(k, record)
+}
+
+// footer
+const handleBatchOptions = (action: DOPTION_VALUES) => {
+  const selectedValue = data.value.filter((el) => selectedKeys.value.includes(el.ino));
+
+  if (action === DOPTION_VALUES.Delete) {
+    unlink(selectedValue.map(el => el.path));
+  }
+  if (action === DOPTION_VALUES.MoveTo) {
+    moveToVisible.value = true;
+    moveSrc.value = selectedValue.map(el => el.path);
+  }
+
+  selectedKeys.value = [];
 }
 </script>
 
 <template>
-  <div>
+  <div style="position: relative">
     <a-space>
       <a-button type="primary" @click="beforeUploadFile">Upload File</a-button>
       <a-button v-on:click="handleCreateDirButtonClick" :disabled="breadcrumb.length === 0">Create Dir</a-button>
@@ -135,9 +156,17 @@ const handleCellOptionSelected = (k: string | number | Record<string, any> | und
       </a-breadcrumb>
 
       <!-- dir 还是得提取出来，在move的时候需要，分不同风格的视图 -->
-      <a-table :data="data">
+      <a-table :data="data" row-key="ino" :row-selection="{
+        type: 'checkbox',
+        showCheckedAll: true,
+        onlyCurrent: true,
+      }" :pagination="{
+        defaultPageSize: 15
+      }" v-model:selectedKeys="selectedKeys">
         <template #columns>
-          <a-table-column title="Name" data-index="mtime">
+          <a-table-column title="Name" data-index="mtime" :sortable="{
+            sortDirections: ['descend', 'ascend'],
+          }">
             <template #cell="{ record }">
               <span v-show="record.ino !== renameRecord?.ino" class="home-view-table-file-name-class"
                 v-on:click="cellClick(record)">
@@ -150,12 +179,16 @@ const handleCellOptionSelected = (k: string | number | Record<string, any> | und
                 allow-clear />
             </template>
           </a-table-column>
-          <a-table-column title="Size" data-index="size" :width="180">
+          <a-table-column title="Size" data-index="size" :width="180" :sortable="{
+            sortDirections: ['descend', 'ascend'],
+          }">
             <template #cell="{ record }">
               {{ record.type === 'directory' ? '-' : convertBytes(Number(record.size)) }}
             </template>
           </a-table-column>
-          <a-table-column title="Mtime" data-index="mtime" :width="360">
+          <a-table-column title="Mtime" data-index="mtime" :width="360" :sortable="{
+            sortDirections: ['descend', 'ascend'],
+          }">
             <template #cell="{ record }">
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>{{ dateFormat(record.mtime) }}</div>
@@ -171,6 +204,7 @@ const handleCellOptionSelected = (k: string | number | Record<string, any> | und
 
     <!-- MoveToModal -->
     <MoveToModal v-model:visible="moveToVisible" :src="moveSrc" />
+    <Footer v-show="selectedKeys.length > 0" @selected="handleBatchOptions" />
   </div>
 </template>
 

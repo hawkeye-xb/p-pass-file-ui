@@ -44,8 +44,5 @@ async function updateMetadatas() {
 .index-layout {
   display: flex;
   height: 100%;
-
-  padding-top: 80px;
-  padding-right: 24px;
 }
 </style>

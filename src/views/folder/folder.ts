@@ -19,26 +19,26 @@ export async function handleCreateDir(target: string) {
 	}
 }
 
+export const unlink = async (targets: string[]) => {
+	const trashConfig = getConfig('trash')
+	const res = await deleteRes({
+		targets,
+		trash: trashConfig,
+		force: trashConfig
+	})
+	const result = await res.json()
+	if (res.status !== 200 || result.code !== 0) {
+		Message.error(result.message);
+		return;
+	}
+}
 export const handleOptionSelected = (key: string | number | Record<string, any> | undefined, record: MetadataType) => {
 	if (key === DOPTION_VALUES.MoveTo) {
 		console.log('move to');
 		return;
 	}
 	if (key === DOPTION_VALUES.Delete) {
-		const unlink = async () => {
-			const trashConfig = getConfig('trash')
-			const res = await deleteRes({
-				targets: [record.path],
-				trash: trashConfig,
-				force: trashConfig
-			})
-			const result = await res.json()
-			if (res.status !== 200 || result.code !== 0) {
-				Message.error(result.message);
-				return;
-			}
-		}
-		unlink();
+		unlink([record.path]);
 		return;
 	}
 	if (key === DOPTION_VALUES.Rename) {
