@@ -3,11 +3,18 @@ import { RouterView } from 'vue-router'
 import Menu from '@/components/menu/Index.vue'
 import { initWatchTargets, ws } from '@/services/index'
 import { useMetadatasStore } from '@/stores/metadatas'
-import { getWatchTargetsMetadata } from '@/ctrls/index'
+import { getTransportItem, getWatchTargetsMetadata, TransportDirection } from '@/ctrls/index'
+import { useDownloadStore } from '@/stores/download'
 
 const metadataStore = useMetadatasStore();
+const downloadStore = useDownloadStore();
 
-initWatchTargets()  // 初始化需要监听的 Dir
+// 初始化现在信息
+const downloadItems = getTransportItem(TransportDirection.download)
+downloadStore.resetDownload(downloadItems)
+
+// 初始化需要监听的 Dir
+initWatchTargets()
 ws.onmessage = (event) => {
   debounceUpdateMetadatas();
 };

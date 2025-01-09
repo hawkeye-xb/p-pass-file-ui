@@ -9,6 +9,7 @@ export enum TransportStatus {
 	'paused' = 2, // 暂停
 	'finished' = 3, // 完成
 	'failed' = 4, // 失败
+	'cancelled' = 5, // 取消
 }
 export interface TransportItemType {
 	id: string, // 唯一标识
@@ -17,6 +18,7 @@ export interface TransportItemType {
 	stime: number, // 开始时间
 	etime: number, // 结束时间
 	status: TransportStatus, // 状态
+	children?: TransportItemType[], // 子项
 }
 
 export enum TransportDirection {
