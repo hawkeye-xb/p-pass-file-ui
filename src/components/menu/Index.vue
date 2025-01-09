@@ -3,6 +3,7 @@ import {
   IconFolder,
   IconSettings,
   IconApps,
+  IconSwap,
 } from '@arco-design/web-vue/es/icon';
 import { useRouter } from 'vue-router';
 
@@ -15,7 +16,7 @@ const Router = useRouter();
       width: '200px',
       height: '100%',
     }" show-collapse-button breakpoint="xl">
-    <a-menu-item key="conn" v-on:click="() => { }">
+    <a-menu-item key="conn" v-on:click="() => { Router.push('/connections') }">
       <template #icon>
         <IconApps></IconApps>
       </template>
@@ -26,6 +27,12 @@ const Router = useRouter();
         <IconFolder></IconFolder>
       </template>
       Folder
+    </a-menu-item>
+    <a-menu-item key="transport" v-on:click="() => { Router.push('/transport') }">
+      <template #icon>
+        <IconSwap></IconSwap>
+      </template>
+      Transport
     </a-menu-item>
     <a-menu-item key="settings" v-on:click="() => { Router.push('/settings') }">
       <template #icon>

@@ -79,6 +79,7 @@ const handleTrashConfigChange = (value: string | number | boolean) => {
 			<a-switch :model-value="trash" type="round" @change="handleTrashConfigChange" />
 		</div>
 
+		<div>Download Number:</div>
 		<a-modal v-model:visible="visible" title="Add Watch Target" @cancel="handleCancel" @before-ok="handleBeforeOk">
 			<a-form :model="form" :ref="formRef">
 				<a-form-item field="target" label="Target" :rules="[
