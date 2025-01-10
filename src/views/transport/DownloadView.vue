@@ -5,7 +5,10 @@ import { useDownloadStore } from '@/stores/download';
 import { computed, ref } from 'vue';
 import {
 	IconDelete,
+	IconClose,
 	IconFolder,
+	IconPause,
+	IconPlayArrow,
 } from '@arco-design/web-vue/es/icon';
 import { convertBytes } from '@/utils';
 
@@ -27,7 +30,20 @@ function filterEmptyDir(items: DownloadItemType[]) {
 	});
 }
 const data = computed(() => {
-	return filterEmptyDir(downloadStore.download);
+	const res = filterEmptyDir(downloadStore.download);
+	const syncStatus = (items: DownloadItemType[]) => {
+		items.forEach((item) => {
+			const matchedItem = downloadStore.downloadQueue.find((el) => el.id === item.id);
+			if (matchedItem) {
+				item.status = matchedItem.status;
+			}
+			if (item.children) {
+				syncStatus(item.children);
+			}
+		})
+	};
+	syncStatus(res)
+	return res;
 })
 
 const selectedKeys = ref<number[]>([]);
@@ -78,22 +94,34 @@ const handleProgressText = (status: DownloadStatus) => {
 						{{ record.metadata.name }}
 					</template>
 				</a-table-column>
-				<a-table-column title="Size" data-index="size" :width="120">
+				<a-table-column title="Size" data-index="size" :width="200">
 					<template #cell="{ record }">
 						<div class="size-cell">
 							<a-space class="hover-hook">
-								<a-tooltip content="Show in folder">
+								<a-tooltip content="Show in folder(todo)">
 									<IconFolder class="icon" />
 								</a-tooltip>
-								<a-tooltip content="Delete from download history">
+								<a-tooltip content="Delete from download history"
+									v-if="record.status === DownloadStatus.finished || record.status === DownloadStatus.cancelled">
 									<IconDelete class="icon" />
+								</a-tooltip>
+								<a-tooltip content="Pause download" v-if="record.status === DownloadStatus.transporting">
+									<IconPause class="icon" @click="downloadStore.hold(record.id)" />
+								</a-tooltip>
+								<a-tooltip content="Resume download"
+									v-if="record.status === DownloadStatus.holded || record.status === DownloadStatus.paused">
+									<IconPlayArrow class="icon" @click="downloadStore.resume(record.id)" />
+								</a-tooltip>
+								<a-tooltip content="Cancel download"
+									v-if="record.status !== DownloadStatus.finished && record.status !== DownloadStatus.cancelled">
+									<IconClose class="icon" @click="downloadStore.cancel(record.id)" />
 								</a-tooltip>
 							</a-space>
 							<span class="hover-hook-span">{{
 								record.metadata.type === PATH_TYPE.DIR
-									? '-'
-									: `0 / ${convertBytes(record.metadata.size)}`
-							}}</span>
+								? '-'
+								: `0 / ${convertBytes(record.metadata.size)}`
+								}}</span>
 						</div>
 					</template>
 				</a-table-column>
@@ -136,7 +164,7 @@ const handleProgressText = (status: DownloadStatus) => {
 	justify-content: space-between;
 	align-items: center;
 	position: relative;
-	width: 88px;
+	/* width: 88px; */
 	height: 22px;
 }
 
