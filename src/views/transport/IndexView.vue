@@ -12,7 +12,7 @@ const Route = useRoute();
 			<div class="transport-layout-header-upload" :class="{ active: Route.path === '/transport/upload' }">
 				<span @click="Router.push('/transport/upload')">Upload</span>
 			</div>
-			<!-- <a-divider direction="vertical" /> -->
+			<a-divider direction="vertical" style="margin: 0;" />
 			<div class="transport-layout-header-download" :class="{ active: Route.path === '/transport/download' }">
 				<span @click="Router.push('/transport/download')">Download</span>
 			</div>
@@ -31,7 +31,13 @@ const Route = useRoute();
 .transport-layout-header {
 	display: flex;
 	height: 40px;
-		border-bottom: 1px solid var(--color-neutral-3);
+	border-bottom: 1px solid var(--color-neutral-3);
+}
+.transport-layout-header span {
+	height: 100%;
+	display: flex;
+	align-items: center;
+	cursor: pointer;
 }
 
 .transport-layout-header-upload,
@@ -43,15 +49,14 @@ const Route = useRoute();
 	justify-content: center;
 	align-items: center;
 	font-weight: 500;
-	cursor: pointer;
+	
 }
-.transport-layout-header-upload:hover,
-.transport-layout-header-download:hover {
+.transport-layout-header span:hover {
 	color: rgb(var(--primary-5));
 	}
 	
-	.transport-layout-header-upload.active,
-	.transport-layout-header-download.active {
+.transport-layout-header-upload.active,
+.transport-layout-header-download.active {
 	color: rgb(var(--primary-6));
 }
 </style>

@@ -1,6 +1,5 @@
 const WS_URL = "ws://localhost:3000/ws";
 
-console.log("Connecting to server...");
 export const ws = new WebSocket(WS_URL);
 
 ws.onopen = () => {
