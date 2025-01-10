@@ -37,18 +37,18 @@ interface DownloadQueueType {
 }
 const downloadQueue: DownloadQueueType[] = [];
 
-export function generateDownloadItem(record: MetadataType, savePath?: string): TransportItemType;
-export function generateDownloadItem(record: MetadataType, savePath?: string): TransportItemType | undefined;
-export function generateDownloadItem(record: MetadataType, savePath?: string): TransportItemType | undefined {
-	if (record.type === PATH_TYPE.DIR && !savePath) {
+export function generateDownloadItem(record: MetadataType, savedPath?: string): TransportItemType;
+export function generateDownloadItem(record: MetadataType, savedPath?: string): TransportItemType | undefined;
+export function generateDownloadItem(record: MetadataType, savedPath?: string): TransportItemType | undefined {
+	if (record.type === PATH_TYPE.DIR && !savedPath) {
 		// todo: 先不支持，使用客户端吧。
 		return undefined;
 	}
 
 	const item: TransportItemType = {
 		id: uuidv4(),
-		metadata: { ...record, children: undefined },
-		savePath: savePath || '',
+		metadata: { ...record },
+		savedPath: savedPath || '',
 		stime: 0,
 		etime: 0,
 		status: TransportStatus.waiting,
@@ -57,17 +57,19 @@ export function generateDownloadItem(record: MetadataType, savePath?: string): T
 	// 业务拦截
 	downloadQueue.push({
 		name: record.name,
-		target: savePath || '',
+		target: savedPath || '',
 		type: record.type,
 		size: record.size,
 		status: TransportStatus.waiting,
 	});
 
 	if (record.children) {
-		const targetPath = path.join(savePath || '', record.name);
+		const targetPath = path.join(savedPath || '', record.name);
 		item.children = record.children
 			.map(child => generateDownloadItem(child, targetPath))
 			.filter((child): child is TransportItemType => child !== undefined)
+
+		item.metadata.children = undefined;
 	}
 
 	return item;

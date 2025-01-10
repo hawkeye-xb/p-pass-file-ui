@@ -14,7 +14,7 @@ export enum TransportStatus {
 export interface TransportItemType {
 	id: string, // 唯一标识
 	metadata: MetadataType, // 基本的元数据信息
-	savePath: string, // 保存的路径；用于跳转到目录，如果是存储侧则可以跳转到文件夹; 有这个是不是就可以终止续传了
+	savedPath: string, // 保存的路径；用于跳转到目录，如果是存储侧则可以跳转到文件夹; 有这个是不是就可以终止续传了
 	stime: number, // 开始时间
 	etime: number, // 结束时间
 	status: TransportStatus, // 状态

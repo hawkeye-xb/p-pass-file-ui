@@ -12,8 +12,10 @@ import MoveToModal from './MoveToModal.vue';
 import Icon from './Icon.vue';
 import { convertBytes, dateFormat } from '@/utils';
 import Footer from './Footer.vue';
+import { useDownloadStore } from '@/stores/download';
 
 const metadataStore = useMetadatasStore();
+const downloadStore = useDownloadStore();
 
 // breadcrumb
 const breadcrumb: Ref<string[]> = ref([]);
@@ -115,9 +117,19 @@ const handleMoveTo = (k: string | number | Record<string, any> | undefined, src:
   moveToVisible.value = true;
   moveSrc.value = src; // 设置单个，批量操作再设置多个
 }
+const handleDownload = (k: string | number | Record<string, any> | undefined, record: MetadataType) => {
+  if (k !== DOPTION_VALUES.Download) {
+    return;
+  }
+  downloadStore.createDownloadTask(record, '/Users/lixixi/Downloads');
+}
 const handleCellOptionSelected = (k: string | number | Record<string, any> | undefined, record: any) => {
+  const currentFolder = getCurrentFolder(metadataStore.metadatas, breadcrumb.value);
+  const srcRecord = currentFolder.children?.find((el) => el.ino === record.ino);
+
   handleMoveTo(k, [record.path])
   handleRename(k, record)
+  srcRecord && handleDownload(k, srcRecord)
   handleOptionSelected(k, record)
 }
 

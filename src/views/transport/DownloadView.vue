@@ -1,37 +1,46 @@
 <script setup lang="ts">
+import { PATH_TYPE } from '@/const';
 import { TransportStatus, type TransportItemType } from '@/ctrls';
-import { ref } from 'vue';
+import { useDownloadStore } from '@/stores/download';
+import { computed, ref } from 'vue';
+import {
+	IconDelete,
+	IconFolder,
+} from '@arco-design/web-vue/es/icon';
 
-const data = ref([
-	{
-		id: '1',
-		metadata: {
-			ctime: "2023-01-08T11:02:02.883Z",
-			ino: 142583371,
-			mtime: "2025-01-08T11:02:02.883Z",
-			name: "NAS",
-			parent: null,
-			path: "/Users/lixixi/github/my-network-disk/file-server/NAS",
-			size: 640,
-			type: "directory",
-		},
-		savePath: 'string', // 保存的路径；用于跳转到目录，如果是存储侧则可以跳转到文件夹; 有这个是不是就可以终止续传了
-		stime: 1, // 开始时间
-		etime: 1, // 结束时间
-		status: TransportStatus.cancelled, // 状态
-	},
-])
+const downloadStore = useDownloadStore();
+
+function filterEmptyDir(items: TransportItemType[]) {
+	return items.filter((item) => {
+		if (item.metadata.type === PATH_TYPE.DIR) {
+			if (!item.children || item.children.length === 0) {
+				return false;
+			} else {
+				item.children = filterEmptyDir(item.children);
+			}
+		}
+		return true;
+	});
+}
+const data = computed(() => {
+	return filterEmptyDir(downloadStore.download);
+})
+
 const selectedKeys = ref<number[]>([]);
 </script>
 <template>
 	<div>
-		<div>
-			<span>Process(13)</span>
-			<span>Finished(100)</span>
-			<span>Total Progrss: 10%</span>
-			<span>Speed: 100KB/s</span>
+		<div class="download-view-table-top">
+			<a-space>
+				<span>Process(13)</span>
+				<span>Finished(100)</span>
+			</a-space>
+			<a-space>
+				<span>Total Progrss: 10%</span>
+				<span>Speed: 100KB/s</span>
+			</a-space>
 		</div>
-		<a-table :data="data" row-key="ino" :row-selection="{
+		<a-table :data="data" row-key="id" :row-selection="{
 			type: 'checkbox',
 			showCheckedAll: true,
 			onlyCurrent: true,
@@ -44,15 +53,25 @@ const selectedKeys = ref<number[]>([]);
 						{{ record.metadata.name }}
 					</template>
 				</a-table-column>
-				<a-table-column title="Size" data-index="size">
+				<a-table-column title="Size" data-index="size" :width="120">
 					<template #cell="{ record }">
-						{{ 'readed / total' }}
+						<div class="size-cell">
+							<a-space class="hover-hook">
+								<a-tooltip content="Show in folder">
+									<IconFolder class="icon" />
+								</a-tooltip>
+								<a-tooltip content="Delete from download history">
+									<IconDelete class="icon" />
+								</a-tooltip>
+							</a-space>
+							<span class="hover-hook-span">{{ record.metadata.type === PATH_TYPE.DIR ? '-' : 'readed / total' }}</span>
+						</div>
 					</template>
 				</a-table-column>
-				<a-table-column title="Status" data-index="status">
+				<a-table-column title="Status" data-index="status" :width="280">
 					<template #cell="{ record }">
 						<!-- {{ record.status }} -->
-						<div>
+						<div v-if="record.metadata.type !== PATH_TYPE.DIR">
 							<a-progress :percent="0.8">
 								<template v-slot:text="scope">
 									downloading
@@ -65,3 +84,51 @@ const selectedKeys = ref<number[]>([]);
 		</a-table>
 	</div>
 </template>
+
+<style scoped>
+.download-view-table-top {
+	color: var(--color-text-2);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	height: 32px;
+}
+
+.icon {
+	cursor: pointer;
+}
+
+.icon:hover {
+	color: rgb(var(--primary-5));
+}
+
+.size-cell {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	position: relative;
+	width: 88px;
+	height: 22px;
+}
+
+.hover-hook {
+	display: none;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+}
+
+.size-cell:hover .hover-hook {
+	display: flex;
+}
+
+.hover-hook-span {
+	display: block;
+}
+
+.size-cell:hover .hover-hook-span {
+	display: none;
+}
+</style>
