@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
 import { addWatchTarget, removeWatchTarget, getWatchTargets, getConfig, setConfig } from '@/services/index';
-import { IconDelete, IconRefresh } from '@arco-design/web-vue/es/icon';
+import { IconDelete, IconRefresh, IconEdit, IconCopy } from '@arco-design/web-vue/es/icon';
 
 const targets = ref([])
 
@@ -45,6 +45,11 @@ const handleTrashConfigChange = (value: string | number | boolean) => {
 	setConfig('trash', Boolean(value))
 }
 
+const deviceId = ref('')
+deviceId.value = getConfig('deviceId') || '';
+
+const downloadPath = ref('')
+downloadPath.value = getConfig('downloadPath') || '';
 </script>
 <template>
 	<div style="padding-top: 24px;">
@@ -54,11 +59,6 @@ const handleTrashConfigChange = (value: string | number | boolean) => {
 				<div>{{ target }}</div>
 			</div>
 			<a-space class="settings-list-item-options">
-				<!-- <a-button>
-						<template #icon>
-							<IconRefresh />
-						</template>
-</a-button> -->
 				<a-button @click="handleRemove(target)">
 					<template #icon>
 						<IconDelete />
@@ -74,6 +74,25 @@ const handleTrashConfigChange = (value: string | number | boolean) => {
 		</div>
 
 		<a-divider />
+
+		<div class="settings-list-item">
+			<div class="settings-list-item-label">Device Id</div>
+			<div class="settings-list-item-content">
+				<div>{{ deviceId }}</div>
+			</div>
+			<a-space class="settings-list-item-options">
+				<a-tooltip content="Edit"><a-button><template #icon>
+							<IconEdit />
+						</template></a-button></a-tooltip>
+				<a-tooltip content="Refresh"><a-button><template #icon>
+							<IconRefresh />
+						</template></a-button></a-tooltip>
+				<a-tooltip content="Copy"><a-button><template #icon>
+							<IconCopy />
+						</template></a-button></a-tooltip>
+			</a-space>
+		</div>
+
 		<div class="settings-list-item">
 			<div class="settings-list-item-label">Move To Trash</div>
 			<a-switch :model-value="trash" type="round" @change="handleTrashConfigChange" />
@@ -86,7 +105,10 @@ const handleTrashConfigChange = (value: string | number | boolean) => {
 
 		<div class="settings-list-item">
 			<div class="settings-list-item-label">Download Path</div>
-			<a-input default-value="/Users/lixixi/Downloads" style="max-width: 800px;"></a-input>
+			<div class="settings-list-item-content">
+				<div>{{ downloadPath }}</div>
+			</div>
+			<!-- <a-input default-value="/Users/lixixi/Downloads" style="max-width: 800px;"></a-input> -->
 		</div>
 		<a-modal v-model:visible="visible" title="Add Watch Target" @cancel="handleCancel" @before-ok="handleBeforeOk">
 			<a-form :model="form" :ref="formRef">
@@ -94,8 +116,7 @@ const handleTrashConfigChange = (value: string | number | boolean) => {
 					{
 						required: true,
 						message: 'Please input target!',
-					}
-					// todo: check target is path
+	}
 				]">
 					<a-input v-model="form.target" />
 				</a-form-item>
@@ -127,7 +148,7 @@ const handleTrashConfigChange = (value: string | number | boolean) => {
 	display: flex;
 	align-items: center;
 	flex: 1;
-	max-width: 800px;
+	max-width: 640px;
 	box-sizing: border-box;
 }
 

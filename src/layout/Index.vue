@@ -7,6 +7,14 @@ import { getDownloadItems, getDownloadQueueItems, getWatchTargetsMetadata } from
 import { useDownloadStore } from '@/stores/download'
 import { useLinkStore } from '@/stores/link'
 import StatusBar from '@/components/LayoutHeaderStatusBar.vue'
+import { v4 as uuidv4 } from 'uuid';
+import { getConfig, setConfig } from '@/services/index'
+import { IconSettings, IconUser } from '@arco-design/web-vue/es/icon';
+
+// init deviceId
+const deviceId = getConfig('deviceId') || uuidv4();
+setConfig('deviceId', deviceId)
+console.log('deviceId: ', deviceId)
 
 const metadataStore = useMetadatasStore();
 const downloadStore = useDownloadStore();

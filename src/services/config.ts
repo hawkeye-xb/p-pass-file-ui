@@ -1,9 +1,13 @@
 interface ConfigType {
-	trash: boolean
+	trash: boolean,
+	deviceId: string,
+	downloadPath: string,
 }
 
 const configDefaultValue: ConfigType = {
-	trash: true
+	trash: true,
+	deviceId: '',
+	downloadPath: '/Users/lixixi/Downloads', // todo, remove
 }
 
 const STORAGE_ITEM = 'systemConfig'
@@ -23,7 +27,7 @@ export function getConfig<K extends keyof ConfigType>(key?: K): ConfigType | Con
 	}
 
 	if (key) {
-		return cfg[key] || undefined;
+		return cfg[key] || configDefaultValue[key] || undefined;
 	}
 
 	return cfg;
