@@ -3,15 +3,15 @@ import { RouterView } from 'vue-router'
 import Menu from '@/components/menu/Index.vue'
 import { initWatchTargets, ws } from '@/services/index'
 import { useMetadatasStore } from '@/stores/metadatas'
-import { getTransportItem, getWatchTargetsMetadata, TransportDirection } from '@/ctrls/index'
+import { getDownloadItems, getDownloadQueueItems, getWatchTargetsMetadata } from '@/ctrls/index'
 import { useDownloadStore } from '@/stores/download'
 
 const metadataStore = useMetadatasStore();
 const downloadStore = useDownloadStore();
 
 // 初始化现在信息
-const downloadItems = getTransportItem(TransportDirection.download)
-downloadStore.resetDownload(downloadItems)
+downloadStore.resetDownload(getDownloadItems())
+downloadStore.resetDownloadQueue(getDownloadQueueItems())
 
 // 初始化需要监听的 Dir
 initWatchTargets()

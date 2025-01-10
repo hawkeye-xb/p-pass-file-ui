@@ -23,51 +23,38 @@ Scheduler:
 */
 
 import { v4 as uuidv4 } from "uuid";
-import { TransportStatus, type TransportItemType } from "@/ctrls";
+import { DownloadStatus, type DownloadItemType } from "@/ctrls";
 import type { MetadataType } from "@/types";
 import { PATH_TYPE } from "@/const";
 import path from 'path-browserify';
 
-interface DownloadQueueType {
-	name: string, // 如果当前是目录，创建目录的名称；如果是文件，上传的文件名称
-	target: string, // 目标路径; 只能是目录
-	type: string, // PATH_TYPE
-	size: number, // 文件大小
-	status: TransportStatus, // 状态
-}
-const downloadQueue: DownloadQueueType[] = [];
-
-export function generateDownloadItem(record: MetadataType, savedPath?: string): TransportItemType;
-export function generateDownloadItem(record: MetadataType, savedPath?: string): TransportItemType | undefined;
-export function generateDownloadItem(record: MetadataType, savedPath?: string): TransportItemType | undefined {
+// export function generateDownloadItem(record: MetadataType, savedPath?: string): DownloadItemType;
+// export function generateDownloadItem(record: MetadataType, savedPath?: string): DownloadItemType | undefined;
+export function generateDownloadItem(record: MetadataType, savedPath: string, onCreate?: (p: DownloadItemType) => void): DownloadItemType | undefined {
 	if (record.type === PATH_TYPE.DIR && !savedPath) {
 		// todo: 先不支持，使用客户端吧。
 		return undefined;
 	}
 
-	const item: TransportItemType = {
+	const item: DownloadItemType = {
 		id: uuidv4(),
 		metadata: { ...record },
 		savedPath: savedPath || '',
 		stime: 0,
 		etime: 0,
-		status: TransportStatus.waiting,
+		status: DownloadStatus.waiting,
 	}
 
 	// 业务拦截
-	downloadQueue.push({
-		name: record.name,
-		target: savedPath || '',
-		type: record.type,
-		size: record.size,
-		status: TransportStatus.waiting,
-	});
+	if (onCreate) {
+		onCreate(item);
+	}
 
 	if (record.children) {
 		const targetPath = path.join(savedPath || '', record.name);
 		item.children = record.children
-			.map(child => generateDownloadItem(child, targetPath))
-			.filter((child): child is TransportItemType => child !== undefined)
+			.map(child => generateDownloadItem(child, targetPath, onCreate))
+			.filter((child): child is DownloadItemType => child !== undefined)
 
 		item.metadata.children = undefined;
 	}

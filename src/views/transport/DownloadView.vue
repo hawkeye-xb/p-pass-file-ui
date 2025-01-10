@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PATH_TYPE } from '@/const';
-import { TransportStatus, type TransportItemType } from '@/ctrls';
+import { type DownloadItemType } from '@/ctrls';
 import { useDownloadStore } from '@/stores/download';
 import { computed, ref } from 'vue';
 import {
@@ -10,13 +10,16 @@ import {
 
 const downloadStore = useDownloadStore();
 
-function filterEmptyDir(items: TransportItemType[]) {
+function filterEmptyDir(items: DownloadItemType[]) {
 	return items.filter((item) => {
 		if (item.metadata.type === PATH_TYPE.DIR) {
 			if (!item.children || item.children.length === 0) {
 				return false;
 			} else {
 				item.children = filterEmptyDir(item.children);
+				if (item.children.length === 0) {
+					return false;
+				}
 			}
 		}
 		return true;
