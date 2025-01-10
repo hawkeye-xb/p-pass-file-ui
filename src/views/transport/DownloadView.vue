@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { PATH_TYPE } from '@/const';
-import { type DownloadItemType } from '@/ctrls';
+import { DownloadStatus, type DownloadItemType } from '@/ctrls';
 import { useDownloadStore } from '@/stores/download';
 import { computed, ref } from 'vue';
 import {
 	IconDelete,
 	IconFolder,
 } from '@arco-design/web-vue/es/icon';
+import { convertBytes } from '@/utils';
 
 const downloadStore = useDownloadStore();
 
@@ -30,6 +31,27 @@ const data = computed(() => {
 })
 
 const selectedKeys = ref<number[]>([]);
+
+const handleProgressText = (status: DownloadStatus) => {
+	switch (status) {
+		case DownloadStatus.waiting:
+			return 'Waiting';
+		case DownloadStatus.transporting:
+			return 'Transporting';
+		case DownloadStatus.paused:
+			return 'Paused';
+		case DownloadStatus.holded:
+			return 'Holded';
+		case DownloadStatus.cancelled:
+			return 'Cancelled';
+		case DownloadStatus.failed:
+			return 'Failed';
+		case DownloadStatus.finished:
+			return 'Finished';
+		default:
+			return '';
+	}
+}
 </script>
 <template>
 	<div>
@@ -67,19 +89,23 @@ const selectedKeys = ref<number[]>([]);
 									<IconDelete class="icon" />
 								</a-tooltip>
 							</a-space>
-							<span class="hover-hook-span">{{ record.metadata.type === PATH_TYPE.DIR ? '-' : 'readed / total' }}</span>
+							<span class="hover-hook-span">{{
+								record.metadata.type === PATH_TYPE.DIR
+									? '-'
+									: `0 / ${convertBytes(record.metadata.size)}`
+							}}</span>
 						</div>
 					</template>
 				</a-table-column>
 				<a-table-column title="Status" data-index="status" :width="280">
 					<template #cell="{ record }">
-						<!-- {{ record.status }} -->
 						<div v-if="record.metadata.type !== PATH_TYPE.DIR">
-							<a-progress :percent="0.8">
-								<template v-slot:text="scope">
-									downloading
-								</template>
+
+							<a-progress :percent="0.8" v-if="record.status === DownloadStatus.transporting">
+								<!-- <template v-slot:text="scope">
+								</template> -->
 							</a-progress>
+							<span v-else>{{ handleProgressText(record.status) }}</span>
 						</div>
 					</template>
 				</a-table-column>

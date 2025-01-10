@@ -15,7 +15,7 @@ export function convertBytes(bytes: number): string {
 	} else if (kb >= 1) {
 		return `${kb.toFixed(2)} KB`;
 	} else {
-		return `${bytes} Bytes`;
+		return `${bytes} B`;
 	}
 }
 
