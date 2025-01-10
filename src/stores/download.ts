@@ -9,13 +9,10 @@ import { ref } from "vue";
 
 export const useDownloadStore = defineStore("download", () => {
 	const download = ref<TransportItemType[]>([]);
-
 	const resetDownload = (items?: TransportItemType[]) => {
 		download.value = items || []
 	}
-
 	const updateToStorage = () => {
-		// 任何操作都更新本地存储
 		setTransportAllItem(TransportDirection.download, download.value)
 	}
 

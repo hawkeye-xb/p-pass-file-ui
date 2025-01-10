@@ -42,8 +42,11 @@ async function updateMetadatas() {
 
 <template>
   <div class="index-layout">
-    <Menu />
-    <RouterView style="flex: 1;" />
+    <div class="index-layout-header">Header</div>
+    <div class="index-layout-body">
+      <Menu style="border-right: 1px solid var(--color-neutral-3)" />
+      <RouterView style="flex: 1;" />
+    </div>
   </div>
 </template>
 
@@ -51,5 +54,18 @@ async function updateMetadatas() {
 .index-layout {
   display: flex;
   height: 100%;
+  flex-direction: column;
+  }
+  
+  .index-layout-header {
+    box-sizing: border-box;
+    height: 64px;
+    /* background-color: var(--color-neutral-3); */
+    border-bottom: 1px solid var(--color-neutral-3);
+  }
+  
+  .index-layout-body {
+    flex: 1;
+    display: flex;
 }
 </style>

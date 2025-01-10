@@ -138,24 +138,22 @@ const handleBatchOptions = (action: DOPTION_VALUES) => {
 </script>
 
 <template>
-  <div style="position: relative">
+  <div style="position: relative; margin: 8px 16px;">
     <a-space>
       <a-button type="primary" @click="beforeUploadFile">Upload File</a-button>
       <a-button v-on:click="handleCreateDirButtonClick" :disabled="breadcrumb.length === 0">Create Dir</a-button>
     </a-space>
 
-    <a-divider />
-
     <div class="dir-main">
       <a-breadcrumb>
-        <a-breadcrumb-item v-on:click="resetBreadcrumb">Root</a-breadcrumb-item>
-        <a-breadcrumb-item v-for="name in breadcrumb" :key="name" class="home-view-table-breadcrumb-class"
-          v-on:click="handleBreadcrumbClick(name)">
-          {{ name }}
+        <a-breadcrumb-item v-on:click="resetBreadcrumb">
+          <span class="home-view-table-breadcrumb-class">Roots</span>
+        </a-breadcrumb-item>
+        <a-breadcrumb-item v-for="name in breadcrumb" :key="name" v-on:click="handleBreadcrumbClick(name)">
+          <span class="home-view-table-breadcrumb-class">{{ name }}</span>
         </a-breadcrumb-item>
       </a-breadcrumb>
 
-      <!-- dir 还是得提取出来，在move的时候需要，分不同风格的视图 -->
       <a-table :data="data" row-key="ino" :row-selection="{
         type: 'checkbox',
         showCheckedAll: true,
@@ -164,7 +162,7 @@ const handleBatchOptions = (action: DOPTION_VALUES) => {
         defaultPageSize: 15
       }" v-model:selectedKeys="selectedKeys">
         <template #columns>
-          <a-table-column title="Name" data-index="mtime" :sortable="{
+          <a-table-column title="Name" data-index="name" :sortable="{
             sortDirections: ['descend', 'ascend'],
           }">
             <template #cell="{ record }">
@@ -209,5 +207,5 @@ const handleBatchOptions = (action: DOPTION_VALUES) => {
 </template>
 
 <style scoped>
-@import url('./index.css')
+@import url('./index.css');
 </style>

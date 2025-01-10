@@ -1,4 +1,6 @@
-
+.dir-main {
+  margin-top: 24px;
+}
 .arco-table-td-content .home-view-table-file-name-class,
 .arco-breadcrumb .home-view-table-breadcrumb-class {
   cursor: pointer;

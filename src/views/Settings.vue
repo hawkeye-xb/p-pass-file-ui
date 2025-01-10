@@ -47,7 +47,7 @@ const handleTrashConfigChange = (value: string | number | boolean) => {
 
 </script>
 <template>
-	<div>
+	<div style="padding-top: 24px;">
 		<div v-for="target in targets" :key="target" class="settings-list-item">
 			<div class="settings-list-item-label">Watch Target:</div>
 			<div class="settings-list-item-content">
@@ -79,7 +79,15 @@ const handleTrashConfigChange = (value: string | number | boolean) => {
 			<a-switch :model-value="trash" type="round" @change="handleTrashConfigChange" />
 		</div>
 
-		<div>Download Number:</div>
+		<div class="settings-list-item">
+			<div class="settings-list-item-label">Max Download Task</div>
+			<div>5</div>
+		</div>
+
+		<div class="settings-list-item">
+			<div class="settings-list-item-label">Download Path</div>
+			<a-input default-value="/Users/lixixi/Downloads" style="max-width: 800px;"></a-input>
+		</div>
 		<a-modal v-model:visible="visible" title="Add Watch Target" @cancel="handleCancel" @before-ok="handleBeforeOk">
 			<a-form :model="form" :ref="formRef">
 				<a-form-item field="target" label="Target" :rules="[
@@ -120,6 +128,7 @@ const handleTrashConfigChange = (value: string | number | boolean) => {
 	align-items: center;
 	flex: 1;
 	max-width: 800px;
+	box-sizing: border-box;
 }
 
 .settings-list-item-options {

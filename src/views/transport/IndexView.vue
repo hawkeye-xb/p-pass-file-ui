@@ -16,18 +16,21 @@ const Router = useRouter();
 				<span @click="Router.push('/transport/download')">Download</span>
 			</div>
 		</div>
-		<RouterView style="flex: 1;" />
+		<RouterView style="flex: 1; padding: 8px 16px;" />
 	</div>
 </template>
 <style scoped>
 .transport-layout {
 	width: 100%;
 	height: 100%;
+	display: flex;
+		flex-direction: column;
 }
 
 .transport-layout-header {
 	display: flex;
-	height: 56px;
+	height: 40px;
+		border-bottom: 1px solid var(--color-neutral-3);
 }
 
 .transport-layout-header-upload,
@@ -40,5 +43,9 @@ const Router = useRouter();
 	align-items: center;
 	font-weight: 500;
 	cursor: pointer;
+}
+.transport-layout-header-upload:hover,
+.transport-layout-header-download:hover {
+	color: rgb(var(--primary-6));
 }
 </style>
