@@ -1,59 +1,16 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
 import Menu from '@/components/menu/Index.vue'
-import { initWatchTargets, ws } from '@/services/index'
-import { useMetadatasStore } from '@/stores/metadatas'
-import { getDownloadItems, getDownloadQueueItems, getWatchTargetsMetadata } from '@/ctrls/index'
-import { useDownloadStore } from '@/stores/download'
-import { useLinkStore } from '@/stores/link'
 import StatusBar from '@/components/LayoutHeaderStatusBar.vue'
-import { v4 as uuidv4 } from 'uuid';
-import { getConfig, setConfig } from '@/services/index'
 import { IconSettings, IconUser } from '@arco-design/web-vue/es/icon';
 
-// init deviceId
-const deviceId = getConfig('deviceId') || uuidv4();
-setConfig('deviceId', deviceId)
-console.log('deviceId: ', deviceId)
+import { initConfig } from './initConfig';
+import { initWatch } from './initWatch';
+import { initDownload } from './initDownload';
 
-const metadataStore = useMetadatasStore();
-const downloadStore = useDownloadStore();
-const linkStore = useLinkStore();
-
-// 初始化现在信息
-downloadStore.resetDownload(getDownloadItems())
-downloadStore.resetDownloadQueue(getDownloadQueueItems())
-
-// 初始化需要监听的 Dir
-initWatchTargets()
-
-linkStore.updateLink('ws', 'processing') // 重连呢？
-ws.onmessage = (event) => {
-  debounceUpdateMetadatas();
-};
-ws.onopen = () => { linkStore.updateLink('ws', 'success') }
-ws.onclose = () => { linkStore.updateLink('ws', 'warning') }
-ws.onerror = () => { linkStore.updateLink('ws', 'danger') }
-
-let timer: number | null | undefined = null;
-function debounceUpdateMetadatas() {
-  if (timer) {
-    clearInterval(timer)
-  }
-
-  timer = setTimeout(() => {
-    updateMetadatas();
-  }, 20)
-}
-
-async function updateMetadatas() {
-  const res = await getWatchTargetsMetadata();
-  const result = await res.json();
-  if (result.code !== 200) {
-    return;
-  }
-  metadataStore.updateMetadatas(result.data)
-}
+initConfig()
+initWatch()
+initDownload()
 </script>
 
 <template>
