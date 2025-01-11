@@ -9,5 +9,9 @@ export const useConnectionsStore = defineStore('connections', () => {
 		connections.value.push(connection)
 	}
 
-	return { connections, addConnection }
+	function removeConnection(connection: DataConnection) {
+		connections.value = connections.value.filter(c => c !== connection)
+	}
+
+	return { connections, addConnection, removeConnection }
 })

@@ -1,10 +1,10 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
-type LinkStatusType = 'normal' | 'processing' | 'success' | 'warning' | 'danger';
+type LinkStatusType = 'normal' | 'processing' | 'success' | 'warning' | 'danger' | undefined;
 type LinkType = 'ws' | 'signaling' | 'webRTC';
 export const useLinkStore = defineStore('link', () => {
-	const wsLink = ref<LinkStatusType>('warning');
+	const wsLink = ref<LinkStatusType>(undefined);
 	const signalingLink = ref<LinkStatusType>('warning');
 	const webRTCLink = ref<LinkStatusType>('warning');
 
