@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { ClientType, getConfig, setConfig } from '@/services';
 import { reactive, ref } from 'vue';
-import { initWatch } from './initWatch';
+import { initStorageWatch } from './initWatch';
 
 const connDeviceVisible = ref(false)
 const initConnDevice = () => {
@@ -24,7 +24,7 @@ const connDeviceHandleBeforeOk = (done: any) => {
 const clientTypeVisible = ref(false)
 const fn = (ct: ClientType) => {
 	if (ct === ClientType.Storage) {
-    initWatch()
+    initStorageWatch()
   } else {
 		initConnDevice()
 	}

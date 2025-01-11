@@ -1,9 +1,13 @@
-import { initWatchTargets, ws } from '@/services/index'
+import { initWatchTargets } from '@/services/index'
 import { useLinkStore } from '@/stores/link'
 import { useMetadatasStore } from '@/stores/metadatas'
 import { getWatchTargetsMetadata } from '@/ctrls/index'
 
-export const initWatch = () => {
+export const initStorageWatch = () => {
+	console.log('initStorageWatch')
+	const WS_URL = "ws://localhost:3000/ws";
+	const ws = new WebSocket(WS_URL);
+
 	const linkStore = useLinkStore();
 	const metadataStore = useMetadatasStore();
 	// 初始化需要监听的 Dir
@@ -13,9 +17,18 @@ export const initWatch = () => {
 	ws.onmessage = (event) => {
 		debounceUpdateMetadatas();
 	};
-	ws.onopen = () => { linkStore.updateLink('ws', 'success') }
-	ws.onclose = () => { linkStore.updateLink('ws', 'warning') }
-	ws.onerror = () => { linkStore.updateLink('ws', 'danger') }
+	ws.onopen = () => {
+		console.log('ws open');
+		linkStore.updateLink('ws', 'success')
+	}
+	ws.onclose = () => {
+		console.log('ws close');
+		linkStore.updateLink('ws', 'warning')
+	}
+	ws.onerror = () => {
+		console.log('ws error');
+		linkStore.updateLink('ws', 'danger')
+	}
 
 	let timer: number | null | undefined = null;
 	function debounceUpdateMetadatas() {
