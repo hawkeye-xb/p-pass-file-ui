@@ -1,9 +1,21 @@
 <script setup lang="ts">
 import IndexLayout from './layout/Index.vue';
+import { v4 as uuidv4 } from 'uuid';
+import { getConfig, setConfig } from '@/services/index'
+import SetClientType from './components/SetClientType.vue';
+
+const initConfig = () => {
+  const deviceId = getConfig('deviceId') || uuidv4();
+  setConfig('deviceId', deviceId)
+
+  console.log('deviceId: ', deviceId)
+}
+initConfig()
 </script>
 
 <template>
   <IndexLayout />
+  <SetClientType />
 </template>
 
 <!-- <style scoped>

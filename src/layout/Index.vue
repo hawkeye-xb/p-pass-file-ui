@@ -3,11 +3,9 @@ import { RouterView } from 'vue-router'
 import Menu from '@/components/menu/Index.vue'
 import StatusBar from '@/components/LayoutHeaderStatusBar.vue'
 import { IconSettings, IconUser } from '@arco-design/web-vue/es/icon';
-import ClientType from './ClientType.vue';
-import { initConfig } from './initConfig';
+
 import { initDownload } from './initDownload';
 
-initConfig() // device id
 initDownload() // download
 </script>
 
@@ -38,8 +36,6 @@ initDownload() // download
       <Menu style="border-right: 1px solid var(--color-neutral-3)" />
       <RouterView style="flex: 1;" />
     </div>
-
-    <ClientType></ClientType>
   </div>
 </template>
 

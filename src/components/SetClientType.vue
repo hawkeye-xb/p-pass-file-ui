@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { ClientType, getConfig, setConfig } from '@/services';
 import { reactive, ref } from 'vue';
-import { initStorageWatch } from './initWatch';
+import { initStorageWatch } from '../layout/initWatch';
 
 const connDeviceVisible = ref(false)
 const initConnDevice = () => {
