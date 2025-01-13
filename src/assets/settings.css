@@ -1,0 +1,29 @@
+.settings-list-item {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	height: 32px;
+	margin-bottom: 8px;
+	color: var(--color-text-2);
+}
+
+.settings-list-item-label {
+	padding-right: 16px;
+	text-align: right;
+	width: 20%;
+}
+
+.settings-list-item-content {
+	padding: 0 12px;
+	background-color: var(--color-fill-2);
+	height: 100%;
+	display: flex;
+	align-items: center;
+	flex: 1;
+	max-width: 640px;
+	box-sizing: border-box;
+}
+
+.settings-list-item-options {
+	margin: 0 10px;
+}

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import Menu from '@/components/menu/Index.vue'
+import Menu from '@/components/menu/StorageMenu.vue'
 import StatusBar from '@/components/LayoutHeaderStatusBar.vue'
 import { IconSettings, IconUser } from '@arco-design/web-vue/es/icon';
 </script>
@@ -15,7 +15,7 @@ import { IconSettings, IconUser } from '@arco-design/web-vue/es/icon';
       <template #extra>
         <div>
           <a-space>
-            <RouterLink to="/settings">
+            <RouterLink to="/storage/settings">
               <a-button shape="circle">
                 <IconSettings />
               </a-button>
@@ -34,23 +34,6 @@ import { IconSettings, IconUser } from '@arco-design/web-vue/es/icon';
     </div>
   </div>
 </template>
-
 <style scoped>
-.index-layout {
-  display: flex;
-  height: 100%;
-  flex-direction: column;
-  }
-  
-  .index-layout-header {
-    box-sizing: border-box;
-    height: 64px;
-    /* background-color: var(--color-neutral-3); */
-    border-bottom: 1px solid var(--color-neutral-3);
-  }
-  
-  .index-layout-body {
-    flex: 1;
-    display: flex;
-}
+@import url('@/assets/layout.css');
 </style>

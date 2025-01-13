@@ -48,7 +48,12 @@ const form = reactive({
 const handleBeforeOk = (done: any) => {
   setConfig('clientType', form.ctype)
   done();
-  Router.push('/settings')
+  // Router.push('/settings')
+  if (form.ctype === ClientType.Storage) {
+    Router.push('/storage/settings')
+  } else {
+    Router.push('/usage/settings')
+  }
 };
 </script>
 <template>
