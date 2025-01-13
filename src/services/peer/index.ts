@@ -138,6 +138,7 @@ export class PeerInstance {
       const data = d as WebRTCContextType;
       await emit(data.action, data, conn);
 
+      if (data.action === ActionType.Notify) { return }
       conn.send(data);
     } catch (error) {
       console.warn(error);
