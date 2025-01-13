@@ -1,8 +1,15 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
-import { addWatchTarget, removeWatchTarget, getWatchTargets, getConfig, setConfig } from '@/services/index';
-import { IconDelete, IconRefresh, IconEdit, IconCopy } from '@arco-design/web-vue/es/icon';
+import { addWatchTarget, removeWatchTarget, getWatchTargets, getConfig, setConfig, ClientType } from '@/services/index';
+import { IconDelete, IconRefresh, IconEdit, IconCopy, IconSave } from '@arco-design/web-vue/es/icon';
 
+// config
+const deviceId = ref('')
+deviceId.value = getConfig('deviceId') || '';
+const cType = ref('')
+cType.value = getConfig('clientType') || '';
+
+// storage watch targets
 const targets = ref([])
 
 const visible = ref(false);
@@ -38,6 +45,7 @@ function init() {
 }
 init()
 
+// trash switch；是否两侧都可设置？
 const trash = ref(true)
 trash.value = getConfig('trash') || true;
 const handleTrashConfigChange = (value: string | number | boolean) => {
@@ -45,36 +53,12 @@ const handleTrashConfigChange = (value: string | number | boolean) => {
 	setConfig('trash', Boolean(value))
 }
 
-const deviceId = ref('')
-deviceId.value = getConfig('deviceId') || '';
-
+// download path
 const downloadPath = ref('')
 downloadPath.value = getConfig('downloadPath') || '';
 </script>
 <template>
 	<div style="padding-top: 24px;">
-		<div v-for="target in targets" :key="target" class="settings-list-item">
-			<div class="settings-list-item-label">Watch Target:</div>
-			<div class="settings-list-item-content">
-				<div>{{ target }}</div>
-			</div>
-			<a-space class="settings-list-item-options">
-				<a-button @click="handleRemove(target)">
-					<template #icon>
-						<IconDelete />
-					</template>
-				</a-button>
-			</a-space>
-		</div>
-		<div class="settings-list-item">
-			<div class="settings-list-item-label"></div>
-			<a-space>
-				<a-button @click="handleClick">Add Target</a-button>
-			</a-space>
-		</div>
-
-		<a-divider />
-
 		<div class="settings-list-item">
 			<div class="settings-list-item-label">Device Id</div>
 			<div class="settings-list-item-content">
@@ -93,23 +77,62 @@ downloadPath.value = getConfig('downloadPath') || '';
 			</a-space>
 		</div>
 
-		<div class="settings-list-item">
-			<div class="settings-list-item-label">Move To Trash</div>
-			<a-switch :model-value="trash" type="round" @change="handleTrashConfigChange" />
-		</div>
-
-		<div class="settings-list-item">
-			<div class="settings-list-item-label">Max Download Task</div>
-			<div>5</div>
-		</div>
-
-		<div class="settings-list-item">
-			<div class="settings-list-item-label">Download Path</div>
-			<div class="settings-list-item-content">
-				<div>{{ downloadPath }}</div>
+		<!-- storage settings -->
+		<div v-if="cType === ClientType.Storage">
+			<a-divider />
+			<div v-for="target in targets" :key="target" class="settings-list-item">
+				<div class="settings-list-item-label">Watch Target:</div>
+				<div class="settings-list-item-content">
+					<div>{{ target }}</div>
+				</div>
+				<a-space class="settings-list-item-options">
+					<a-button @click="handleRemove(target)">
+						<template #icon>
+							<IconDelete />
+						</template>
+					</a-button>
+				</a-space>
 			</div>
-			<!-- <a-input default-value="/Users/lixixi/Downloads" style="max-width: 800px;"></a-input> -->
+			<div class="settings-list-item">
+				<div class="settings-list-item-label"></div>
+				<a-space>
+					<a-button @click="handleClick">Add Target</a-button>
+				</a-space>
+			</div>
+
+			<div class="settings-list-item">
+				<div class="settings-list-item-label">Move To Trash</div>
+				<a-switch :model-value="trash" type="round" @change="handleTrashConfigChange" />
+			</div>
 		</div>
+
+		<!-- usage settings -->
+		<div v-if="cType === ClientType.Usage">
+			<a-divider />
+			<div class="settings-list-item">
+				<div class="settings-list-item-label">Conn Device Id</div>
+				<a-input placeholder="Please enter something" allow-clear style="max-width: 640px" />
+				<a-space class="settings-list-item-options">
+					<a-tooltip content="Save"><a-button><template #icon>
+								<IconSave />
+							</template></a-button></a-tooltip>
+				</a-space>
+			</div>
+
+			<div class="settings-list-item">
+				<div class="settings-list-item-label">Max Download Task</div>
+				<div>5</div>
+			</div>
+
+			<div class="settings-list-item">
+				<div class="settings-list-item-label">Download Path</div>
+				<div class="settings-list-item-content">
+					<div>{{ downloadPath }}</div>
+				</div>
+				<!-- <a-input default-value="/Users/lixixi/Downloads" style="max-width: 800px;"></a-input> -->
+			</div>
+		</div>
+
 		<a-modal v-model:visible="visible" title="Add Watch Target" @cancel="handleCancel" @before-ok="handleBeforeOk">
 			<a-form :model="form" :ref="formRef">
 				<a-form-item field="target" label="Target" :rules="[

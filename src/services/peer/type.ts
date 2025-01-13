@@ -1,7 +1,25 @@
 import type { DataConnection } from "peerjs";
 
 // 是否需要区分不同的使用方式
-export enum ActionType { Metadata, FileMetadata, CreateDir, RenameDir, RenameFile, DownloadFile, DeleteFile, UploadFile, DeleteDir }
+export enum ActionType {
+  WatchedMetadata, // 监听元数据
+  // Base
+  MoveRes,
+  DeleteRes,
+  Metadata, // 获取元数据
+  // dir
+  CreateTemporaryDir,
+  CreateDir,
+  RenameDir,
+  DownloadDirZip, //
+  // file
+  PreUploadValidate,
+  UploadFile,
+  RenameFile,
+  DownloadFile,
+  // Notify
+  Notify,
+}
 
 export type WebRTCContextType = {
   action: ActionType; // 操作类型

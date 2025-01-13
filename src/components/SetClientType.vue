@@ -2,40 +2,42 @@
 <script setup lang="ts">
 import { ClientType, getConfig, setConfig } from '@/services';
 import { reactive, ref } from 'vue';
-import { initStorageWatch } from '../layout/initWatch';
+import { useRouter } from 'vue-router';
 
-const connDeviceVisible = ref(false)
-const initConnDevice = () => {
-	const connDevice = getConfig('connDeviceId')
-  if (!connDevice) {
-    connDeviceVisible.value = true
-    return
-  }
-}
-const connDeviceForm = reactive({
-  connDeviceId: '',
-});
-const connDeviceHandleBeforeOk = (done: any) => {
-  setConfig('connDeviceId', connDeviceForm.connDeviceId)
-  done();
-	// initPeerConn
-};
+const Router = useRouter();
+// import { initStorageWatch } from '../layout/initWatch';
+
+// const connDeviceVisible = ref(false)
+// const initConnDevice = () => {
+// 	const connDevice = getConfig('connDeviceId')
+//   if (!connDevice) {
+//     connDeviceVisible.value = true
+//     return
+//   }
+// }
+// const connDeviceForm = reactive({
+//   connDeviceId: '',
+// });
+// const connDeviceHandleBeforeOk = (done: any) => {
+//   setConfig('connDeviceId', connDeviceForm.connDeviceId)
+//   done();
+// 	// initPeerConn
+// };
 
 const clientTypeVisible = ref(false)
-const fn = (ct: ClientType) => {
-	if (ct === ClientType.Storage) {
-    initStorageWatch()
-  } else {
-		initConnDevice()
-	}
-}
+// const fn = (ct: ClientType) => {
+// 	if (ct === ClientType.Storage) {
+//     initStorageWatch()
+//   } else {
+// 		initConnDevice()
+// 	}
+// }
 const initClientType = () => {
   const ct = getConfig('clientType')
   if (!ct) {
     clientTypeVisible.value = true
     return
   }
-  fn(ct)
 }
 initClientType()
 
@@ -46,7 +48,7 @@ const form = reactive({
 const handleBeforeOk = (done: any) => {
   setConfig('clientType', form.ctype)
   done();
-  fn(form.ctype)
+  Router.push('/settings')
 };
 </script>
 <template>
@@ -63,7 +65,7 @@ const handleBeforeOk = (done: any) => {
 			</a-form>
 		</a-modal>
 
-		<a-modal v-model:visible="connDeviceVisible" title="设置连接设备" @before-ok="connDeviceHandleBeforeOk" :esc-to-close="false"
+		<!-- <a-modal v-model:visible="connDeviceVisible" title="设置连接设备" @before-ok="connDeviceHandleBeforeOk" :esc-to-close="false"
       :hideCancel="true" :mask-closable="false" :closable="false">
       <a-form :model="connDeviceForm">
         <a-form-item field="connDeviceId" label="连接设备ID" :rules="[{ required: true, message: 'deviceId is required' }]"
@@ -71,6 +73,6 @@ const handleBeforeOk = (done: any) => {
           <a-input v-model="connDeviceForm.connDeviceId" placeholder="please enter your connDeviceId..." />
         </a-form-item>
       </a-form>
-    </a-modal>
+    </a-modal> -->
 	</div>
 </template>

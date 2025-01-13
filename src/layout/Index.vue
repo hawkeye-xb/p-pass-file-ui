@@ -11,6 +11,7 @@ initDownload() // download
 
 <template>
   <div class="index-layout">
+    <a-alert type="warning" class="global-usage-warning-hook">This is an warning alert.</a-alert>
     <a-page-header :style="{ background: 'var(--color-bg-2)', borderBottom: '1px solid var(--color-neutral-3)' }"
       title="Pigeon" :show-back="false">
       <template #subtitle>
@@ -56,5 +57,8 @@ initDownload() // download
   .index-layout-body {
     flex: 1;
     display: flex;
+}
+:global(.global-usage-warning-hook) {
+  display: flex;
 }
 </style>
