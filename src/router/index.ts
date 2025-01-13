@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 
 import Storage from '@/views/storage/Index.vue'
 import StorageSetting from '@/views/storage/Settings.vue'
+import StorageFolder from '@/views/storage/Folder.vue'
 import StorageTransport from '@/views/storage/Transport.vue'
 
 import Usage from '@/views/usage/Index.vue'
@@ -26,7 +27,7 @@ const router = createRouter({
         {
           path: 'folder',
           name: 'storage-folder',
-          component: Folder,
+          component: StorageFolder,
         },
         {
           path: 'transport',

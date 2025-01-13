@@ -2,7 +2,10 @@
 import { RouterView } from 'vue-router'
 import Menu from '@/components/menu/StorageMenu.vue'
 import StatusBar from '@/components/LayoutHeaderStatusBar.vue'
-import { IconSettings, IconUser } from '@arco-design/web-vue/es/icon';
+import { IconSettings, IconUser } from '@arco-design/web-vue/es/icon'
+import { storageServiceInit } from '@/services/index'
+
+storageServiceInit()
 </script>
 
 <template>

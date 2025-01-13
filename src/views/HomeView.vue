@@ -2,5 +2,5 @@
 </script>
 
 <template>
-  <div>123</div>
+  <div>Home View, Set loading page</div>
 </template>
