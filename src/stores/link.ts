@@ -1,12 +1,18 @@
+import type { CustomWebSocket } from "@/services/storage/CustomWebSocket";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
 type LinkStatusType = 'normal' | 'processing' | 'success' | 'warning' | 'danger' | undefined;
 type LinkType = 'ws' | 'signaling' | 'webRTC';
 export const useLinkStore = defineStore('link', () => {
+	const wsInstance = ref<CustomWebSocket>();
+	const setWs = (ws: CustomWebSocket) => {
+		wsInstance.value = ws;
+	}
 	const wsLink = ref<LinkStatusType>(undefined);
+
 	const signalingLink = ref<LinkStatusType>('warning');
-	const webRTCLink = ref<LinkStatusType>('warning');
+	const webRTCLink = ref<LinkStatusType>(undefined);
 
 	const updateLink = (type: LinkType, status: LinkStatusType) => {
 		switch (type) {
@@ -23,6 +29,8 @@ export const useLinkStore = defineStore('link', () => {
 	}
 
 	return {
+		wsInstance,
+		setWs,
 		wsLink,
 		signalingLink,
 		webRTCLink,

@@ -1,17 +1,19 @@
+import { CustomWebSocket } from './CustomWebSocket'
+
 export const initWs = (options: {
 	onmessage: () => void;
-	onopen: () => void;
-	onerror: () => void;
-	onclose: () => void;
+	onopen?: () => void;
+	onerror?: () => void;
+	onclose?: () => void;
 }) => {
 	const WS_URL = "ws://localhost:3000/ws";
-	const ws = new WebSocket(WS_URL);
+	const ws = new CustomWebSocket(WS_URL);
 	ws.onmessage = (event) => {
 		debounceUpdateMetadatas(options.onmessage);
 	};
-	ws.onopen = options.onopen
-	ws.onclose = options.onclose
-	ws.onerror = options.onerror
+	ws.onopen = options.onopen || (() => { })
+	ws.onclose = options.onclose || (() => { })
+	ws.onerror = options.onerror || (() => { })
 
 	let timer: number | null | undefined = null;
 	function debounceUpdateMetadatas(onmessage: () => void) {
@@ -23,4 +25,6 @@ export const initWs = (options: {
 			onmessage();
 		}, 20)
 	}
+
+	return ws;
 }
