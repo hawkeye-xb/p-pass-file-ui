@@ -23,37 +23,38 @@ export const storageServiceInit = () => {
 	const linkStore = useLinkStore();
 	const connectionsStore = useConnectionsStore();
 
-	// const peerInstance = PeerInstance.getInstance();
-	// const pushMetadata = (conn: DataConnection) => {
-	// 	const metadatas = metadataStore.metadatas;
-	// 	const data: WebRTCContextType = {
-	// 		action: ActionType.Notify,
-	// 		request: {
-	// 			id: `${new Date()}_notify_metadatas_by_${deviceId}`,
-	// 			body: metadatas,
-	// 		},
-	// 		response: {} as any,
-	// 	}
-	// 	conn.send(data);
-	// }
-	// const notifyAllConns = () => {
-	// 	const conns = peerInstance.getConnectionsMap();
-	// 	for (const [key, conn] of conns) {
-	// 		pushMetadata(conn);
-	// 	}
-	// }
-	// peerInstance.init({
-	// 	deviceId,
-	// 	onPeerOpen: () => { linkStore.updateLink('signaling', 'success') },
-	// 	onPeerClosed: () => { linkStore.updateLink('signaling', 'warning') },
-	// 	onPeerError: () => { linkStore.updateLink('signaling', 'danger') },
-	// 	onPeerReceivedConn: (conn: DataConnection) => {
-	// 		connectionsStore.addConnection(conn);
+	const peerInstance = PeerInstance.getInstance();
+	const pushMetadata = (conn: DataConnection) => {
+		const metadatas = metadataStore.metadatas;
+		const data: WebRTCContextType = {
+			action: ActionType.Notify,
+			request: {
+				id: `${new Date()}_notify_metadatas_by_${deviceId}`,
+				body: metadatas,
+			},
+			response: {} as any,
+		}
+		conn.send(data);
+	}
+	const notifyAllConns = () => {
+		const conns = peerInstance.getConnectionsMap();
+		for (const [key, conn] of conns) {
+			pushMetadata(conn);
+		}
+	}
+	peerInstance.init({
+		deviceId,
+		onPeerOpen: () => { linkStore.updateLink('signaling', 'success') },
+		onPeerClosed: () => { linkStore.updateLink('signaling', 'warning') },
+		onPeerError: () => { linkStore.updateLink('signaling', 'danger') },
+		onPeerDisconnected: () => { linkStore.updateLink('signaling', 'warning') },
+		onPeerReceivedConn: (conn: DataConnection) => {
+			connectionsStore.addConnection(conn);
 
-	// 		notifyAllConns();
-	// 	}
-	// })
-	// initRegister();
+			notifyAllConns();
+		}
+	})
+	initRegister();
 
 	linkStore.updateLink('ws', 'processing')
 	const ws = initWs({
@@ -65,7 +66,7 @@ export const storageServiceInit = () => {
 			}
 			metadataStore.updateMetadatas(result.data)
 
-			// notifyAllConns();
+			notifyAllConns();
 		},
 		onopen: () => { linkStore.updateLink('ws', 'success') },
 		onerror: () => { linkStore.updateLink('ws', 'danger') },
@@ -82,5 +83,5 @@ export const storageServiceInit = () => {
 	}
 	linkStore.setWs(ws); // 唯一实例，不用删除
 
-	// console.info('storageServiceInit done', deviceId, peerInstance);
+	console.info('storageServiceInit done', deviceId, peerInstance);
 }

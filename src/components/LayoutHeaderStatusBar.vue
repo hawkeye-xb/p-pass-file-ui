@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PeerInstance } from '@/services/peer';
 import { useLinkStore } from '@/stores/link'
 
 const linkStore = useLinkStore();
@@ -10,6 +11,24 @@ const wsReconnect = () => {
 const wsClose = () => {
 	linkStore.wsInstance?.close();
 }
+
+const signalingReconnect = () => {
+	const peerInstance = PeerInstance.getInstance();
+	const peer = peerInstance.getPeer();
+	if (peer?.disconnected) {
+		peer.reconnect();
+	}
+}
+const signalingDisconnect = () => {
+	const peerInstance = PeerInstance.getInstance();
+	const peer = peerInstance.getPeer();
+	if (!peer?.disconnected) {
+		peer?.disconnect();
+	}
+}
+
+const webRtcReconnect = () => { }
+const webRtcClose = () => { }
 </script>
 <template>
 	<a-space size="large">
@@ -20,11 +39,19 @@ const wsClose = () => {
 				<a-doption @click="wsClose">close</a-doption>
 			</template>
 		</a-dropdown>
-		<a-tooltip :content="`signaling Link Status: ${linkStore.signalingLink}`">
-			<a-badge :status="linkStore.signalingLink" text="signaling"></a-badge>
-		</a-tooltip>
-		<a-tooltip :content="`Storage Device Link Status: ${linkStore.webRTCLink}`">
+		<a-dropdown trigger="hover">
+			<a-badge :status="linkStore.signalingLink" text="Signaling"></a-badge>
+			<template #content>
+				<a-doption @click="signalingReconnect">reconnect</a-doption>
+				<a-doption @click="signalingDisconnect">disconnect</a-doption>
+			</template>
+		</a-dropdown>
+		<a-dropdown trigger="hover">
 			<a-badge v-show="linkStore.webRTCLink" :status="linkStore.webRTCLink" text="storage device"></a-badge>
-		</a-tooltip>
+			<template #content>
+				<a-doption @click="webRtcReconnect">reconnect</a-doption>
+				<a-doption @click="webRtcClose">close</a-doption>
+			</template>
+		</a-dropdown>
 	</a-space>
 </template>

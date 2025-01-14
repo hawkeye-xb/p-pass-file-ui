@@ -34,6 +34,7 @@ type InitPeerConfigType = {
   onPeerClosed?: (p: Peer) => void;
   onPeerError?: (p: Peer, err: Error) => void;
   onPeerReceivedConn?: (conn: DataConnection) => void;
+  onPeerDisconnected?: (p: Peer) => void;
 }
 type InitUniConnConfigType = {
   connDeviceId: string;
@@ -93,7 +94,7 @@ export class PeerInstance {
   private handlePeerListeners(config: InitPeerConfigType) {
     const p = this.peer;
     if (p !== undefined) {
-      p.on('open', () => {
+      p.on('open', () => { // ws 信令服务的链接状态
         config.onPeerOpen && config.onPeerOpen(p);
 
         if (this.uniConnInitBackup) {
@@ -109,6 +110,7 @@ export class PeerInstance {
 
       // 存储侧接受到的连接邀请
       p.on('connection', (conn) => {
+        console.log('存储端收到连接邀请:', conn);
         conn.on('open', () => {
           this.connectionsMap.set(conn.peer, conn);
 
@@ -122,6 +124,11 @@ export class PeerInstance {
           this.handleReceived(conn, d)
         })
       })
+
+      p.on('disconnected', () => { // 断开连接
+        config.onPeerDisconnected && config.onPeerDisconnected(p);
+      })
+
     }
   }
 
