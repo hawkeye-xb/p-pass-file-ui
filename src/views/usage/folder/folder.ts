@@ -1,45 +1,27 @@
-import { deleteRes } from "@/ctrls/index";
+import { usageDeleteRes } from "@/ctrls/index";
 import type { MetadataType } from "@/types";
 import { Message } from "@arco-design/web-vue";
 import { DOPTION_VALUES, processStream } from "./utils";
 import { getConfig } from '@/services/index'
-import { PATH_TYPE } from "@/const";
-import path from 'path-browserify';
 import { usageCreateDir } from "@/ctrls/usage";
 import { dateFormat } from "@/utils";
 
-// todo: 统一处理下请求返回信息
-// export async function handleCreateDir(target: string) {
-// 	const res = await createDir({
-// 		target,
-// 		name: '新建文件夹' + new Date(),
-// 	});
-// 	const result = await res.json();
-// 	if (res.status !== 200 || result.code !== 0) {
-// 		Message.error(result.message);
-// 		return;
-// 	}
-// }
 export async function handleCreateDir(target: string) {
 	const res = await usageCreateDir({
 		target,
-		name: '新建文件夹 ' + dateFormat(Date.now()),
+		name: '新建文件夹 ' + dateFormat(Date.now(), "YYYYMMDD HHmmss"),
 	})
 	console.log(res);
 }
 
 export const unlink = async (targets: string[]) => {
 	const trashConfig = getConfig('trash')
-	const res = await deleteRes({
+	const res = await usageDeleteRes({
 		targets,
 		trash: trashConfig,
 		force: trashConfig
 	})
-	const result = await res.json()
-	if (res.status !== 200 || result.code !== 0) {
-		Message.error(result.message);
-		return;
-	}
+	console.debug(res);
 }
 export const handleOptionSelected = (key: string | number | Record<string, any> | undefined, record: MetadataType) => {
 	if (key === DOPTION_VALUES.MoveTo) {

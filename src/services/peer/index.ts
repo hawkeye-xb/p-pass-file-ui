@@ -220,6 +220,7 @@ export class PeerInstance {
 
       const conn = config.target || this.getUniConn();
       if (conn) {
+        console.debug('发送数据:', context);
         conn.send(context);
       } else {
         reject('conn not init');

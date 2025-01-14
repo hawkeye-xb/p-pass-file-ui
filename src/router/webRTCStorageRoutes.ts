@@ -1,5 +1,5 @@
 // import { createDir, renameDir, renameFile, downloadFile, uploadFile, deleteFile, deleteDir } from '@/apis';
-import { createDir, deleteRes, renameDir, renameFile } from '@/ctrls';
+import { createDir, createTemporaryDir, deleteRes, moveRes, preUploadValidate, renameDir, renameFile } from '@/ctrls';
 import { PeerInstance } from '@/services/peer/index';
 import { ActionType, type WebRTCContextType } from '@/services/peer/type';
 import type { DataConnection } from 'peerjs';
@@ -17,10 +17,19 @@ function handleRouteResponseMiddle(fn: any) {
 export function initRegister() {
   const peerInstance = PeerInstance.getInstance();
 
-  peerInstance.register(ActionType.RenameDir, handleRouteResponseMiddle(renameDir))
-  peerInstance.register(ActionType.RenameFile, handleRouteResponseMiddle(renameFile))
-  peerInstance.register(ActionType.CreateDir, handleRouteResponseMiddle(createDir))
+  peerInstance.register(ActionType.MoveRes, handleRouteResponseMiddle(moveRes))
   peerInstance.register(ActionType.DeleteRes, handleRouteResponseMiddle(deleteRes))
+  // 获取元数据两个接口先不处理
+
+  peerInstance.register(ActionType.CreateTemporaryDir, handleRouteResponseMiddle(createTemporaryDir))
+  peerInstance.register(ActionType.CreateDir, handleRouteResponseMiddle(createDir))
+  peerInstance.register(ActionType.RenameDir, handleRouteResponseMiddle(renameDir))
+  // 下载目录接口
+
+  peerInstance.register(ActionType.PreUploadValidate, handleRouteResponseMiddle(preUploadValidate))
+  // 上传文件接口
+  peerInstance.register(ActionType.RenameFile, handleRouteResponseMiddle(renameFile))
+  // 下载文件接口
 
   // peerInstance.register(ActionType.UploadFile, async (ctx: WebRTCContextType, conn: DataConnection) => {
   //   try {

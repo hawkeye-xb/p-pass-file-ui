@@ -18,7 +18,7 @@ const connectionsStore = useConnectionsStore();
 					</a-avatar>
 					<a-typography-text>{{ conn.peer }}</a-typography-text>
 				</span>
-				<a-badge :status="'danger'" :text="'未连接'" />
+				<a-badge :status="conn.open ? 'success' : 'danger'" :text="conn.open ? '已连接' : '未连接'" />
 			</div>
 		</a-card>
 	</div>

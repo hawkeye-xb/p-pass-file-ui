@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, type ComputedRef, type Ref } from 'vue';
-import { renameDir, renameFile } from '@/ctrls/index'
+import { usageRenameDir, usageRenameFile } from '@/ctrls/index'
 import { type MetadataType } from '@/types';
 import Options from './Options.vue';
 import { useMetadatasStore } from '@/stores/metadatas'
@@ -97,13 +97,9 @@ const handleRenameBlurCheck = async () => {
     target: record?.path,
     name: newName.value,
   }
-  const fn = PATH_TYPE.DIR === record.type ? renameDir : renameFile;
+  const fn = PATH_TYPE.DIR === record.type ? usageRenameDir : usageRenameFile;
   const res = await fn(params);
-  const result = await res.json();
-  if (res.status !== 200 || result.code !== 0) {
-    Message.error(result.message);
-    return;
-  }
+  console.debug(res)
   setTimeout(() => {
     resetRenameStatus();
   }, 100);
