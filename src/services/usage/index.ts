@@ -8,8 +8,7 @@ import { ActionType } from "../peer/type";
 
 export const usageServiceInit = () => {
 	const deviceId = getConfig('deviceId');
-	const connDeviceId = getConfig('connDeviceId');
-	if (!deviceId || !connDeviceId) { return; }
+	if (!deviceId) { return; }
 
 	const metadataStore = useMetadatasStore(); // 被监听的元数据信息
 	const linkStore = useLinkStore();
@@ -17,6 +16,8 @@ export const usageServiceInit = () => {
 
 	const peerInstance = PeerInstance.getInstance();
 	const connect = () => {
+		const connDeviceId = getConfig('connDeviceId');
+		if (!connDeviceId) { return; }
 		linkStore.updateLink('webRTC', 'processing')
 		peerInstance.connect({
 			connDeviceId,

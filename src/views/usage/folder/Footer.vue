@@ -25,5 +25,6 @@ const emit = defineEmits<{
 	border-top: 1px solid var(--color-neutral-3);
 	display: flex;
 	align-items: center;
+	padding: 0 16px;
 }
 </style>

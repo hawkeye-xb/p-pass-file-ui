@@ -30,7 +30,7 @@ const router = createRouter({
         {
           path: 'folder',
           name: 'storage-folder',
-          component: StorageFolder,
+          component: UsageFolder,
         },
         {
           path: 'transport',
