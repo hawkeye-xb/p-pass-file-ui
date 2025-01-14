@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, reactive, ref, type ComputedRef, type Ref } from 'vue';
-import { createDir, deleteRes, renameDir, renameFile } from '@/ctrls/index'
-import { MetadataTypeDefaultValue, type MetadataType } from '@/types';
+import { computed, nextTick, ref, type ComputedRef, type Ref } from 'vue';
+import { renameDir, renameFile } from '@/ctrls/index'
+import { type MetadataType } from '@/types';
 import Options from './Options.vue';
 import { useMetadatasStore } from '@/stores/metadatas'
 import { DOPTION_VALUES, getCurrentFolder } from './utils'
@@ -13,6 +13,10 @@ import Icon from './Icon.vue';
 import { convertBytes, dateFormat } from '@/utils';
 import Footer from './Footer.vue';
 import { useDownloadStore } from '@/stores/download';
+
+import { useRouter } from 'vue-router';
+import { getConfig } from '@/services';
+const Router = useRouter();
 
 const metadataStore = useMetadatasStore();
 const downloadStore = useDownloadStore();
@@ -147,11 +151,23 @@ const handleBatchOptions = (action: DOPTION_VALUES) => {
 
   selectedKeys.value = [];
 }
+
+// alert
+const alertVisible = ref(false)
+const connDeviceId = getConfig('connDeviceId')
+alertVisible.value = !connDeviceId;
 </script>
 
 <template>
-  <div style="position: relative; margin: 8px 16px;">
-    <a-space>
+
+  <div style="position: relative;">
+    <a-alert type="warning" v-if="alertVisible">
+      Please set the id of the connected device to obtain data.
+      <a-link @click="() => { Router.push('/usage/settings') }">
+        go to settings
+      </a-link>
+    </a-alert>
+    <a-space style="margin: 8px 16px;">
       <a-button type="primary" @click="beforeUploadFile">Upload File</a-button>
       <a-button v-on:click="handleCreateDirButtonClick" :disabled="breadcrumb.length === 0">Create Dir</a-button>
     </a-space>
@@ -203,7 +219,7 @@ const handleBatchOptions = (action: DOPTION_VALUES) => {
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>{{ dateFormat(record.mtime) }}</div>
                 <Options @selected="(k) => {
-  handleCellOptionSelected(k, record)
+                  handleCellOptionSelected(k, record)
                 }" :record="record" />
               </div>
             </template>

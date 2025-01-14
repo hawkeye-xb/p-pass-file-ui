@@ -5,36 +5,15 @@ import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const Router = useRouter();
-// import { initStorageWatch } from '../layout/initWatch';
-
-// const connDeviceVisible = ref(false)
-// const initConnDevice = () => {
-// 	const connDevice = getConfig('connDeviceId')
-//   if (!connDevice) {
-//     connDeviceVisible.value = true
-//     return
-//   }
-// }
-// const connDeviceForm = reactive({
-//   connDeviceId: '',
-// });
-// const connDeviceHandleBeforeOk = (done: any) => {
-//   setConfig('connDeviceId', connDeviceForm.connDeviceId)
-//   done();
-// 	// initPeerConn
-// };
 
 const clientTypeVisible = ref(false)
-// const fn = (ct: ClientType) => {
-// 	if (ct === ClientType.Storage) {
-//     initStorageWatch()
-//   } else {
-// 		initConnDevice()
-// 	}
-// }
 const initClientType = () => {
   const ct = getConfig('clientType')
-  if (!ct) {
+  if (ct === ClientType.Storage) {
+    Router.push('/storage/connections')
+  } else if (ct === ClientType.Usage) {
+    // Router.push('/usage/folder')
+  } else {
     clientTypeVisible.value = true
     return
   }
@@ -48,7 +27,6 @@ const form = reactive({
 const handleBeforeOk = (done: any) => {
   setConfig('clientType', form.ctype)
   done();
-  // Router.push('/settings')
   if (form.ctype === ClientType.Storage) {
     Router.push('/storage/settings')
   } else {

@@ -26,26 +26,26 @@ watch(
 	<a-menu :style="{
 		width: '200px',
 		height: '100%',
-}" show-collapse-button breakpoint="xl" :selectedKeys="selectedKeys">
-		<a-menu-item key="/storage/connections" v-on:click="() => { Router.push('/storage/connections') }">
+	}" show-collapse-button breakpoint="xl" :selectedKeys="selectedKeys">
+		<a-menu-item key="/usage/connections" v-on:click="() => { Router.push('/usage/connections') }">
 			<template #icon>
 				<IconApps></IconApps>
 			</template>
 			Connections
 		</a-menu-item>
-		<a-menu-item key="/storage/folder" v-on:click="() => { Router.push('/storage/folder') }">
+		<a-menu-item key="/usage/folder" v-on:click="() => { Router.push('/usage/folder') }">
 			<template #icon>
 				<IconFolder></IconFolder>
 			</template>
 			Folder
 		</a-menu-item>
-		<a-menu-item key="/storage/transport" v-on:click="() => { Router.push('/storage/transport') }">
+		<a-menu-item key="/usage/transport" v-on:click="() => { Router.push('/usage/transport') }">
 			<template #icon>
 				<IconSwap></IconSwap>
 			</template>
 			Transport
 		</a-menu-item>
-		<a-menu-item key="/storage/settings" v-on:click="() => { Router.push('/storage/settings') }">
+		<a-menu-item key="/usage/settings" v-on:click="() => { Router.push('/usage/settings') }">
 			<template #icon>
 				<IconSettings></IconSettings>
 			</template>
