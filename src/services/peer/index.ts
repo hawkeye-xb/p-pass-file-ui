@@ -267,6 +267,7 @@ export class PeerInstance {
       const target = getRequest(ctx.request.id);
 
       if (target) {
+        console.debug('response:', ctx);
         target.resolve(ctx);
         deleteRequest(ctx.request.id);
       }

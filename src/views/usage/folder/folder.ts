@@ -7,7 +7,7 @@ import { usageCreateDir } from "@/ctrls/usage";
 import { dateFormat } from "@/utils";
 
 export async function handleCreateDir(target: string) {
-	const res = await usageCreateDir({
+	usageCreateDir({
 		target,
 		name: '新建文件夹 ' + dateFormat(Date.now(), "YYYYMMDD HHmmss"),
 	})

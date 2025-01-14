@@ -5,7 +5,6 @@ import type { MetadataType } from '@/types';
 import { PATH_TYPE } from '@/const';
 import { usageMoveRes } from '@/ctrls';
 import { Message } from '@arco-design/web-vue';
-import type { WebRTCContextType } from '@/services/peer/type';
 
 const metadataStore = useMetadatasStore();
 
