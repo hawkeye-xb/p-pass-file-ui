@@ -3,8 +3,9 @@ import { computed, ref } from 'vue';
 import { useMetadatasStore } from '@/stores/metadatas'
 import type { MetadataType } from '@/types';
 import { PATH_TYPE } from '@/const';
-import { moveRes } from '@/ctrls';
+import { usageMoveRes } from '@/ctrls';
 import { Message } from '@arco-design/web-vue';
+import type { WebRTCContextType } from '@/services/peer/type';
 
 const metadataStore = useMetadatasStore();
 
@@ -54,14 +55,12 @@ const handleCancel = () => {
 const handleMove = async () => {
 	if (!moveTo.value) return;
 
-	const res = await moveRes({
+	const ctx = await usageMoveRes({
 		src: props.src,
 		dest: moveTo.value,
 	});
-	const result = await res.json();
-	if (res.status !== 200 || result.code !== 0) {
-		Message.error(result.message);
-		return;
+	if (ctx.response.body.code !== 0) {
+		return Message.error(ctx.response.body.message);
 	}
 	emit('update:visible', false);
 }

@@ -84,7 +84,6 @@ export class PeerInstance {
     if (this.peer) {
       this.peer.disconnect();
       this.peer.once('disconnected', () => {
-        console.log('peer disconnected');
         this.peer?.destroy();
         this.peer = undefined;
       })
@@ -110,7 +109,6 @@ export class PeerInstance {
 
       // 存储侧接受到的连接邀请
       p.on('connection', (conn) => {
-        console.log('存储端收到连接邀请:', conn);
         conn.on('open', () => {
           this.connectionsMap.set(conn.peer, conn);
 
@@ -118,7 +116,6 @@ export class PeerInstance {
         })
 
         conn.on('data', (d: unknown) => {
-          console.log('存储端 route 接收到的数据:', d)
           // 这里不用处理响应数据吧，只需要当成router来处理就好了
           // this.handleConnResponse(d)
           this.handleReceived(conn, d)
@@ -190,7 +187,7 @@ export class PeerInstance {
     })
     uc.on('data', (d) => {
       // 处理返回数据
-      console.log('使用侧 接收到 存储侧 的数据:', d)
+      console.info('使用侧 接收到 存储侧 的数据:', d)
 
       this.handleConnResponse(d);
       config.onConnData && config.onConnData(uc, d);

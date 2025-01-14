@@ -12,7 +12,7 @@ const initClientType = () => {
   if (ct === ClientType.Storage) {
     Router.push('/storage/connections')
   } else if (ct === ClientType.Usage) {
-    // Router.push('/usage/folder')
+    Router.push('/usage/folder')
   } else {
     clientTypeVisible.value = true
     return

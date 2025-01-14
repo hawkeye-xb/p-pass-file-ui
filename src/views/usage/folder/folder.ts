@@ -11,17 +11,15 @@ export async function handleCreateDir(target: string) {
 		target,
 		name: '新建文件夹 ' + dateFormat(Date.now(), "YYYYMMDD HHmmss"),
 	})
-	console.log(res);
 }
 
 export const unlink = async (targets: string[]) => {
 	const trashConfig = getConfig('trash')
-	const res = await usageDeleteRes({
+	await usageDeleteRes({
 		targets,
 		trash: trashConfig,
 		force: trashConfig
 	})
-	console.debug(res);
 }
 export const handleOptionSelected = (key: string | number | Record<string, any> | undefined, record: MetadataType) => {
 	if (key === DOPTION_VALUES.MoveTo) {

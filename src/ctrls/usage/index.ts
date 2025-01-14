@@ -1,5 +1,5 @@
 import { PeerInstance } from '@/services/peer/index'
-import { ActionType } from '@/services/peer/type'
+import { ActionType, type WebRTCContextType } from '@/services/peer/type'
 
 interface CreateDirType {
 	target: string,
@@ -32,4 +32,13 @@ interface DeleteResType {
 export const usageDeleteRes = (data: DeleteResType) => {
 	const peerInstance = PeerInstance.getInstance()
 	return peerInstance.request(ActionType.DeleteRes, data, {})
+}
+
+interface MoveResType {
+	src: string[], // 源路径
+	dest: string, // 目标路径
+}
+export const usageMoveRes = (data: MoveResType): Promise<WebRTCContextType> => {
+	const peerInstance = PeerInstance.getInstance()
+	return peerInstance.request(ActionType.MoveRes, data, {})
 }
