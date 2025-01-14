@@ -1,8 +1,10 @@
 <script setup lang="ts">
-// import { IconRefresh } from '@arco-design/web-vue/es/icon';
+import { useConnectionsStore } from '@/stores/connections';
+
+const connectionsStore = useConnectionsStore();
 </script>
 <template>
-	<div class="home-view">
+	<div class="home-view" v-for="conn in connectionsStore.connections">
 		<a-card hoverable class="connection-view-card">
 			<div :style="{
 				display: 'flex',
@@ -14,23 +16,7 @@
 					<a-avatar :style="{ marginRight: '8px', backgroundColor: '#165DFF' }" :size="28">
 						Web
 					</a-avatar>
-					<a-typography-text>{{ 'Template' }}</a-typography-text>
-				</span>
-				<a-badge :status="'danger'" :text="'未连接'" />
-			</div>
-		</a-card>
-		<a-card hoverable class="connection-view-card">
-			<div :style="{
-				display: 'flex',
-				alignItems: 'center',
-				justifyContent: 'space-between',
-				height: 62
-			}">
-				<span :style="{ display: 'flex', alignItems: 'center', color: '#1D2129' }">
-					<a-avatar :style="{ marginRight: '8px', backgroundColor: '#165DFF' }" :size="28">
-						Web
-					</a-avatar>
-					<a-typography-text>{{ 'Template' }}</a-typography-text>
+					<a-typography-text>{{ conn.peer }}</a-typography-text>
 				</span>
 				<a-badge :status="'danger'" :text="'未连接'" />
 			</div>

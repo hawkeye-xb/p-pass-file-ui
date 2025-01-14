@@ -49,7 +49,9 @@ export const storageServiceInit = () => {
 		onPeerError: () => { linkStore.updateLink('signaling', 'danger') },
 		onPeerDisconnected: () => { linkStore.updateLink('signaling', 'warning') },
 		onPeerReceivedConn: (conn: DataConnection) => {
-			connectionsStore.addConnection(conn);
+			// connection 数据发生变化，需要更新store
+			const arr = Array.from(peerInstance.getConnectionsMap().values())
+			connectionsStore.setConnections(arr);
 
 			notifyAllConns();
 		}
