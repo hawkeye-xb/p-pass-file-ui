@@ -82,7 +82,9 @@ export class CustomConn {
 			return;
 		}
 
+		this.reconnectAttempts++;
 		this.reconnectTimeout = setTimeout(() => {
+			clearTimeout(this.reconnectTimeout!);
 			this.connect();
 		}, this.reconnectInterval);
 	}
