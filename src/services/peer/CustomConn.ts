@@ -1,4 +1,6 @@
 import type { DataConnection, Peer } from "peerjs";
+import type { ActionType, WebRTCContextType } from "./type";
+import { deleteRequest, generateWebRTCContext, getRequest, setRequest } from "./requestManager";
 
 export class CustomConn {
 	private peer: Peer | null = null;
@@ -13,18 +15,23 @@ export class CustomConn {
 	public onclose: (() => void) | null = null;
 	public onerror: ((err: string) => void) | null = null;
 	public oninit: (() => void) | null = null;
+	public ondata: ((data: any) => void) | null = null;
 
-	constructor(peerInstance: Peer, options: {
-		connDeviceId: string;
+	public reconnect() {
+		// 主动的？
+		this.connect();
+	}
+
+	constructor(peerInstance: Peer, connDeviceId: string, options?: {
 		reconnectAttempts?: number;
 		maxReconnectAttempts?: number;
 		reconnectInterval?: number;
 	}) {
 		this.peer = peerInstance;
-		this.connDeviceId = options.connDeviceId;
-		this.reconnectAttempts = options.reconnectAttempts || 0;
-		this.maxReconnectAttempts = options.maxReconnectAttempts || 5;
-		this.reconnectInterval = options.reconnectInterval || 1000;
+		this.connDeviceId = connDeviceId;
+		this.reconnectAttempts = options?.reconnectAttempts || 0;
+		this.maxReconnectAttempts = options?.maxReconnectAttempts || 5;
+		this.reconnectInterval = options?.reconnectInterval || 1000;
 
 		this.connect();
 	}
@@ -51,6 +58,13 @@ export class CustomConn {
 		this.conn?.on('open', this.handleOpen.bind(this));
 		this.conn?.on('close', this.handleClose.bind(this));
 		this.conn?.on('error', this.handleError.bind(this));
+		this.conn?.on('data', this.handleData.bind(this));
+	}
+
+	private handleData(data: any) {
+		this.ondata?.(data);
+
+		this.handleConnResponse(data);
 	}
 
 	private handleOpen() {
@@ -66,7 +80,6 @@ export class CustomConn {
 	}
 
 	private handleError(...args: any) {
-		console.log(args);
 		this.onerror?.('');
 
 		this.handleReconnect();
@@ -74,11 +87,9 @@ export class CustomConn {
 
 	private handleReconnect() {
 		if (this.reconnectTimeout) {
-			console.debug('peer conn reconnecting...');
 			return;
 		}
 		if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-			console.debug('peer conn reconnect failed');
 			return;
 		}
 
@@ -87,5 +98,49 @@ export class CustomConn {
 			clearTimeout(this.reconnectTimeout!);
 			this.connect();
 		}, this.reconnectInterval);
+	}
+
+	public getUniConn() {
+		return this.conn;
+	}
+
+	public request<T>(action: ActionType, body: unknown, config: {
+		target?: DataConnection;
+		request?: {}
+	}): Promise<T> {
+		return new Promise((resolve, reject) => {
+			const context = generateWebRTCContext(action, body);
+
+			context.request = {
+				...context.request,
+				...config.request,
+			};
+
+			setRequest(context.request.id, {
+				resolve,
+				reject,
+				context,
+			})
+
+			const conn = config.target || this.conn;
+			if (conn) {
+				conn.send(context);
+			} else {
+				reject('conn not init');
+			}
+		})
+	}
+
+	private handleConnResponse(d: unknown) {
+		try {
+			const ctx = d as WebRTCContextType;
+			const target = getRequest(ctx.request.id);
+			if (target) {
+				target.resolve(ctx);
+				deleteRequest(ctx.request.id);
+			}
+		} catch (error) {
+			console.warn(error);
+		}
 	}
 }

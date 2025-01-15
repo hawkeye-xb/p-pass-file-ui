@@ -8,7 +8,7 @@ export class CustomPeer {
 	private reconnectInterval: number = 1000; // 重连间隔时间（毫秒）
 	private reconnectTimeout: number | null = null;
 
-	public peer: Peer | null = null;
+	public peer: Peer | undefined = undefined;
 
 	public onopen: (() => void) | null = null;
 	public onclose: (() => void) | null = null;
@@ -30,6 +30,14 @@ export class CustomPeer {
 	}
 
 	private init() {
+		// @ts-ignore
+		if (window.DevEnvPeer) {
+			// @ts-ignore
+			this.peer = window.DevEnvPeer;
+			console.log('DevEnvPeer already init', this.peer, this.peer?.disconnected);
+			return;
+		}
+
 		this.oninit?.();
 		this.peer = new Peer(this.deviceId, {
 			// debug: 3,
@@ -39,6 +47,9 @@ export class CustomPeer {
 				]
 			}
 		});
+
+		// @ts-ignore
+		window.DevEnvPeer = this.peer;
 
 		this.bindEvents();
 	}
@@ -58,6 +69,7 @@ export class CustomPeer {
 	}
 
 	private handleClose() {
+		console.warn('peer close');
 		this.onclose?.();
 
 		this.handleErrorReconnect();
@@ -84,10 +96,9 @@ export class CustomPeer {
 			this.peer?.destroy();
 			return; // 会触发close事件
 		}
-		if (this.peer?.destroyed) { this.peer = null; }
+		if (this.peer?.destroyed) { this.peer = undefined; }
 
 		if (this.reconnectTimeout) {
-			console.debug('peer recreate...');
 			return;
 		}
 

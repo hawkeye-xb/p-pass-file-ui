@@ -3,9 +3,9 @@ import { RouterView } from 'vue-router'
 import Menu from '@/components/menu/UsageMenu.vue'
 import StatusBar from '@/components/LayoutHeaderStatusBar.vue'
 import { IconSettings, IconUser } from '@arco-design/web-vue/es/icon';
-import { usageServiceInit } from '@/services/index';
+import { usageService } from '@/services/usage/main';
 
-usageServiceInit()
+usageService()
 </script>
 <template>
 	<div class="index-layout">

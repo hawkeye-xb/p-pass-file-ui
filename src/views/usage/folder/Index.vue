@@ -99,7 +99,6 @@ const handleRenameBlurCheck = async () => {
   }
   const fn = PATH_TYPE.DIR === record.type ? usageRenameDir : usageRenameFile;
   const res = await fn(params);
-  console.debug(res)
   setTimeout(() => {
     resetRenameStatus();
   }, 100);
@@ -156,7 +155,7 @@ alertVisible.value = !connDeviceId;
 
 <template>
 
-  <div style="position: relative;">
+  <div style="position: relative; flex: 1;">
     <a-alert type="warning" v-if="alertVisible">
       Please set the id of the connected device to obtain data.
       <a-link @click="() => { Router.push('/usage/settings') }">

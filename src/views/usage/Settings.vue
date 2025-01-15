@@ -15,7 +15,7 @@ const saveConnDeviceId = () => {
 }
 </script>
 <template>
-	<div style="padding-top: 24px;">
+	<div style="padding-top: 24px; flex: 1">
 		<BaseSettings></BaseSettings>
 		<a-divider />
 		<div class="settings-list-item">

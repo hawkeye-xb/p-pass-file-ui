@@ -22,16 +22,8 @@ export const unlink = async (targets: string[]) => {
 	})
 }
 export const handleOptionSelected = (key: string | number | Record<string, any> | undefined, record: MetadataType) => {
-	if (key === DOPTION_VALUES.MoveTo) {
-		console.log('move to');
-		return;
-	}
 	if (key === DOPTION_VALUES.Delete) {
 		unlink([record.path]);
-		return;
-	}
-	if (key === DOPTION_VALUES.Rename) {
-		console.log('rename');
 		return;
 	}
 	if (key === DOPTION_VALUES.Download) {

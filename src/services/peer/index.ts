@@ -67,13 +67,11 @@ export class PeerInstance {
   }
 
   public init(config: InitPeerConfigType) {
-    console.debug('init peer...');
     if (this.peer && !this.peer?.destroyed) {
       console.warn('peer already init');
       return;
     }
 
-    console.debug('create peer.')
     this.peer = new Peer(config.deviceId, peerConfig);
 
     // @ts-ignore
@@ -219,7 +217,6 @@ export class PeerInstance {
 
       const conn = config.target || this.getUniConn();
       if (conn) {
-        console.debug('发送数据:', context);
         conn.send(context);
       } else {
         reject('conn not init');
@@ -269,7 +266,6 @@ export class PeerInstance {
       const target = getRequest(ctx.request.id);
 
       if (target) {
-        console.debug('response:', ctx);
         target.resolve(ctx);
         deleteRequest(ctx.request.id);
       }

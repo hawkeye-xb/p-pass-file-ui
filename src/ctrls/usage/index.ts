@@ -1,13 +1,16 @@
-import { PeerInstance } from '@/services/peer/index'
 import { ActionType, type WebRTCContextType } from '@/services/peer/type'
+
+let request: (arg0: ActionType, arg1: CreateDirType | DeleteResType | MoveResType, arg2: {}) => any;
+export const setUsageCtrlRequest = (req: any) => {
+	request = req
+}
 
 interface CreateDirType {
 	target: string,
 	name: string,
 }
 export const usageCreateDir = (data: CreateDirType) => {
-	const peerInstance = PeerInstance.getInstance()
-	return peerInstance.request(ActionType.CreateDir, data, {})
+	return request(ActionType.CreateDir, data, {})
 
 }
 
@@ -16,12 +19,10 @@ interface RenameType {
 	name: string,
 }
 export const usageRenameDir = (data: RenameType) => {
-	const peerInstance = PeerInstance.getInstance()
-	return peerInstance.request(ActionType.RenameDir, data, {})
+	return request(ActionType.RenameDir, data, {})
 }
 export const usageRenameFile = (data: RenameType) => {
-	const peerInstance = PeerInstance.getInstance()
-	return peerInstance.request(ActionType.RenameFile, data, {})
+	return request(ActionType.RenameFile, data, {})
 }
 
 interface DeleteResType {
@@ -30,8 +31,7 @@ interface DeleteResType {
 	trash?: boolean, // 是否移动到回收站; default: true
 }
 export const usageDeleteRes = (data: DeleteResType) => {
-	const peerInstance = PeerInstance.getInstance()
-	return peerInstance.request(ActionType.DeleteRes, data, {})
+	return request(ActionType.DeleteRes, data, {})
 }
 
 interface MoveResType {
@@ -39,6 +39,5 @@ interface MoveResType {
 	dest: string, // 目标路径
 }
 export const usageMoveRes = (data: MoveResType): Promise<WebRTCContextType> => {
-	const peerInstance = PeerInstance.getInstance()
-	return peerInstance.request(ActionType.MoveRes, data, {})
+	return request(ActionType.MoveRes, data, {})
 }
