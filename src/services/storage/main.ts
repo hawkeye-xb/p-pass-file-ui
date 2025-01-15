@@ -77,7 +77,7 @@ export const storageService = () => {
 			}
 			metadataStore.updateMetadatas(result.data)
 
-			// notifyAllConns();
+			notifyAllConns();
 		},
 		onopen: () => { linkStore.updateLink('ws', 'success') },
 		onerror: () => { linkStore.updateLink('ws', 'danger') },
@@ -99,7 +99,8 @@ function handleRouteResponseMiddle(fn: any) {
 	return async (ctx: WebRTCContextType) => {
 		try {
 			const res = await fn(ctx.request.body);
-			ctx.response.body = res;
+			const result = await res.json();
+			ctx.response.body = result;
 		} catch (error) {
 			ctx.response.body = { code: 500, message: 'handleRouteResponseMiddle error' + error };
 		}
