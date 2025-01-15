@@ -33,7 +33,7 @@ storageServiceInit()
     </a-page-header>
     <div class="index-layout-body">
       <Menu style="border-right: 1px solid var(--color-neutral-3)" />
-      <RouterView style="flex: 1;" />
+      <RouterView />
     </div>
   </div>
 </template>

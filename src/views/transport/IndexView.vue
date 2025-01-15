@@ -17,7 +17,8 @@ const Route = useRoute();
 				<span @click="Router.push('/transport/download')">Download</span>
 			</div>
 		</div>
-		<RouterView style="flex: 1; padding: 8px 16px;" />
+		<!--  style="flex: 1; padding: 8px 16px;"  -->
+		<RouterView/>
 	</div>
 </template>
 <style scoped>

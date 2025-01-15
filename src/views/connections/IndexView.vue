@@ -33,6 +33,8 @@ const connectionsStore = useConnectionsStore();
 	justify-items: center;
 	grid-auto-flow: dense;
 	align-content: start;
+
+	flex: 1;
 }
 
 .connection-view-card {

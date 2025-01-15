@@ -67,11 +67,13 @@ export class PeerInstance {
   }
 
   public init(config: InitPeerConfigType) {
-    if (this.peer) {
+    console.debug('init peer...');
+    if (this.peer && !this.peer?.destroyed) {
       console.warn('peer already init');
       return;
     }
 
+    console.debug('create peer.')
     this.peer = new Peer(config.deviceId, peerConfig);
 
     // @ts-ignore
@@ -140,9 +142,9 @@ export class PeerInstance {
   private async handleReceived(conn: DataConnection, d: unknown) {
     try {
       const data = d as WebRTCContextType;
+      if (data.action === ActionType.Notify) { return }
       await emit(data.action, data, conn);
 
-      if (data.action === ActionType.Notify) { return }
       conn.send(data);
     } catch (error) {
       console.warn(error);
