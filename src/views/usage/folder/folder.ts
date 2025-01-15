@@ -57,5 +57,4 @@ export const handleOptionSelected = (key: string | number | Record<string, any> 
 		console.log('share');
 		return;
 	}
-	console.log('unknown');
 }

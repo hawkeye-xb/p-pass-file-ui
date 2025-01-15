@@ -11,7 +11,7 @@ export const useLinkStore = defineStore('link', () => {
 	}
 	const wsLink = ref<LinkStatusType>(undefined);
 
-	const signalingLink = ref<LinkStatusType>('warning');
+	const signalingLink = ref<LinkStatusType>(undefined);
 	const webRTCLink = ref<LinkStatusType>(undefined);
 
 	const updateLink = (type: LinkType, status: LinkStatusType) => {

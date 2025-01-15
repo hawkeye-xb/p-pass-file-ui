@@ -1,5 +1,5 @@
 import Peer from 'peerjs';
-import type { DataConnection } from 'peerjs';
+import { PeerErrorType, type DataConnection, type PeerError } from 'peerjs';
 
 export class CustomPeer {
 	private deviceId: string = '';
@@ -30,12 +30,29 @@ export class CustomPeer {
 	}
 
 	private init() {
-		// @ts-ignore
-		if (window.DevEnvPeer) {
-			// @ts-ignore
-			this.peer = window.DevEnvPeer;
-			console.log('DevEnvPeer already init', this.peer, this.peer?.disconnected);
+		if (this.peer && this.peer.open && !this.peer.destroyed && !this.peer.disconnected) {
+			console.warn('peer already init'); // 这里应该走不到
 			return;
+		}
+
+		const afterGerenate = () => {
+			if (import.meta.env.DEV) {
+				// @ts-ignore
+				window.peer = this.peer;
+			}
+
+			this.bindEvents();
+			this.onopen?.(); // 主动发起一次状态改变
+		}
+
+		if (import.meta.env.DEV) {
+			// @ts-ignore
+			const winPeer = window.peer || undefined;
+			if (winPeer && winPeer.open && !winPeer.destroyed && !winPeer.disconnected) {
+				this.peer = winPeer;
+				afterGerenate();
+				return;
+			}
 		}
 
 		this.oninit?.();
@@ -47,12 +64,9 @@ export class CustomPeer {
 				]
 			}
 		});
-
-		// @ts-ignore
-		window.DevEnvPeer = this.peer;
-
-		this.bindEvents();
+		afterGerenate();
 	}
+
 	private bindEvents() {
 		this.peer?.on('open', this.handleOpen.bind(this));
 		this.peer?.on('close', this.handleClose.bind(this));
@@ -68,18 +82,44 @@ export class CustomPeer {
 		// 是否需要直接发起conn，使用侧再处理
 	}
 
-	private handleClose() {
-		console.warn('peer close');
+	private handleClose() { // 断连或者销毁会触发
 		this.onclose?.();
 
-		this.handleErrorReconnect();
+		if (this.peer && this.peer.destroyed) {
+			this.handleErrorReconnect();
+		}
 	}
 
-	private handleError(err: unknown) {
-		console.warn('peer error:', err);
-		this.onerror?.(err as string);
+	private handleError(error: PeerError<`${PeerErrorType}`>) {
+		console.warn('error name:', error.name, 'error type:', error.type, 'error msg:', error.message, 'error stack:', error.stack);
 
-		this.handleErrorReconnect();
+		switch (error.type) {
+			case PeerErrorType.PeerUnavailable: // 尝试连接的对等端不存在
+				console.warn("PeerUnavailable:", error);
+				break;
+			case PeerErrorType.InvalidID: // 传入 Peer 构造函数的 ID 包含非法字符
+				console.warn("InvalidID:", error);
+				break;
+			case PeerErrorType.InvalidKey: // 传入 Peer 构造函数的 API 密钥包含非法字符或不在系统中（仅限云服务器）。
+				console.warn("InvalidKey:", error);
+				break;
+			case PeerErrorType.UnavailableID: // 传递给 Peer 构造函数的 ID 已被占用。
+				console.warn("UnavailableID:", error);
+				break;
+			case PeerErrorType.Disconnected: // 与信令断连
+			case PeerErrorType.SocketError:
+			case PeerErrorType.SocketClosed:
+				// this.peer?.reconnect(); // 断连监听了，这里不需要再处理
+				break;
+			case PeerErrorType.SslUnavailable: // 正在安全使用，但云服务器不支持 SSL。请使用自定义 PeerServer。
+			case PeerErrorType.BrowserIncompatible: // 浏览器不支持 WebRTC
+			case PeerErrorType.Network:
+			case PeerErrorType.ServerError:
+			case PeerErrorType.WebRTC: // 原生 WebRTC 错误
+			default:
+				console.error("Unknown error:", error);
+				throw error;
+		}
 	}
 
 	private handleDisconnected() { // 应该属于心跳包断连
@@ -91,26 +131,16 @@ export class CustomPeer {
 		}, this.reconnectInterval);
 	}
 
+
 	private handleErrorReconnect() {
-		if (!this.peer?.destroyed) {
-			this.peer?.destroy();
-			return; // 会触发close事件
-		}
-		if (this.peer?.destroyed) { this.peer = undefined; }
-
-		if (this.reconnectTimeout) {
-			return;
-		}
-
-		if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-			console.warn('peer recreate attempts exceeded');
-			return;
-		}
+		if (this.reconnectTimeout) { return; }
+		if (this.reconnectAttempts >= this.maxReconnectAttempts) { return; }
 
 		this.reconnectAttempts++;
 		this.reconnectTimeout = setTimeout(() => {
 			clearTimeout(this.reconnectTimeout!);
 			this.reconnectTimeout = null;
+
 			this.init();
 		}, this.reconnectInterval);
 	}

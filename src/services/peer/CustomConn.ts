@@ -1,10 +1,13 @@
-import type { DataConnection, Peer } from "peerjs";
+import type { DataConnection, Peer, PeerError } from "peerjs";
 import type { ActionType, WebRTCContextType } from "./type";
 import { deleteRequest, generateWebRTCContext, getRequest, setRequest } from "./requestManager";
 
+import { CustomPeer } from "./CustomPeer";
+
 export class CustomConn {
-	private peer: Peer | null = null;
-	private conn: DataConnection | null = null;
+	private deviceId: string = '';
+	public customPeer: CustomPeer | undefined = undefined;
+	public conn: DataConnection | undefined = undefined;
 	private connDeviceId: string = '';
 	private reconnectAttempts: number = 0;
 	private maxReconnectAttempts: number = 5;
@@ -22,36 +25,40 @@ export class CustomConn {
 		this.connect();
 	}
 
-	constructor(peerInstance: Peer, connDeviceId: string, options?: {
+	constructor(deviceId: string, connDeviceId: string, options?: {
 		reconnectAttempts?: number;
 		maxReconnectAttempts?: number;
 		reconnectInterval?: number;
 	}) {
-		this.peer = peerInstance;
+		this.deviceId = deviceId;
 		this.connDeviceId = connDeviceId;
 		this.reconnectAttempts = options?.reconnectAttempts || 0;
 		this.maxReconnectAttempts = options?.maxReconnectAttempts || 5;
 		this.reconnectInterval = options?.reconnectInterval || 1000;
 
+		console.log(this.conn, 'conn constructor')
+		if (this.conn) return;
+		this.oninit?.();
+		this.initCustomPeer();
+	}
+
+	private initCustomPeer() {
+		if (!this.customPeer || this.customPeer.peer?.disconnected) {
+			this.customPeer = new CustomPeer(this.deviceId);
+			this.customPeer.onopen = () => { // 主意不要被覆盖了，如果要监听open，在peer实例上监听
+				console.debug('custom peer onopen or reconnect')
+				this.connect();
+			}
+			return;
+		}
 		this.connect();
 	}
 
 	private connect() {
-		if (!this.peer) return;
-		this.oninit?.();
+		// if (this.conn.) 多次同样的链接会怎么样
 
-		const run = () => {
-			this.conn = null;
-			this.conn = this.peer?.connect(this.connDeviceId) || null;
-			this.bindEvent();
-		}
-		if (this.peer.disconnected) {
-			this.peer.reconnect();
-			this.peer.once('open', run)
-			return;
-		}
-
-		run()
+		this.conn = this.customPeer?.peer?.connect(this.connDeviceId);
+		this.bindEvent();
 	}
 
 	private bindEvent() {
@@ -73,13 +80,13 @@ export class CustomConn {
 		this.onopen?.();
 	}
 
-	private handleClose() {
+	private handleClose() { // close 和Error不管如何都先发起重连
 		this.onclose?.();
 
 		this.handleReconnect();
 	}
 
-	private handleError(...args: any) {
+	private handleError(error: PeerError<"not-open-yet" | "message-too-big" | "negotiation-failed" | "connection-closed">) {
 		this.onerror?.('');
 
 		this.handleReconnect();
@@ -92,16 +99,17 @@ export class CustomConn {
 		if (this.reconnectAttempts >= this.maxReconnectAttempts) {
 			return;
 		}
+		if (this.customPeer?.peer?.disconnected) {
+			// 已经断开连接
+			this.customPeer.peer.reconnect(); // 会重复调用open 创建新内容；如果信令重连还是失败呢？怎么处理？todo：怎么重建所有
+			return;
+		}
 
 		this.reconnectAttempts++;
 		this.reconnectTimeout = setTimeout(() => {
 			clearTimeout(this.reconnectTimeout!);
 			this.connect();
 		}, this.reconnectInterval);
-	}
-
-	public getUniConn() {
-		return this.conn;
 	}
 
 	public request<T>(action: ActionType, body: unknown, config: {

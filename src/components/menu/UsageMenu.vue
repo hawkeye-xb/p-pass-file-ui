@@ -2,7 +2,6 @@
 import {
 	IconFolder,
 	IconSettings,
-	IconApps,
 	IconSwap,
 } from '@arco-design/web-vue/es/icon';
 import { ref, watch } from 'vue';
@@ -26,13 +25,7 @@ watch(
 	<a-menu :style="{
 		width: '200px',
 		height: '100%',
-	}" show-collapse-button breakpoint="xl" :selectedKeys="selectedKeys">
-		<a-menu-item key="/usage/connections" v-on:click="() => { Router.push('/usage/connections') }">
-			<template #icon>
-				<IconApps></IconApps>
-			</template>
-			Connections
-		</a-menu-item>
+}" show-collapse-button breakpoint="xl" :selectedKeys="selectedKeys">
 		<a-menu-item key="/usage/folder" v-on:click="() => { Router.push('/usage/folder') }">
 			<template #icon>
 				<IconFolder></IconFolder>

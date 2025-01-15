@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { PeerInstance } from '@/services/peer';
 import { useLinkStore } from '@/stores/link'
 
 const linkStore = useLinkStore();
@@ -13,18 +12,8 @@ const wsClose = () => {
 }
 
 const signalingReconnect = () => {
-	const peerInstance = PeerInstance.getInstance();
-	const peer = peerInstance.getPeer();
-	if (peer?.disconnected) {
-		peer.reconnect();
-	}
 }
 const signalingDisconnect = () => {
-	const peerInstance = PeerInstance.getInstance();
-	const peer = peerInstance.getPeer();
-	if (!peer?.disconnected) {
-		peer?.disconnect();
-	}
 }
 
 const webRtcReconnect = () => { }

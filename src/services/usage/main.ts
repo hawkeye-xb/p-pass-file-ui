@@ -2,52 +2,37 @@ import { getConfig } from "../config";
 import { useMetadatasStore } from '@/stores/metadatas';
 import { useLinkStore } from '@/stores/link';
 import { useConnectionsStore } from '@/stores/connections';
-import { CustomPeer } from '@/services/peer/CustomPeer';
 import { CustomConn } from "../peer/CustomConn";
 import { ActionType } from "../peer/type";
 import { setUsageCtrlRequest } from "@/ctrls";
 
 export const usageService = () => {
 	const deviceId = getConfig('deviceId');
-	if (!deviceId) { return; }
+	const connDeviceId = getConfig('connDeviceId');
+	if (!deviceId || !connDeviceId) { return; }
 
 	const metadataStore = useMetadatasStore(); // 被监听的元数据信息
 	const linkStore = useLinkStore();
-	const connectionsStore = useConnectionsStore();
 
-	const peerInstance = new CustomPeer(deviceId);
-	peerInstance.oninit = () => { linkStore.updateLink('signaling', 'processing'); }
-	peerInstance.onclose = () => { linkStore.updateLink('signaling', 'warning') }
-	peerInstance.onerror = () => { linkStore.updateLink('signaling', 'danger') }
-	peerInstance.ondisconnected = () => { linkStore.updateLink('signaling', 'warning') }
-	peerInstance.onconnection = () => { } // 可以先不管
+	const conn = new CustomConn(deviceId, connDeviceId);
+	// 有必要观察信令服务的状态吗？onopen 会被覆盖了
 
-	const connect = () => {
-		const connDeviceId = getConfig('connDeviceId');
-		if (!connDeviceId || !peerInstance.peer) { return; }
-
-		const conn = new CustomConn(peerInstance.peer, connDeviceId);
-		conn.oninit = () => { linkStore.updateLink('webRTC', 'processing') }
-		conn.onclose = () => {
-			linkStore.updateLink('webRTC', 'warning')
-			metadataStore.updateMetadatas([]);
-		}
-		conn.onerror = () => {
-			linkStore.updateLink('webRTC', 'danger')
-			metadataStore.updateMetadatas([]);
-		}
-		conn.onopen = () => { linkStore.updateLink('webRTC', 'success') }
-		conn.ondata = (ctx: any) => {
-			if (ctx.action === ActionType.Notify) {
-				console.info('收到通知:', ctx);
-				metadataStore.updateMetadatas(ctx.request.body);
-			}
-		}
-
-		setUsageCtrlRequest(conn.request.bind(conn));
+	conn.oninit = () => { linkStore.updateLink('webRTC', 'processing') }
+	conn.onclose = () => {
+		linkStore.updateLink('webRTC', 'warning')
+		metadataStore.updateMetadatas([]);
 	}
-	peerInstance.onopen = () => {
-		linkStore.updateLink('signaling', 'success');
-		connect();
+	conn.onerror = () => {
+		linkStore.updateLink('webRTC', 'danger')
+		metadataStore.updateMetadatas([]);
 	}
+	conn.onopen = () => { linkStore.updateLink('webRTC', 'success') }
+	conn.ondata = (ctx: any) => {
+		if (ctx.action === ActionType.Notify) {
+			console.info('收到通知:', ctx);
+			metadataStore.updateMetadatas(ctx.request.body);
+		}
+	}
+
+	setUsageCtrlRequest(conn.request.bind(conn));
 }
