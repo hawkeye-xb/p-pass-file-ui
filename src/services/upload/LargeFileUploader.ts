@@ -26,6 +26,8 @@ export class LargeFileUploader {
 		this.onProgress = config.onProgress;
 		this.onStatusChange = config.onStatusChange;
 		this.onUpload = config.onUpload;
+
+		console.debug('LargeFileUploader init', file.size, this.chunkSize, this.chunkSize / file.size);
 	}
 
 	public start() {
@@ -62,7 +64,7 @@ export class LargeFileUploader {
 
 	private splitChunk() {
 		const start = this.uploadedSize;
-		const end = Math.min(start + this.chunkSize, this.file.size);
+		const end = Math.min(start + this.chunkSize - 1, this.file.size);
 		const chunk = this.file.slice(start, end);
 		return chunk;
 	}

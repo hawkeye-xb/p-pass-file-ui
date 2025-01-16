@@ -59,6 +59,7 @@ export const storageService = () => {
 				const data = d as WebRTCContextType;
 				if (data.action === ActionType.Notify) return;
 
+				console.debug('storage on data, will action with:', data);
 				await emit(data.action, data, conn); // 处理接收到的数据
 				conn.send(data); // 内容一起返回
 			} catch (error) {
