@@ -8,14 +8,18 @@ import { ActionType, type WebRTCContextType } from '../peer/type';
 import { aggregateFiles, createDir, createTemporaryDir, deleteRes, downloadFile, getMetadata, getWatchTargetsMetadata, moveRes, preUploadValidate, renameDir, renameFile, uploadFile } from '@/ctrls';
 import { useConnectionsStore } from '@/stores/connections';
 import { initWs } from './ws';
+import { initWatchTargets } from './watchs';
 
 export const storageService = () => {
 	const deviceId = getConfig('deviceId');
 	if (!deviceId) { return; }
 
+	initWatchTargets(); // 初始化监听
+
 	const metadataStore = useMetadatasStore(); // 被监听的元数据信息
 	const linkStore = useLinkStore();
 	const connectionsStore = useConnectionsStore();
+
 	const sendMetadata = (conn: DataConnection) => {
 		const metadatas = metadataStore.metadatas;
 		const data: WebRTCContextType = {
