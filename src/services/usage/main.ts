@@ -16,7 +16,6 @@ export const usageService = () => {
 
 	const conn = new CustomConn(deviceId, connDeviceId);
 	linkStore.setCustomConn(conn);
-
 	conn.oninit = () => { linkStore.updateLink('webRTC', 'processing') }
 	conn.onclose = () => {
 		linkStore.updateLink('webRTC', 'warning')
@@ -33,6 +32,7 @@ export const usageService = () => {
 			metadataStore.updateMetadatas(ctx.request.body);
 		}
 	}
-
 	setUsageCtrlRequest(conn.request.bind(conn));
+
+	conn.connect();
 }

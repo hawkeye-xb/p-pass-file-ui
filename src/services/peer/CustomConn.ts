@@ -1,4 +1,4 @@
-import type { DataConnection, PeerError } from "peerjs";
+import type { DataConnection, PeerError, PeerErrorType } from "peerjs";
 import type { ActionType, WebRTCContextType } from "./type";
 import { deleteRequest, generateWebRTCContext, getRequest, setRequest } from "./requestManager";
 
@@ -17,7 +17,8 @@ export class CustomConn {
 
 	public onopen: (() => void) | null = null;
 	public onclose: (() => void) | null = null;
-	public onerror: ((error: PeerError<"not-open-yet" | "message-too-big" | "negotiation-failed" | "connection-closed">) => void) | null = null;
+	public onerror: (
+		(error: PeerError<"not-open-yet" | "message-too-big" | "negotiation-failed" | "connection-closed"> | PeerError<`${PeerErrorType}`>) => void) | null = null;
 	public oninit: (() => void) | null = null;
 	public ondata: ((data: any) => void) | null = null;
 
@@ -47,12 +48,9 @@ export class CustomConn {
 		this.reconnectAttempts = options?.reconnectAttempts || 0;
 		this.maxReconnectAttempts = options?.maxReconnectAttempts || 5;
 		this.reconnectInterval = options?.reconnectInterval || 1000;
-
-		if (this.conn) return;
-		this.connect();
 	}
 
-	private connect() {
+	public connect() {
 		this.oninit?.();
 		if (!this.customPeer || this.customPeer.peer?.disconnected) {
 			this.customPeer = new CustomPeer(this.deviceId);
@@ -60,6 +58,13 @@ export class CustomConn {
 				console.debug('custom peer onopen or reconnect')
 				this.connectDevice();
 			}
+			this.customPeer.onerror = (err) => {
+				this.onerror?.(err);
+
+				this.handleReconnect();
+			}
+
+			this.customPeer.init();
 			return;
 		}
 		this.connectDevice();
@@ -98,16 +103,20 @@ export class CustomConn {
 	}
 
 	private handleError(error: PeerError<"not-open-yet" | "message-too-big" | "negotiation-failed" | "connection-closed">) {
+		console.error('custom conn error:', error)
 		this.onerror?.(error);
 
 		this.handleReconnect();
 	}
 
 	private handleReconnect() {
+		// console.debug('connect failed, reconnect...', this.reconnectAttempts);
+		console.trace('connect failed, reconnect...', this.reconnectAttempts);
 		if (this.reconnectTimeout) {
 			return;
 		}
 		if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+			console.warn('max reconnect attempts reached');
 			return;
 		}
 		if (this.customPeer?.peer?.disconnected) {
@@ -118,7 +127,9 @@ export class CustomConn {
 
 		this.reconnectAttempts++;
 		this.reconnectTimeout = setTimeout(() => {
+			this.conn = undefined;
 			clearTimeout(this.reconnectTimeout!);
+			this.reconnectTimeout = null;
 			this.connect();
 		}, this.reconnectInterval);
 	}

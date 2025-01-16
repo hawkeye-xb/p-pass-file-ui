@@ -44,10 +44,9 @@ export class CustomPeer {
 		this.reconnectAttempts = options?.reconnectAttempts || 0;
 		this.maxReconnectAttempts = options?.maxReconnectAttempts || 5;
 		this.reconnectInterval = options?.reconnectInterval || 1000;
-		this.init();
 	}
 
-	private init() {
+	public init() {
 		if (this.peer && this.peer.open && !this.peer.destroyed && !this.peer.disconnected) {
 			console.warn('peer already init'); // 这里应该走不到
 			return;
@@ -113,16 +112,16 @@ export class CustomPeer {
 
 		switch (error.type) {
 			case PeerErrorType.PeerUnavailable: // 尝试连接的对等端不存在；另外一端主动断开连接
-				console.warn("PeerUnavailable:", error);
+				// console.warn("PeerUnavailable:", error);
 				break;
 			case PeerErrorType.InvalidID: // 传入 Peer 构造函数的 ID 包含非法字符
-				console.warn("InvalidID:", error);
+				// console.warn("InvalidID:", error);
 				break;
 			case PeerErrorType.InvalidKey: // 传入 Peer 构造函数的 API 密钥包含非法字符或不在系统中（仅限云服务器）。
-				console.warn("InvalidKey:", error);
+				// console.warn("InvalidKey:", error);
 				break;
 			case PeerErrorType.UnavailableID: // 传递给 Peer 构造函数的 ID 已被占用。
-				console.warn("UnavailableID:", error);
+				// console.warn("UnavailableID:", error);
 				break;
 			case PeerErrorType.Disconnected: // 与信令断连
 			case PeerErrorType.SocketError:
