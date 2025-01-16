@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, type ComputedRef, type Ref } from 'vue';
-import { usageRenameDir, usageRenameFile } from '@/ctrls/index'
+import { computed, nextTick, ref, renderSlot, type ComputedRef, type Ref } from 'vue';
+import { usageRenameDir, usageRenameFile, usageUploadFile } from '@/ctrls/index'
 import { type MetadataType } from '@/types';
 import Options from './Options.vue';
 import { useMetadatasStore } from '@/stores/metadatas'
@@ -13,9 +13,10 @@ import Icon from './Icon.vue';
 import { convertBytes, dateFormat } from '@/utils';
 import Footer from './Footer.vue';
 import { useDownloadStore } from '@/stores/download';
-
 import { useRouter } from 'vue-router';
 import { getConfig } from '@/services';
+import { LargeFileUploader } from '@/services/upload';
+
 const Router = useRouter();
 
 const metadataStore = useMetadatasStore();
@@ -51,8 +52,38 @@ const cellClick = (record: any) => {
   }
 };
 
-const beforeUploadFile = () => {
+const beforeUploadFile = async () => {
   console.log('beforeUploadFile')
+  try {
+    // @ts-ignore
+    const [fileHandle] = await window.showOpenFilePicker();
+    const file = await fileHandle.getFile();
+
+    const currentFolder = getCurrentFolder(metadataStore.metadatas, breadcrumb.value);
+    console.info(currentFolder.path, file.name)
+    const largeFileUploader = new LargeFileUploader(file, {
+      onProgress: (progress: number, speed: number) => { console.log('on progress', progress, speed) },
+      onStatusChange: (status: string) => { console.log('on status change', status) },
+      onUpload: async (chunk, options, done) => {
+        const arrayBuffer = await chunk.arrayBuffer();
+        const res = await usageUploadFile({
+          content: new Uint8Array(arrayBuffer),
+          target: currentFolder.path,
+          name: `${options.filename}.part${options.currentChunkIndex}`,
+        })
+        const result = res.response.body
+        console.info(res, result);
+        if (result.code !== 0) {
+          Message.error(result.message);
+          return;
+        }
+        done();
+      }
+    })
+    largeFileUploader.start();
+  } catch (error) {
+    console.warn(error)
+  }
 }
 const handleCreateDirButtonClick = () => {
   if (breadcrumb.value.length === 0) {
@@ -163,7 +194,7 @@ alertVisible.value = !connDeviceId;
       </a-link>
     </a-alert>
     <a-space style="margin: 8px 16px;">
-      <a-button type="primary" @click="beforeUploadFile">Upload File</a-button>
+      <a-button type="primary" @click="beforeUploadFile" :disabled="breadcrumb.length === 0">Upload File</a-button>
       <a-button v-on:click="handleCreateDirButtonClick" :disabled="breadcrumb.length === 0">Create Dir</a-button>
     </a-space>
 

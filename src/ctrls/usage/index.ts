@@ -41,3 +41,11 @@ interface MoveResType {
 export const usageMoveRes = (data: MoveResType): Promise<WebRTCContextType> => {
 	return request(ActionType.MoveRes, data, {})
 }
+
+export const usageUploadFile = (data: {
+	content: Uint8Array,
+	target: string,
+	name: string,
+}) => {
+	return request(ActionType.UploadFile, data, {})
+}
