@@ -16,13 +16,18 @@ export class CustomConn {
 
 	public onopen: (() => void) | null = null;
 	public onclose: (() => void) | null = null;
-	public onerror: ((err: string) => void) | null = null;
+	public onerror: ((error: PeerError<"not-open-yet" | "message-too-big" | "negotiation-failed" | "connection-closed">) => void) | null = null;
 	public oninit: (() => void) | null = null;
 	public ondata: ((data: any) => void) | null = null;
 
-	public reconnect() {
-		// 主动的？
-		this.connect();
+	public destory() {
+		this.reconnectAttempts = this.maxReconnectAttempts + 1;
+		this.conn?.close();
+		this.conn = undefined;
+
+		this.customPeer?.destroy();
+		this.customPeer = undefined;
+		this.onclose?.();
 	}
 
 	constructor(deviceId: string, connDeviceId: string, options?: {
@@ -87,7 +92,7 @@ export class CustomConn {
 	}
 
 	private handleError(error: PeerError<"not-open-yet" | "message-too-big" | "negotiation-failed" | "connection-closed">) {
-		this.onerror?.('');
+		this.onerror?.(error);
 
 		this.handleReconnect();
 	}

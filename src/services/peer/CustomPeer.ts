@@ -10,12 +10,26 @@ export class CustomPeer {
 
 	public peer: Peer | undefined = undefined;
 
+	// todo: 做成 EventEmitter
 	public onopen: (() => void) | null = null;
 	public onclose: (() => void) | null = null;
-	public onerror: ((err: string) => void) | null = null;
+	public onerror: ((error: PeerError<`${PeerErrorType}`>) => void) | null = null;
 	public oninit: (() => void) | null = null;
 	public ondisconnected: (() => void) | null = null;
 	public onconnection: ((conn: DataConnection) => void) | null = null;
+
+	public destroy() {
+		this.reconnectAttempts = this.maxReconnectAttempts + 1;
+		this.peer?.destroy();
+		this.peer = undefined;
+
+		this.onclose?.();
+	}
+
+	public reconncet() {
+		this.reconnectAttempts = 0;
+		this.handleErrorReconnect();
+	}
 
 	constructor(deviceId: string, options?: {
 		reconnectAttempts?: number;
@@ -94,7 +108,7 @@ export class CustomPeer {
 		console.warn('error name:', error.name, 'error type:', error.type, 'error msg:', error.message, 'error stack:', error.stack);
 
 		switch (error.type) {
-			case PeerErrorType.PeerUnavailable: // 尝试连接的对等端不存在
+			case PeerErrorType.PeerUnavailable: // 尝试连接的对等端不存在；另外一端主动断开连接
 				console.warn("PeerUnavailable:", error);
 				break;
 			case PeerErrorType.InvalidID: // 传入 Peer 构造函数的 ID 包含非法字符
@@ -120,6 +134,8 @@ export class CustomPeer {
 				console.error("Unknown error:", error);
 				throw error;
 		}
+
+		this.onerror?.(error);
 	}
 
 	private handleDisconnected() { // 应该属于心跳包断连

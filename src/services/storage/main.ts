@@ -3,7 +3,7 @@ import { getConfig } from '../config';
 import { useMetadatasStore } from '@/stores/metadatas';
 import { useLinkStore } from '@/stores/link';
 import { on, emit, off } from '@/services/peer/listeners';
-import type { DataConnection } from 'peerjs';
+import { PeerErrorType, type DataConnection, type PeerError } from 'peerjs';
 import { ActionType, type WebRTCContextType } from '../peer/type';
 import { createDir, createTemporaryDir, deleteRes, getWatchTargetsMetadata, moveRes, preUploadValidate, renameDir, renameFile } from '@/ctrls';
 import { useConnectionsStore } from '@/stores/connections';
@@ -32,7 +32,10 @@ export const storageService = () => {
 	peer.oninit = () => { linkStore.updateLink('ws', 'processing'); }
 	peer.onopen = () => { linkStore.updateLink('signaling', 'success'); }
 	peer.onclose = () => { linkStore.updateLink('signaling', 'warning'); }
-	peer.onerror = () => { linkStore.updateLink('signaling', 'danger'); }
+	peer.onerror = (err) => {
+		linkStore.updateLink('signaling', 'danger');
+		handlePeerError(err);
+	}
 	peer.ondisconnected = () => { linkStore.updateLink('signaling', 'warning'); }
 
 	peer.onconnection = (conn: DataConnection) => {
@@ -120,4 +123,34 @@ function initPeerResponse() {
 	on(ActionType.PreUploadValidate, handleRouteResponseMiddle(preUploadValidate))
 	// 上传文件接口
 	on(ActionType.RenameFile, handleRouteResponseMiddle(renameFile))
+}
+
+function handlePeerError(error: PeerError<`${PeerErrorType}`>) {
+	switch (error.type) {
+		case PeerErrorType.PeerUnavailable: // 尝试连接的对等端不存在；另外一端主动断开连接
+			console.warn("PeerUnavailable:", error); // 使用侧断连？无影响
+			break;
+		case PeerErrorType.InvalidID: // 传入 Peer 构造函数的 ID 包含非法字符
+			console.warn("InvalidID:", error); // 自生成的，不处理
+			break;
+		case PeerErrorType.InvalidKey: // 传入 Peer 构造函数的 API 密钥包含非法字符或不在系统中（仅限云服务器）。
+			console.warn("InvalidKey:", error);
+			break;
+		case PeerErrorType.UnavailableID: // 传递给 Peer 构造函数的 ID 已被占用。
+			console.warn("UnavailableID:", error); // todo: 重置？
+			break;
+		case PeerErrorType.Disconnected: // 与信令断连
+		case PeerErrorType.SocketError:
+		case PeerErrorType.SocketClosed:
+			// this.peer?.reconnect(); // 断连监听了，这里不需要再处理
+			break;
+		case PeerErrorType.SslUnavailable: // 正在安全使用，但云服务器不支持 SSL。请使用自定义 PeerServer。
+		case PeerErrorType.BrowserIncompatible: // 浏览器不支持 WebRTC
+		case PeerErrorType.Network:
+		case PeerErrorType.ServerError:
+		case PeerErrorType.WebRTC: // 原生 WebRTC 错误
+		default:
+			console.error("Unknown error:", error);
+			throw error;
+	}
 }

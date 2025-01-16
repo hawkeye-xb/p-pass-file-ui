@@ -29,7 +29,7 @@ const webRtcClose = () => { }
 			</template>
 		</a-dropdown>
 		<a-dropdown trigger="hover">
-			<a-badge :status="linkStore.signalingLink" text="Signaling"></a-badge>
+			<a-badge v-show="linkStore.signalingLink" :status="linkStore.signalingLink" text="Signaling"></a-badge>
 			<template #content>
 				<a-doption @click="signalingReconnect">reconnect</a-doption>
 				<a-doption @click="signalingDisconnect">disconnect</a-doption>

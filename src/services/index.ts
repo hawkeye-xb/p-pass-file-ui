@@ -1,4 +1,4 @@
 export * from './config';
 export * from './download';
-export * from './storage/index'
-export * from './usage/index'
+export * from './storage'
+// export * from './usage/index_delete'
