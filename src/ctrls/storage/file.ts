@@ -44,18 +44,23 @@ export const preUploadValidate = (data: PreUploadValidateType) => {
 	})
 }
 
-interface UploadFileFormDataType extends FormData {
+interface UploadFileFormDataType {
 	target: string, // 目标目录
 	name: string, // 文件名
 	file: File, // 文件
 }
 export const uploadFile = (data: UploadFileFormDataType) => {
+	const formData = new FormData();
+	formData.append('target', data.target)
+	formData.append('name', data.name)
+	formData.append('file', data.file)
+
 	return request('/file', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'multipart/form-data',
 		},
-		body: data,
+		body: formData,
 	})
 }
 

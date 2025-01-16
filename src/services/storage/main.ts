@@ -5,7 +5,7 @@ import { useLinkStore } from '@/stores/link';
 import { on, emit, off } from '@/services/peer/listeners';
 import { PeerErrorType, type DataConnection, type PeerError } from 'peerjs';
 import { ActionType, type WebRTCContextType } from '../peer/type';
-import { createDir, createTemporaryDir, deleteRes, getWatchTargetsMetadata, moveRes, preUploadValidate, renameDir, renameFile } from '@/ctrls';
+import { aggregateFiles, createDir, createTemporaryDir, deleteRes, downloadFile, getMetadata, getWatchTargetsMetadata, moveRes, preUploadValidate, renameDir, renameFile, uploadFile } from '@/ctrls';
 import { useConnectionsStore } from '@/stores/connections';
 import { initWs } from './ws';
 
@@ -112,10 +112,51 @@ function handleRouteResponseMiddle(fn: any) {
 	}
 }
 
+// interface FileUploadReqBodyType {
+// 	content: ArrayBuffer;
+// 	filename: string;
+// }
+async function handleFileUpload(ctx: WebRTCContextType) {
+	try {
+		const body = ctx.request.body as any;
+		const uint8array = new Uint8Array(body.content);
+		const blob = new Blob([uint8array]);
+		const file = new File([blob], body.filename, { type: 'application/octet-stream' });
+
+		const res = await uploadFile({
+			target: body.target,
+			name: body.name,
+			file: file,
+		});
+		const result = await res.json();
+		ctx.request.body = null;
+		ctx.response.body = result;
+	} catch (error) {
+		ctx.request.body = null;
+		ctx.response.body = { code: 500, message: 'handleRouteResponseMiddle error' + error };
+	}
+}
+
+async function handleFileDownload(ctx: WebRTCContextType) {
+	try {
+		const res = await downloadFile(ctx.request.body as any);
+		const buffer = await res.arrayBuffer();
+		ctx.response.body = {
+			code: 200,
+			data: buffer,
+			message: 'success',
+		};
+	} catch (error) {
+		ctx.response.body = { code: 500, message: 'handleRouteResponseMiddle error' + error };
+	}
+}
+
 function initPeerResponse() {
+	on(ActionType.Metadata, handleRouteResponseMiddle(getMetadata))
+	// 获取监听的元数据信息先不处理，直接推送了
+
 	on(ActionType.MoveRes, handleRouteResponseMiddle(moveRes))
 	on(ActionType.DeleteRes, handleRouteResponseMiddle(deleteRes))
-	// 获取元数据两个接口先不处理
 
 	on(ActionType.CreateTemporaryDir, handleRouteResponseMiddle(createTemporaryDir))
 	on(ActionType.CreateDir, handleRouteResponseMiddle(createDir))
@@ -123,8 +164,10 @@ function initPeerResponse() {
 	// 下载目录接口
 
 	on(ActionType.PreUploadValidate, handleRouteResponseMiddle(preUploadValidate))
-	// 上传文件接口
+	on(ActionType.UploadFile, handleFileUpload)
+	on(ActionType.AggregateFiles, handleRouteResponseMiddle(aggregateFiles))
 	on(ActionType.RenameFile, handleRouteResponseMiddle(renameFile))
+	on(ActionType.DownloadFile, handleFileDownload)
 }
 
 function handlePeerError(error: PeerError<`${PeerErrorType}`>) {
@@ -152,7 +195,6 @@ function handlePeerError(error: PeerError<`${PeerErrorType}`>) {
 		case PeerErrorType.ServerError:
 		case PeerErrorType.WebRTC: // 原生 WebRTC 错误
 		default:
-			console.error("Unknown error:", error);
 			throw error;
 	}
 }

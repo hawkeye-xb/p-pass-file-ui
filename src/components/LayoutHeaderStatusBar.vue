@@ -19,7 +19,7 @@ const signalingReflesh = () => {
 }
 
 const webRtcReconnect = () => {
-	linkStore.customPeer?.restart();
+	linkStore.customConn?.restart();
 }
 </script>
 <template>

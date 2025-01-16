@@ -15,6 +15,7 @@ export enum ActionType {
   // file
   PreUploadValidate,
   UploadFile,
+  AggregateFiles,
   RenameFile,
   DownloadFile,
   // Notify
