@@ -55,11 +55,8 @@ export const uploadFile = (data: UploadFileFormDataType) => {
 	formData.append('name', data.name)
 	formData.append('file', data.file)
 
-	return request('/file', {
+	return request('/file/upload', {
 		method: 'POST',
-		headers: {
-			'Content-Type': 'multipart/form-data',
-		},
 		body: formData,
 	})
 }
