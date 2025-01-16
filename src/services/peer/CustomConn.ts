@@ -1,9 +1,10 @@
-import type { DataConnection, Peer, PeerError } from "peerjs";
+import type { DataConnection, PeerError } from "peerjs";
 import type { ActionType, WebRTCContextType } from "./type";
 import { deleteRequest, generateWebRTCContext, getRequest, setRequest } from "./requestManager";
 
 import { CustomPeer } from "./CustomPeer";
 
+// todo：dev 多次被实例化的问题?
 export class CustomConn {
 	private deviceId: string = '';
 	public customPeer: CustomPeer | undefined = undefined;
@@ -30,6 +31,12 @@ export class CustomConn {
 		this.onclose?.();
 	}
 
+	public restart() {
+		this.reconnectAttempts = 0;
+
+		this.handleReconnect();
+	}
+
 	constructor(deviceId: string, connDeviceId: string, options?: {
 		reconnectAttempts?: number;
 		maxReconnectAttempts?: number;
@@ -41,25 +48,24 @@ export class CustomConn {
 		this.maxReconnectAttempts = options?.maxReconnectAttempts || 5;
 		this.reconnectInterval = options?.reconnectInterval || 1000;
 
-		console.log(this.conn, 'conn constructor')
 		if (this.conn) return;
-		this.oninit?.();
-		this.initCustomPeer();
-	}
-
-	private initCustomPeer() {
-		if (!this.customPeer || this.customPeer.peer?.disconnected) {
-			this.customPeer = new CustomPeer(this.deviceId);
-			this.customPeer.onopen = () => { // 主意不要被覆盖了，如果要监听open，在peer实例上监听
-				console.debug('custom peer onopen or reconnect')
-				this.connect();
-			}
-			return;
-		}
 		this.connect();
 	}
 
 	private connect() {
+		this.oninit?.();
+		if (!this.customPeer || this.customPeer.peer?.disconnected) {
+			this.customPeer = new CustomPeer(this.deviceId);
+			this.customPeer.onopen = () => { // 主意不要被覆盖了，如果要监听open，在peer实例上监听
+				console.debug('custom peer onopen or reconnect')
+				this.connectDevice();
+			}
+			return;
+		}
+		this.connectDevice();
+	}
+
+	private connectDevice() {
 		// if (this.conn.) 多次同样的链接会怎么样
 
 		this.conn = this.customPeer?.peer?.connect(this.connDeviceId);

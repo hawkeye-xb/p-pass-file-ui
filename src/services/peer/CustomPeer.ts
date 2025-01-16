@@ -26,9 +26,13 @@ export class CustomPeer {
 		this.onclose?.();
 	}
 
-	public reconncet() {
+	public restart() {
 		this.reconnectAttempts = 0;
 		this.handleErrorReconnect();
+	}
+
+	public reconnect() {
+		this.peer?.reconnect();
 	}
 
 	constructor(deviceId: string, options?: {

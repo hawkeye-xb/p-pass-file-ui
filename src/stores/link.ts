@@ -1,3 +1,5 @@
+import type { CustomConn } from "@/services/peer/CustomConn";
+import type { CustomPeer } from "@/services/peer/CustomPeer";
 import type { CustomWebSocket } from "@/services/storage/CustomWebSocket";
 import { defineStore } from "pinia";
 import { ref } from "vue";
@@ -11,7 +13,16 @@ export const useLinkStore = defineStore('link', () => {
 	}
 	const wsLink = ref<LinkStatusType>(undefined);
 
+	const customPeer = ref<CustomPeer>();
+	const setCustomPeer = (p: CustomPeer) => {
+		customPeer.value = p;
+	}
 	const signalingLink = ref<LinkStatusType>(undefined);
+
+	const customConn = ref<CustomConn>();
+	const setCustomConn = (c: CustomConn) => {
+		customConn.value = c;
+	}
 	const webRTCLink = ref<LinkStatusType>(undefined);
 
 	const updateLink = (type: LinkType, status: LinkStatusType) => {
@@ -32,8 +43,15 @@ export const useLinkStore = defineStore('link', () => {
 		wsInstance,
 		setWs,
 		wsLink,
+
+		customPeer,
+		setCustomPeer,
 		signalingLink,
+
+		customConn,
+		setCustomConn,
 		webRTCLink,
+
 		updateLink,
 	}
 })

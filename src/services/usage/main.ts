@@ -15,7 +15,7 @@ export const usageService = () => {
 	const linkStore = useLinkStore();
 
 	const conn = new CustomConn(deviceId, connDeviceId);
-	// 有必要观察信令服务的状态吗？onopen 会被覆盖了
+	linkStore.setCustomConn(conn);
 
 	conn.oninit = () => { linkStore.updateLink('webRTC', 'processing') }
 	conn.onclose = () => {

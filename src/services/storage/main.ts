@@ -29,6 +29,7 @@ export const storageService = () => {
 		conn.send(data);
 	}
 	const peer = new CustomPeer(deviceId);
+	linkStore.setCustomPeer(peer);
 	peer.oninit = () => { linkStore.updateLink('ws', 'processing'); }
 	peer.onopen = () => { linkStore.updateLink('signaling', 'success'); }
 	peer.onclose = () => { linkStore.updateLink('signaling', 'warning'); }
