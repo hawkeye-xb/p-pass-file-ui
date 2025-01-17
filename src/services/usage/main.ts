@@ -5,8 +5,12 @@ import { useConnectionsStore } from '@/stores/connections';
 import { CustomConn } from "../peer/CustomConn";
 import { ActionType } from "../peer/type";
 import { setUsageCtrlRequest } from "@/ctrls";
+import { useUploadRecordStore } from "@/stores/usage/uploadRecord";
 
 export const usageService = () => {
+	const uploadRecordStore = useUploadRecordStore();
+	uploadRecordStore.init();
+
 	const deviceId = getConfig('deviceId');
 	const connDeviceId = getConfig('connDeviceId');
 	if (!deviceId || !connDeviceId) { return; }

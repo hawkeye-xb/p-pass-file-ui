@@ -4,7 +4,7 @@ type OnUploadFunctionType = (chunk: Blob, options: {
 }, done: () => void) => Promise<void>;
 interface UploadConfig {
 	chunkSize?: number; // 每个文件块的大小，默认 512KB
-	onProgress?: (progress: number, speed: number) => void; // 上传进度和速率回调
+	onProgress?: ((progress: number, speed: number) => void) | undefined;
 	onStatusChange?: (status: string) => void; // 状态变更回调
 	onUpload?: OnUploadFunctionType;
 };
@@ -14,16 +14,22 @@ export class LargeFileUploader {
 	private file: File;
 	private chunkSize: number;
 	private uploadedSize: number = 0; // 已经上传的大小
-	private onProgress?: (progress: number, speed: number) => void;
+	public onProgress: ((progress: number, speed: number) => void) | undefined = undefined;
 	private onStatusChange?: (status: UploadStatusType) => void;
 	private paused: boolean = false;
 	private currentChunkIndex: number = 0; // 当前上传的文件块索引
 	private onUpload?: OnUploadFunctionType;
 
+	public onCompleted: (() => void) | undefined;
+
+	public destroy() {
+		this.onCompleted = undefined;
+		this.onCompleted = undefined;
+	}
+
 	constructor(file: File, config: UploadConfig) {
 		this.file = file;
 		this.chunkSize = config.chunkSize || 512 * 1024; // 默认 512KB
-		this.onProgress = config.onProgress;
 		this.onStatusChange = config.onStatusChange;
 		this.onUpload = config.onUpload;
 	}
@@ -36,7 +42,7 @@ export class LargeFileUploader {
 		const done = () => {
 			const endTime = Date.now();
 			const duration = endTime - startTime;
-			const speed = chunk.size / duration;
+			const speed = chunk.size / duration * 1000;
 			this.onProgress?.(this.uploadedSize / this.file.size, speed);
 
 			this.uploadedSize += chunk.size;
@@ -48,6 +54,7 @@ export class LargeFileUploader {
 				this.start();
 			} else {
 				this.updateStatus('completed');
+				this.onCompleted?.();
 			}
 		}
 

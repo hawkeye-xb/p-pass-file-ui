@@ -16,6 +16,7 @@ import { useDownloadStore } from '@/stores/download';
 import { useRouter } from 'vue-router';
 import { getConfig } from '@/services';
 import { handleUsageUploadFile } from './upload';
+import { UploadScheduler } from '@/services/usage/UploadScheduler';
 
 const Router = useRouter();
 
@@ -55,14 +56,9 @@ const cellClick = (record: any) => {
 const beforeUploadFile = async () => {
   console.log('beforeUploadFile')
   try {
-    // @ts-ignore
-    const [fileHandle] = await window.showOpenFilePicker();
-    const file = await fileHandle.getFile();
-
     const currentFolder = getCurrentFolder(metadataStore.metadatas, breadcrumb.value);
 
-    console.info(currentFolder.path, file.name)
-    handleUsageUploadFile(file, currentFolder)
+    UploadScheduler.getInstance().generateUploader(currentFolder);
   } catch (error) {
     console.warn(error)
   }

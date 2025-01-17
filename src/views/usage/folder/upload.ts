@@ -66,6 +66,9 @@ export const handleUsageUploadFile = async (file: any, currentFolder: MetadataTy
 			console.log('on status change', status)
 			if (status === 'completed') {
 				aggregateFiles();
+				// 添加新记录
+				// 移除正在上传的
+				// 销毁实例
 			}
 		},
 		onUpload: async (chunk, options, done) => {

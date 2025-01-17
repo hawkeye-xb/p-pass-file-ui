@@ -70,7 +70,7 @@ const handleProgressText = (status: DownloadStatus) => {
 }
 </script>
 <template>
-	<div>
+	<div style="margin: 8px 16px;">
 		<div class="download-view-table-top">
 			<a-space>
 				<span>Process(13)</span>
