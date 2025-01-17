@@ -1,6 +1,6 @@
 <script setup lang="ts"></script>
 <template>
 	<div>
-		123
+		123456
 	</div>
 </template>

@@ -26,8 +26,6 @@ export class LargeFileUploader {
 		this.onProgress = config.onProgress;
 		this.onStatusChange = config.onStatusChange;
 		this.onUpload = config.onUpload;
-
-		console.debug('LargeFileUploader init', file.size, this.chunkSize, this.chunkSize / file.size);
 	}
 
 	public start() {
@@ -59,13 +57,20 @@ export class LargeFileUploader {
 		}, done.bind(this));
 	}
 
-	public pause() { }
-	public resume() { }
+	public pause() {
+		this.paused = true;
+		this.updateStatus('paused');
+	}
+	public resume() {
+		this.paused = false;
+		this.updateStatus('uploading');
+		this.start();
+	}
 
 	private splitChunk() {
 		const start = this.uploadedSize;
-		const end = Math.min(start + this.chunkSize - 1, this.file.size);
-		const chunk = this.file.slice(start, end);
+		const end = Math.min(start + this.chunkSize, this.file.size);
+		const chunk = this.file.slice(start, end); // 包含start，不包含end
 		return chunk;
 	}
 

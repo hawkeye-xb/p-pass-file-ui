@@ -3,6 +3,8 @@ import {
 	IconFolder,
 	IconSettings,
 	IconSwap,
+	IconUpload,
+	IconDownload,
 } from '@arco-design/web-vue/es/icon';
 import { ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -32,12 +34,24 @@ watch(
 			</template>
 			Folder
 		</a-menu-item>
-		<a-menu-item key="/usage/transport" v-on:click="() => { Router.push('/usage/transport') }">
+		<a-sub-menu key="/usage/transport">
 			<template #icon>
 				<IconSwap></IconSwap>
 			</template>
-			Transport
-		</a-menu-item>
+			<template #title>Transport</template>
+			<a-menu-item key="/usage/transport/upload" v-on:click="() => { Router.push('/usage/transport/upload') }">
+				<template #icon>
+					<IconUpload></IconUpload>
+				</template>
+				Upload
+			</a-menu-item>
+			<a-menu-item key="/usage/transport/download" v-on:click="() => { Router.push('/usage/transport/download') }">
+				<template #icon>
+					<IconDownload></IconDownload>
+				</template>
+				Download
+			</a-menu-item>
+		</a-sub-menu>
 		<a-menu-item key="/usage/settings" v-on:click="() => { Router.push('/usage/settings') }">
 			<template #icon>
 				<IconSettings></IconSettings>
