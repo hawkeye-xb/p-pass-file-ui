@@ -2,8 +2,8 @@ export type UploadStatusType = 'waiting' | 'uploading' | 'paused' | 'completed' 
 export enum UploadStatusEnum {
 	Waiting = 'waiting',
 	Uploading = 'uploading',
-	Holded = 'holded',
-	Paused = 'paused',
+	Holded = 'holded', // 被动的暂停
+	Paused = 'paused', // 主动的暂停 ，这个才更应该叫 holded
 	Completed = 'completed',
 	Error = 'error',
 	Canceled = 'canceled'
@@ -18,6 +18,7 @@ export interface UploadRecordType {
 	status: UploadStatusType;
 	stime: number;
 	etime: number;
+	size: number;
 	// type?: 'file' | 'dir';
 	// 其他的元数据信息
 }

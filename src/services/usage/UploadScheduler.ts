@@ -43,6 +43,7 @@ export class UploadScheduler {
 				status: 'waiting',
 				stime: Date.now(),
 				etime: 0,
+				size: file.size,
 			}
 
 			if (file.size < this.MAX_FILE_SIZE) {
@@ -114,7 +115,7 @@ export class UploadScheduler {
 			Message.success('上传成功');
 			record.etime = Date.now();
 			record.status = 'completed';
-			uploadRecordStore.update(record);
+			uploadRecordStore.update({ ...record });
 		}
 
 		const largeFileUploader = new LargeFileUploader(file, {

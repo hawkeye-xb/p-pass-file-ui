@@ -14,6 +14,7 @@ export class LargeFileUploader {
 	private file: File;
 	private chunkSize: number;
 	private uploadedSize: number = 0; // 已经上传的大小
+	public onUploadedSizeChange: ((size: number) => void) | undefined;
 	public onProgress: ((progress: number, speed: number) => void) | undefined = undefined;
 	private onStatusChange?: (status: UploadStatusType) => void;
 	private paused: boolean = false;
@@ -46,6 +47,7 @@ export class LargeFileUploader {
 			this.onProgress?.(this.uploadedSize / this.file.size, speed);
 
 			this.uploadedSize += chunk.size;
+			this.onUploadedSizeChange?.(this.uploadedSize);
 			this.currentChunkIndex++;
 
 			if (this.uploadedSize < this.file.size) {

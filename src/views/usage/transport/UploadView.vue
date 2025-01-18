@@ -1,17 +1,8 @@
 <script setup lang="ts">
-import { PATH_TYPE } from '@/const';
 import { computed, ref } from 'vue';
-import {
-	IconDelete,
-	IconClose,
-	IconFolder,
-	IconPause,
-	IconPlayArrow,
-} from '@arco-design/web-vue/es/icon';
-import { convertBytes } from '@/utils';
 import { useUploadRecordStore } from '@/stores/usage/uploadRecord';
-import { UploadStatusEnum } from '@/services/usage/upload'
 import UploadStatus from './UploadStatus.vue';
+import UploadSize from './UploadSize.vue';
 
 const uploadRecordStore = useUploadRecordStore();
 
@@ -47,31 +38,7 @@ const data = computed(() => {
 				</a-table-column>
 				<a-table-column title="Size" data-index="size" :width="200">
 					<template #cell="{ record }">
-						<div class="size-cell">
-							<a-space class="hover-hook">
-								<a-tooltip content="Show in folder(todo)">
-									<IconFolder class="icon" />
-								</a-tooltip>
-								<a-tooltip content="Delete from upload history"
-									v-if="record.status === UploadStatusEnum.Completed || record.status === UploadStatusEnum.Canceled">
-									<IconDelete class="icon" />
-								</a-tooltip>
-								<a-tooltip content="Pause download" v-if="record.status === UploadStatusEnum.Uploading">
-									<IconPause class="icon" />
-								</a-tooltip>
-								<a-tooltip content="Resume download"
-									v-if="record.status === UploadStatusEnum.Holded || record.status === UploadStatusEnum.Paused">
-									<IconPlayArrow class="icon" />
-								</a-tooltip>
-								<a-tooltip content="Cancel download"
-									v-if="record.status !== UploadStatusEnum.Completed && record.status !== UploadStatusEnum.Canceled">
-									<IconClose class="icon" />
-								</a-tooltip>
-							</a-space>
-							<span class="hover-hook-span">{{
-								'speed'
-							}}</span>
-						</div>
+						<UploadSize :uploadRecord="record" />
 					</template>
 				</a-table-column>
 				<a-table-column title="Status" data-index="status" :width="280">

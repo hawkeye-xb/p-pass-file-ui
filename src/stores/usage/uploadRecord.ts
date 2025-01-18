@@ -16,6 +16,7 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 	}
 
 	function update(r: UploadRecordType) {
+		// 更新状态需要重新调度
 		const record = { ...r }; // 避免成功的时候，还是同样的引用
 		const index = uploadRecord.value.findIndex(r => r.id === record.id)
 		if (index !== -1) {
