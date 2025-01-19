@@ -33,14 +33,25 @@ if (uploader) {
 	}
 }
 
-const statusText = computed(() => {
-	console.log(props.uploadRecord.status, 'statusText');
-	if (props.uploadRecord.status === UploadStatusEnum.Completed) {
-		return dateFormat(props.uploadRecord.etime, 'YY-MM-DD ')
-	}
+const statusText = ref(props.uploadRecord.status.toString());
 
-	return props.uploadRecord.status;
-});
+watch(() => props.uploadRecord.status, (newValue, oldValue) => {
+	if (newValue === UploadStatusEnum.Uploading) {
+		progressVisible.value = true;
+	}
+	if (newValue === UploadStatusEnum.Paused) {
+		progressVisible.value = true;
+		speed.value = 'Paused';
+	}
+	if (newValue === UploadStatusEnum.Completed) {
+		progressVisible.value = false;
+		statusText.value = dateFormat(props.uploadRecord.etime, 'YY-MM-DD ')
+	}
+	if (newValue === UploadStatusEnum.Canceled) {
+		progressVisible.value = false;
+	}
+}, { immediate: true })
+
 
 onBeforeUnmount(() => {
 	if (uploader) {

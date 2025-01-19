@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { UploadRecordType } from '@/services/usage/upload';
-import { computed, onBeforeUnmount, ref, type PropType } from 'vue';
+import { computed, onBeforeUnmount, ref, watch, type PropType } from 'vue';
 import {
 	IconDelete,
 	IconClose,
@@ -22,24 +22,13 @@ const props = defineProps({
 	},
 })
 
-const uploader = UploadScheduler.getInstance().getUploader(props.uploadRecord.id);
-
 const sizeText = ref('-');
-const initSizeText = () => {
-	if (props.uploadRecord.status === UploadStatusEnum.Completed) {
-		sizeText.value = convertBytes(props.uploadRecord.size || 0);
-		return;
+const uploader = UploadScheduler.getInstance().getUploader(props.uploadRecord.id);
+if (uploader) {
+	uploader.onUploadedSizeChange = (size) => {
+		sizeText.value = convertBytes(size) + '/' + convertBytes(props.uploadRecord.size || 0);
 	}
-
-	if (uploader) {
-		uploader.onUploadedSizeChange = (size) => {
-			sizeText.value = convertBytes(size) + '/' + convertBytes(props.uploadRecord.size || 0);
-		}
-	}
-
-	return;
 }
-initSizeText();
 
 onBeforeUnmount(() => {
 	if (uploader) {
@@ -48,17 +37,11 @@ onBeforeUnmount(() => {
 })
 
 const deleteIconVisible = ref(false);
-if (props.uploadRecord.status === UploadStatusEnum.Completed || props.uploadRecord.status === UploadStatusEnum.Canceled) {
-	deleteIconVisible.value = true;
-}
 const deleteFromUploadRecord = () => {
 	uploadRecordStore.remove(props.uploadRecord.id);
 }
 
 const pausedIconVisible = ref(false);
-if (props.uploadRecord.status === UploadStatusEnum.Waiting || props.uploadRecord.status === UploadStatusEnum.Uploading) {
-	pausedIconVisible.value = true;
-}
 const handlePaused = () => {
 	UploadScheduler.getInstance().getUploader(props.uploadRecord.id)?.pause();
 	uploadRecordStore.update({
@@ -68,9 +51,6 @@ const handlePaused = () => {
 }
 
 const resumeIconVisible = ref(false);
-if (props.uploadRecord.status === UploadStatusEnum.Holded || props.uploadRecord.status === UploadStatusEnum.Paused) {
-	resumeIconVisible.value = true;
-}
 const handleResume = () => {
 	uploadRecordStore.update({
 		...props.uploadRecord,
@@ -79,13 +59,6 @@ const handleResume = () => {
 }
 
 const cancelIconVisible = ref(false);
-if (
-	props.uploadRecord.status !== UploadStatusEnum.Completed
-	&& props.uploadRecord.status !== UploadStatusEnum.Canceled
-	&& props.uploadRecord.status !== UploadStatusEnum.Error
-) {
-	cancelIconVisible.value = true;
-}
 const handleCancel = () => {
 	// 取消是否要删除已经下载的数据
 	// 取消直接删除记录？还是可以重新发起下载？
@@ -94,6 +67,29 @@ const handleCancel = () => {
 		status: UploadStatusEnum.Canceled,
 	})
 }
+
+watch(() => props.uploadRecord.status, (newValue, oldValue) => {
+	if (newValue === UploadStatusEnum.Completed) {
+		sizeText.value = convertBytes(props.uploadRecord.size || 0);
+		uploader && (uploader.onUploadedSizeChange = undefined);
+	}
+	if (newValue === UploadStatusEnum.Completed || newValue === UploadStatusEnum.Canceled) {
+		deleteIconVisible.value = true;
+	}
+	if (newValue === UploadStatusEnum.Waiting || newValue === UploadStatusEnum.Uploading) {
+		pausedIconVisible.value = true;
+	}
+	if (newValue === UploadStatusEnum.Holded || newValue === UploadStatusEnum.Paused) {
+		resumeIconVisible.value = true;
+	}
+	if (
+		newValue !== UploadStatusEnum.Completed
+		&& newValue !== UploadStatusEnum.Canceled
+		&& newValue !== UploadStatusEnum.Error
+	) {
+		cancelIconVisible.value = true;
+	}
+}, { immediate: true })
 
 </script>
 <template>
