@@ -1,7 +1,6 @@
 import { getConfig } from "../config";
 import { useMetadatasStore } from '@/stores/metadatas';
 import { useLinkStore } from '@/stores/link';
-import { useConnectionsStore } from '@/stores/connections';
 import { CustomConn } from "../peer/CustomConn";
 import { ActionType } from "../peer/type";
 import { setUsageCtrlRequest } from "@/ctrls";

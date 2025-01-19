@@ -39,12 +39,12 @@ watch(
 			</template>
 			Folder
 		</a-menu-item>
-		<a-menu-item key="/storage/transport" v-on:click="() => { Router.push('/storage/transport') }">
+		<!-- <a-menu-item key="/storage/transport" v-on:click="() => { Router.push('/storage/transport') }">
 			<template #icon>
 				<IconSwap></IconSwap>
 			</template>
 			Transport
-		</a-menu-item>
+		</a-menu-item> -->
 		<a-menu-item key="/storage/settings" v-on:click="() => { Router.push('/storage/settings') }">
 			<template #icon>
 				<IconSettings></IconSettings>

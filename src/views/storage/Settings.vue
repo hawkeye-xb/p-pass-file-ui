@@ -60,7 +60,7 @@ const downloadPath = ref('')
 downloadPath.value = getConfig('downloadPath') || '';
 </script>
 <template>
-	<div style="padding-top: 24px;">
+	<div style="padding-top: 24px; flex: 1">
 		<BaseSettings />
 
 		<!-- storage settings -->
