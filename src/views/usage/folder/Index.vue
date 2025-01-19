@@ -15,8 +15,7 @@ import Footer from './Footer.vue';
 import { useDownloadStore } from '@/stores/download';
 import { useRouter } from 'vue-router';
 import { getConfig } from '@/services';
-import { handleUsageUploadFile } from './upload';
-import { UploadScheduler } from '@/services/usage/UploadScheduler';
+import { generateUploadRecord } from '@/stores/usage/uploadRecord';
 
 const Router = useRouter();
 
@@ -38,7 +37,11 @@ const handleBreadcrumbClick = (name: string) => {
 const data: ComputedRef<MetadataType[]> = computed(() => {
   const currentFolder = getCurrentFolder(metadataStore.metadatas, breadcrumb.value);
   return currentFolder?.children?.map((el) => {
-    return { ...el, children: undefined }
+    const res = { ...el, children: undefined };
+    if (breadcrumb.value.length === 0) {
+      (res as any).disabled = true;
+    }
+    return res;
   }) || [];
 });
 
@@ -54,11 +57,24 @@ const cellClick = (record: any) => {
 };
 
 const beforeUploadFile = async () => {
-  console.log('beforeUploadFile')
   try {
+    if (!window.electron) {
+      Message.error('请在electron环境下使用');
+      return;
+    }
+
+    const selector = await window.electron.openFileSelector({})
+    console.log('selector: ', selector);
+    if (selector.canceled) {
+      return;
+    }
     const currentFolder = getCurrentFolder(metadataStore.metadatas, breadcrumb.value);
 
-    UploadScheduler.getInstance().generateUploader(currentFolder);
+    for (const filePath of selector.filePaths) {
+      generateUploadRecord(filePath, currentFolder).then(res => {
+        console.log('upload record res: ', res);
+      });
+    }
   } catch (error) {
     console.warn(error)
   }
@@ -108,6 +124,10 @@ const handleRenameBlurCheck = async () => {
   }
   const fn = PATH_TYPE.DIR === record.type ? usageRenameDir : usageRenameFile;
   const res = await fn(params);
+  if (res.response.body.code !== 0) {
+    Message.error(res.response.body.message);
+    return;
+  }
   setTimeout(() => {
     resetRenameStatus();
   }, 100);
@@ -222,7 +242,7 @@ alertVisible.value = !connDeviceId;
             <template #cell="{ record }">
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>{{ dateFormat(record.mtime) }}</div>
-                <Options @selected="(k) => {
+                <Options v-if="breadcrumb.length > 0" @selected="(k) => {
                   handleCellOptionSelected(k, record)
                 }" :record="record" />
               </div>

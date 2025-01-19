@@ -6,7 +6,7 @@ export const initWs = (options: {
 	onerror?: () => void;
 	onclose?: () => void;
 }) => {
-	const WS_URL = "ws://localhost:3000/ws";
+	const WS_URL = "ws://localhost:2501/ws";
 	const ws = new CustomWebSocket(WS_URL);
 	ws.onmessage = (event) => {
 		debounceUpdateMetadatas(options.onmessage);

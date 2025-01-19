@@ -1,3 +1,5 @@
+// todo: 整合到store的状态管理中去？
+
 import { v4 as uuidv4 } from "uuid";
 import { usageAggregateFiles, usageCreateTemporaryDir, usagePreUploadValidate, usageUploadFile } from "@/ctrls/usage";
 import type { MetadataType } from "@/types";
@@ -5,6 +7,7 @@ import Message from "@arco-design/web-vue/es/message";
 import { LargeFileUploader } from "../upload/LargeFileUploader";
 import { type UploadRecordType } from "./upload";
 import { useUploadRecordStore } from "@/stores/usage/uploadRecord";
+import { PATH_TYPE } from "@/const";
 
 /**
  * 全局唯一的上传调度器；UI 层通过来控制上传
@@ -44,6 +47,7 @@ export class UploadScheduler {
 				stime: Date.now(),
 				etime: 0,
 				size: file.size,
+				type: PATH_TYPE.DIRECTORY,
 			}
 
 			if (file.size < this.MAX_FILE_SIZE) {

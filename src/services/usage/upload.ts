@@ -1,3 +1,5 @@
+import type { PATH_TYPE } from "@/const";
+
 export type UploadStatusType = 'waiting' | 'uploading' | 'paused' | 'completed' | 'error' | 'canceled' | 'holded'
 export enum UploadStatusEnum {
 	Waiting = 'waiting',
@@ -19,7 +21,8 @@ export interface UploadRecordType {
 	stime: number;
 	etime: number;
 	size: number;
-	// type?: 'file' | 'dir';
+	type: PATH_TYPE;
+	children?: UploadRecordType[];
 	// 其他的元数据信息
 }
 

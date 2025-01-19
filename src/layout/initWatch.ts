@@ -5,7 +5,7 @@ import { getWatchTargetsMetadata } from '@/ctrls/index'
 
 export const initStorageWatch = () => {
 	console.log('initStorageWatch')
-	const WS_URL = "ws://localhost:3000/ws";
+	const WS_URL = "ws://localhost:2501/ws";
 	const ws = new WebSocket(WS_URL);
 
 	const linkStore = useLinkStore();

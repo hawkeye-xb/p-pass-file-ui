@@ -10,6 +10,9 @@ const initConfig = () => {
   console.log('deviceId: ', deviceId)
 }
 initConfig()
+
+// @ts-ignore
+if (window.electron) { console.log('electron', window.electron) }
 </script>
 
 <template>
