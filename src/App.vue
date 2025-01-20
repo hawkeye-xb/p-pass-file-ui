@@ -2,6 +2,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { getConfig, setConfig } from '@/services/index'
 import SetClientType from './components/SetClientType.vue';
+import { onBeforeUnmount } from 'vue';
 
 const initConfig = () => {
   const deviceId = getConfig('deviceId') || uuidv4();
@@ -13,6 +14,10 @@ initConfig()
 
 // @ts-ignore
 if (window.electron) { console.log('electron', window.electron) }
+
+onBeforeUnmount(() => {
+  console.log('onBeforeUnmount')
+})
 </script>
 
 <template>

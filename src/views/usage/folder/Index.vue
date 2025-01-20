@@ -15,11 +15,12 @@ import Footer from './Footer.vue';
 import { useDownloadStore } from '@/stores/download';
 import { useRouter } from 'vue-router';
 import { getConfig } from '@/services';
-import { generateUploadRecord } from '@/stores/usage/uploadRecord';
+import { generateUploadRecord, useUploadRecordStore } from '@/stores/usage/uploadRecord';
 
 const Router = useRouter();
 
 const metadataStore = useMetadatasStore();
+const uploadRecordStore = useUploadRecordStore();
 const downloadStore = useDownloadStore();
 
 // breadcrumb
@@ -64,15 +65,14 @@ const beforeUploadFile = async () => {
     }
 
     const selector = await window.electron.openFileSelector({})
-    console.log('selector: ', selector);
     if (selector.canceled) {
       return;
     }
     const currentFolder = getCurrentFolder(metadataStore.metadatas, breadcrumb.value);
 
     for (const filePath of selector.filePaths) {
-      generateUploadRecord(filePath, currentFolder).then(res => {
-        console.log('upload record res: ', res);
+      generateUploadRecord(filePath, currentFolder).then(record => {
+        if (record) { uploadRecordStore.add(record); }
       });
     }
   } catch (error) {

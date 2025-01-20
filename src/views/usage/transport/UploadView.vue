@@ -3,13 +3,27 @@ import { computed, ref } from 'vue';
 import { useUploadRecordStore } from '@/stores/usage/uploadRecord';
 import UploadStatus from './UploadStatus.vue';
 import UploadSize from './UploadSize.vue';
+import type { UploadRecordType } from '@/services/usage/upload';
+import { PATH_TYPE } from '@/const';
 
 const uploadRecordStore = useUploadRecordStore();
 
 const selectedKeys = ref<number[]>([]);
 const data = computed(() => {
-	return uploadRecordStore.uploadRecord;
+	return filterEmptyDir(uploadRecordStore.uploadRecord);
 })
+
+function filterEmptyDir(rs: UploadRecordType[]) {
+	return rs.filter((item: UploadRecordType) => {
+		if (item.type === PATH_TYPE.DIR) {
+			if (!item.children || item.children.length === 0) { return false; }
+			item.children = filterEmptyDir(item.children);
+			if (item.children.length === 0) { return false; }
+		}
+
+		return true;
+	}).map(el => ({ ...el }));
+}
 </script>
 <template>
 	<div style="margin: 8px 16px;">

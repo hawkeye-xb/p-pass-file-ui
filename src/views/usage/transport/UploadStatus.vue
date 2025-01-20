@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PATH_TYPE } from '@/const';
 import { UploadStatusEnum, type UploadRecordType, type UploadStatusType } from '@/services/usage/upload';
 import { UploadScheduler } from '@/services/usage/UploadScheduler';
 import { convertBytes, dateFormat } from '@/utils';
@@ -33,25 +34,27 @@ if (uploader) {
 	}
 }
 
-const statusText = ref(props.uploadRecord.status.toString());
+const statusText = ref('');
 
 watch(() => props.uploadRecord.status, (newValue, oldValue) => {
 	if (newValue === UploadStatusEnum.Uploading) {
 		progressVisible.value = true;
+	} else {
+		progressVisible.value = false;
 	}
 	if (newValue === UploadStatusEnum.Paused) {
-		progressVisible.value = true;
 		speed.value = 'Paused';
 	}
-	if (newValue === UploadStatusEnum.Completed) {
-		progressVisible.value = false;
+
+	// statusText
+	if (props.uploadRecord.type === PATH_TYPE.DIR) {
+		statusText.value = '-';
+	} else if (newValue === UploadStatusEnum.Completed) {
 		statusText.value = dateFormat(props.uploadRecord.etime, 'YY-MM-DD ')
-	}
-	if (newValue === UploadStatusEnum.Canceled) {
-		progressVisible.value = false;
+	} else {
+		statusText.value = props.uploadRecord.status.toString()
 	}
 }, { immediate: true })
-
 
 onBeforeUnmount(() => {
 	if (uploader) {

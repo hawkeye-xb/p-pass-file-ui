@@ -28,7 +28,7 @@ export interface UploadRecordType {
 
 const STORAGE_KEY = 'uploadRecord'
 
-export const getUploadRecord = () => {
+export const getAllUploadRecord = () => {
 	const record = localStorage.getItem(STORAGE_KEY)
 	if (record) {
 		return JSON.parse(record) as UploadRecordType[]
@@ -37,13 +37,13 @@ export const getUploadRecord = () => {
 }
 
 export const addUploadRecord = (record: UploadRecordType) => {
-	const records = getUploadRecord()
+	const records = getAllUploadRecord()
 	records.push(record)
 	localStorage.setItem(STORAGE_KEY, JSON.stringify(records))
 }
 
 export const removeUploadRecord = (id: string) => {
-	const records = getUploadRecord()
+	const records = getAllUploadRecord()
 	const index = records.findIndex(record => record.id === id)
 	if (index !== -1) {
 		records.splice(index, 1)
@@ -57,7 +57,7 @@ export const setAllUploadRecord = (records: UploadRecordType[]) => {
 
 // 已经完成的不能更新
 export const updateUploadRecord = (id: string, record: UploadRecordType) => {
-	const records = getUploadRecord()
+	const records = getAllUploadRecord()
 	const index = records.findIndex(record => record.id === id)
 	if (index !== -1) {
 		records[index] = record

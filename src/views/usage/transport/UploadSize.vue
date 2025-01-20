@@ -43,7 +43,7 @@ const deleteFromUploadRecord = () => {
 
 const pausedIconVisible = ref(false);
 const handlePaused = () => {
-	UploadScheduler.getInstance().getUploader(props.uploadRecord.id)?.pause();
+	// UploadScheduler.getInstance().getUploader(props.uploadRecord.id)?.pause();
 	uploadRecordStore.update({
 		...props.uploadRecord,
 		status: UploadStatusEnum.Paused,
@@ -59,16 +59,21 @@ const handleResume = () => {
 }
 
 const cancelIconVisible = ref(false);
-const handleCancel = () => {
-	// 取消是否要删除已经下载的数据
-	// 取消直接删除记录？还是可以重新发起下载？
-	uploadRecordStore.update({
-		...props.uploadRecord,
-		status: UploadStatusEnum.Canceled,
-	})
-}
+// const handleCancel = () => {
+// 	// 取消是否要删除已经下载的数据
+// 	// 取消直接删除记录？还是可以重新发起下载？
+// 	uploadRecordStore.update({
+// 		...props.uploadRecord,
+// 		status: UploadStatusEnum.Canceled,
+// 	})
+// }
 
 watch(() => props.uploadRecord.status, (newValue, oldValue) => {
+	deleteIconVisible.value = false;
+	pausedIconVisible.value = false;
+	resumeIconVisible.value = false;
+	cancelIconVisible.value = false;
+
 	if (newValue === UploadStatusEnum.Completed) {
 		sizeText.value = convertBytes(props.uploadRecord.size || 0);
 		uploader && (uploader.onUploadedSizeChange = undefined);
@@ -107,8 +112,8 @@ watch(() => props.uploadRecord.status, (newValue, oldValue) => {
 			<a-tooltip content="Resume upload" v-if="resumeIconVisible">
 				<IconPlayArrow class="icon" @click="handleResume" />
 			</a-tooltip>
-			<a-tooltip content="Cancel upload" v-if="cancelIconVisible">
-				<IconClose class="icon" @click="handleCancel" />
+			<a-tooltip content="Cancel upload and delete record form upload history" v-if="cancelIconVisible">
+				<IconClose class="icon" @click="deleteFromUploadRecord" />
 			</a-tooltip>
 		</a-space>
 		<span class="hover-hook-span">{{ sizeText }}</span>

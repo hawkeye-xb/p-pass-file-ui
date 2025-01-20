@@ -2,36 +2,67 @@
 import { v4 as uuidv4 } from "uuid";
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import { addUploadRecord, getUploadRecord, removeUploadRecord, updateUploadRecord, UploadStatusEnum, type UploadRecordType } from '@/services/usage/upload'
+import { addUploadRecord, getAllUploadRecord, removeUploadRecord, setAllUploadRecord, UploadStatusEnum, type UploadRecordType } from '@/services/usage/upload'
 import { getMetadata } from '@/ctrls'
 import type { MetadataType } from '@/types'
-import type { PATH_TYPE } from "@/const";
+import { PATH_TYPE } from "@/const";
 
 export const useUploadRecordStore = defineStore('uploadRecord', () => {
 	const uploadRecord = ref<UploadRecordType[]>([])
+	const uploadFlatRecord = ref<UploadRecordType[]>([])
+
 	function add(record: UploadRecordType) {
 		uploadRecord.value.push(record)
-		addUploadRecord(record)
+		setAllUploadRecord(uploadRecord.value)
+		init()
 	}
 
 	function remove(id: string) {
-		uploadRecord.value = uploadRecord.value.filter(record => record.id !== id)
-		removeUploadRecord(id)
+		const removeItemFromRecord = (items: UploadRecordType[]) => {
+			return items.filter(item => {
+				if (item.id === id) {
+					return false
+				}
+				if (item.children) {
+					item.children = removeItemFromRecord(item.children)
+				}
+				return true
+			})
+		}
+		const res = removeItemFromRecord(uploadRecord.value)
+		setAllUploadRecord(res)
+		init()
 	}
 
 	function update(r: UploadRecordType) {
 		// 更新状态需要重新调度
-		const record = { ...r }; // 避免成功的时候，还是同样的引用
-		const index = uploadRecord.value.findIndex(r => r.id === record.id)
-		if (index !== -1) {
-			uploadRecord.value[index] = record
-			updateUploadRecord(record.id, record)
+		const idx = uploadFlatRecord.value.findIndex(item => item.id === r.id)
+		if (idx === -1) {
+			console.warn('update record not found', r)
+			return
 		}
+		uploadFlatRecord.value[idx].status = r.status
+
+		setAllUploadRecord(uploadRecord.value)
 	}
 
 	function init() {
-		const records = getUploadRecord()
+		const records = getAllUploadRecord()
 		uploadRecord.value = records
+
+		uploadFlatRecord.value = [];
+		// 持有引用的扁平化
+		const flat = (items: UploadRecordType[]) => {
+			items.forEach(item => {
+				uploadFlatRecord.value.push(item)
+				if (item.children) {
+					flat(item.children)
+				}
+			})
+		}
+		flat(records)
+
+		console.log('init uploadRecord', uploadRecord.value, uploadFlatRecord.value)
 	}
 
 	return {
@@ -60,7 +91,7 @@ export const generateUploadRecord = async (uploadSrcPath: string, uploadTraget: 
 			id: uuidv4(),
 			uploadSourcePath: info.path,
 			uploadTargetPath: uploadTraget.path,
-			uploadTempraryPath: '',
+			uploadTempraryPath: '', // 开始上传了再给临时目录
 			name: info.name,
 			status: UploadStatusEnum.Waiting,
 			stime: 0,
@@ -70,5 +101,6 @@ export const generateUploadRecord = async (uploadSrcPath: string, uploadTraget: 
 			children: info.children?.map(gcRecord) || undefined
 		}
 	}
+
 	return gcRecord(srcMetadata)
 }
