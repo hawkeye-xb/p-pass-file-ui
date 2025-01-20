@@ -4,8 +4,13 @@ import Menu from '@/components/menu/UsageMenu.vue'
 import StatusBar from '@/components/LayoutHeaderStatusBar.vue'
 import { IconSettings, IconUser } from '@arco-design/web-vue/es/icon';
 import { usageService } from '@/services/usage/main';
+import { onBeforeUnmount } from 'vue';
 
 usageService()
+
+onBeforeUnmount(() => {
+	console.log('usage layout before unmount');
+})
 </script>
 <template>
 	<div class="index-layout">

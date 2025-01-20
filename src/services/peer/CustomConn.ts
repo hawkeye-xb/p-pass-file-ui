@@ -71,7 +71,25 @@ export class CustomConn {
 	}
 
 	private connectDevice() {
-		// if (this.conn.) 多次同样的链接会怎么样
+		try {
+			// @ts-ignore
+			const connMap = this.customPeer?.peer?._connections;
+			if (connMap && connMap.has(this.connDeviceId)) {
+				const conns = connMap.get(this.connDeviceId);
+				for (const conn of conns) {
+					if (conn.open && conn.type === 'data') {
+						console.debug('conn already exist, use it', conn)
+						this.conn = conn;
+						this.onopen?.();
+
+						this.bindEvent();
+						return;
+					}
+				}
+			}
+		} catch (error) {
+			console.debug('connect get ready err:', error);
+		}
 
 		this.conn = this.customPeer?.peer?.connect(this.connDeviceId);
 		this.bindEvent();

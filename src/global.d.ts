@@ -21,5 +21,6 @@ interface OpenDialogReturnValue {
 interface Window {
 	electron?: {
 		openFileSelector: (options: any) => Promise<OpenDialogReturnValue>
-	}
+	},
+	conn: any,
 }
