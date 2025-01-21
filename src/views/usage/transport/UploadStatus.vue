@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { PATH_TYPE } from '@/const';
 import { UploadStatusEnum, type UploadRecordType, type UploadStatusType } from '@/services/usage/upload';
-import { UploadScheduler } from '@/services/usage/UploadScheduler';
 import { convertBytes, dateFormat } from '@/utils';
 import { ref, onBeforeUnmount, watch, type PropType, computed } from 'vue';
+import { useUploadRecordStore } from '@/stores/usage/uploadRecord';
 
+const uploadRecordStore = useUploadRecordStore();
 const props = defineProps({
 	uploadRecord: {
 		type: Object as PropType<UploadRecordType>,
@@ -17,7 +18,7 @@ const progressVisible = ref(false);
 const progress = ref(0);
 const speed = ref(''); // bytes/s
 
-const uploader = UploadScheduler.getInstance().getUploader(props.uploadRecord.id);
+const uploader = uploadRecordStore.getLargeFileUploader(props.uploadRecord.id);
 if (uploader) {
 	uploader.onProgress = (p, s) => {
 		// 保留两位小数
@@ -37,6 +38,7 @@ if (uploader) {
 const statusText = ref('');
 
 watch(() => props.uploadRecord.status, (newValue, oldValue) => {
+	speed.value = '';
 	if (newValue === UploadStatusEnum.Uploading) {
 		progressVisible.value = true;
 	} else {

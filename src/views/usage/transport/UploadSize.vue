@@ -10,7 +10,6 @@ import {
 } from '@arco-design/web-vue/es/icon';
 import { UploadStatusEnum } from '@/services/usage/upload';
 import { useUploadRecordStore } from '@/stores/usage/uploadRecord';
-import { UploadScheduler } from '@/services/usage/UploadScheduler';
 import { convertBytes } from '@/utils';
 
 const uploadRecordStore = useUploadRecordStore();
@@ -23,7 +22,7 @@ const props = defineProps({
 })
 
 const sizeText = ref('-');
-const uploader = UploadScheduler.getInstance().getUploader(props.uploadRecord.id);
+const uploader = uploadRecordStore.getLargeFileUploader(props.uploadRecord.id);
 if (uploader) {
 	uploader.onUploadedSizeChange = (size) => {
 		sizeText.value = convertBytes(size) + '/' + convertBytes(props.uploadRecord.size || 0);
@@ -43,7 +42,6 @@ const deleteFromUploadRecord = () => {
 
 const pausedIconVisible = ref(false);
 const handlePaused = () => {
-	// UploadScheduler.getInstance().getUploader(props.uploadRecord.id)?.pause();
 	uploadRecordStore.update({
 		...props.uploadRecord,
 		status: UploadStatusEnum.Paused,

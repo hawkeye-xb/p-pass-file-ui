@@ -59,6 +59,7 @@ export const usageUploadFile = (data: {
 	content: Uint8Array,
 	target: string,
 	name: string,
+	parentPaths?: string[], // 子路径
 }) => {
 	return request(ActionType.UploadFile, data, {})
 }
@@ -70,6 +71,7 @@ interface AggregateFilesType {
 	}[], // 需要聚合的文件
 	target: string, // 目标目录
 	name: string, // 文件名
+	parentPaths?: string[], // 子路径
 }
 export const usageAggregateFiles = (data: AggregateFilesType) => {
 	return request(ActionType.AggregateFiles, data, {})

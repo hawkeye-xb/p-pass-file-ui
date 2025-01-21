@@ -15,6 +15,7 @@ export interface UploadRecordType {
 	id: string;
 	uploadSourcePath: string;
 	uploadTargetPath: string;
+	parentPaths: string[];
 	uploadTempraryPath: string; // 大文件上传的临时路径
 	name: string;
 	status: UploadStatusType;
