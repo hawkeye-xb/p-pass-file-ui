@@ -1,4 +1,5 @@
 import { request, jsonHeaders as headers } from "@/apis/request";
+import path from "path-browserify";
 
 interface RenameFileType {
 	target: string, // 目标文件
@@ -68,8 +69,14 @@ interface AggregateFilesType {
 	}[], // 需要聚合的文件
 	target: string, // 目标目录
 	name: string, // 文件名
+	parentPaths?: string[], // 父目录
 }
 export const aggregateFiles = (data: AggregateFilesType) => {
+	if (data.parentPaths) {
+		data.target = path.join(data.target, ...data.parentPaths)
+		delete data.parentPaths;
+	}
+
 	return request('/file/aggregate', {
 		method: 'POST',
 		headers,

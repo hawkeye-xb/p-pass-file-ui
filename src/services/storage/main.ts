@@ -9,6 +9,7 @@ import { aggregateFiles, createDir, createTemporaryDir, deleteRes, downloadFile,
 import { useConnectionsStore } from '@/stores/connections';
 import { initWs } from './ws';
 import { initWatchTargets } from './watchs';
+import path from 'path-browserify';
 
 export const storageService = () => {
 	const deviceId = getConfig('deviceId');
@@ -129,7 +130,7 @@ async function handleFileUpload(ctx: WebRTCContextType) {
 		const file = new File([blob], body.filename, { type: 'application/octet-stream' });
 
 		const res = await uploadFile({
-			target: body.target,
+			target: path.join(body.target, ...body.parentPaths),
 			name: body.name,
 			file: file,
 		});
