@@ -1,10 +1,22 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { getConfig } from '@/services/index';
-import { IconRefresh, IconEdit, IconCopy } from '@arco-design/web-vue/es/icon';
+import { IconCopy } from '@arco-design/web-vue/es/icon';
+import { Message } from '@arco-design/web-vue';
 
 const deviceId = ref('')
 deviceId.value = getConfig('deviceId') || '';
+
+const handleCopyDeviceId = () => {
+	const input = document.createElement('input');
+	input.value = deviceId.value;
+	document.body.appendChild(input);
+	input.select();
+	document.execCommand('copy');
+	document.body.removeChild(input);
+
+	Message.success('Copied!');
+}
 </script>
 <template>
 	<div class="settings-list-item">
@@ -13,7 +25,7 @@ deviceId.value = getConfig('deviceId') || '';
 			<div>{{ deviceId }}</div>
 		</div>
 		<a-space class="settings-list-item-options">
-			<a-tooltip content="Edit">
+			<!-- <a-tooltip content="Edit">
 				<a-button>
 					<template #icon>
 						<IconEdit />
@@ -26,14 +38,12 @@ deviceId.value = getConfig('deviceId') || '';
 						<IconRefresh />
 					</template>
 				</a-button>
-			</a-tooltip>
-			<a-tooltip content="Copy">
-				<a-button>
+			</a-tooltip> -->
+			<a-button @click="handleCopyDeviceId">
 					<template #icon>
 						<IconCopy />
 					</template>
 				</a-button>
-			</a-tooltip>
 		</a-space>
 	</div>
 </template>

@@ -12,6 +12,7 @@ const connDeviceId = ref('')
 connDeviceId.value = getConfig('connDeviceId') || '';
 const saveConnDeviceId = () => {
 	setConfig('connDeviceId', connDeviceId.value)
+	window.location.reload();
 }
 </script>
 <template>

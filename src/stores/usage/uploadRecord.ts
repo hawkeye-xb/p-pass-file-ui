@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { getAllUploadRecord, setAllUploadRecord, UploadStatusEnum, type UploadRecordType, type UploadStatusType } from '@/services/usage/upload'
-import { downloadFile, getMetadata, usageAggregateFiles, usageCreateDir, usageCreateTemporaryDir, usagePreUploadValidate, usageUploadFile } from '@/ctrls'
+import { downloadFile, getMetadata, usageCreateDir, usageCreateTemporaryDir, usagePreUploadValidate, usageUploadFile } from '@/ctrls'
 import type { MetadataType } from '@/types'
 import { PATH_TYPE } from "@/const";
 import type { LargeFileUploadAbstractClass } from "@/services/upload/LargeFileUploadAbstractClass";
@@ -102,11 +102,7 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 		}
 	}
 	function parsedRecord(record: UploadRecordType) {
-		console.log('parsedRecord', record);
 		parsed(record);
-
-		console.log('parsedRecord: pendingQueue', pendingQueue, processingQueue);
-
 		run();
 	}
 
@@ -127,15 +123,12 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 		}
 	}
 	function resumeRecord(record: UploadRecordType) {
-		console.log('resumeRecord', record);
 		resume(record);
-
 		run();
 	}
 
 
 	function init() {
-		console.debug('uploadRecordStore: init')
 		const records = getAllUploadRecord()
 		uploadRecord.value = records
 
@@ -281,7 +274,6 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 			status: UploadStatusEnum.Uploading,
 		})
 
-		console.log('largeFileUploaderInstance.start()')
 		largeFileUploaderInstance.start();
 	}
 

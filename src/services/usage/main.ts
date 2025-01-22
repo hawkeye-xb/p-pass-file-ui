@@ -4,20 +4,21 @@ import { useLinkStore } from '@/stores/link';
 import { CustomConn } from "../peer/CustomConn";
 import { ActionType } from "../peer/type";
 import { setUsageCtrlRequest } from "@/ctrls";
-import { useUploadRecordStore } from "@/stores/usage/uploadRecord";
 
+let conn: CustomConn;
+export const getConn = () => {
+	return conn;
+}
 export const usageService = () => {
-	const uploadRecordStore = useUploadRecordStore();
-	uploadRecordStore.init();
-
 	const deviceId = getConfig('deviceId');
 	const connDeviceId = getConfig('connDeviceId');
 	if (!deviceId || !connDeviceId) { return; }
+	if (conn) { return; }
 
 	const metadataStore = useMetadatasStore(); // 被监听的元数据信息
 	const linkStore = useLinkStore();
 
-	const conn = new CustomConn(deviceId, connDeviceId);
+	conn = new CustomConn(deviceId, connDeviceId);
 	linkStore.setCustomConn(conn);
 	conn.oninit = () => { linkStore.updateLink('webRTC', 'processing') }
 	conn.onclose = () => {
@@ -28,14 +29,17 @@ export const usageService = () => {
 		linkStore.updateLink('webRTC', 'danger')
 		metadataStore.updateMetadatas([]);
 	}
-	conn.onopen = () => { linkStore.updateLink('webRTC', 'success') }
+	conn.onopen = () => {
+		linkStore.updateLink('webRTC', 'success');
+		// todo: 成功的onpen 才设置请求的方式？
+		setUsageCtrlRequest(conn.request.bind(conn));
+	}
 	conn.ondata = (ctx: any) => {
 		if (ctx.action === ActionType.Notify) {
 			console.info('收到通知:', ctx);
 			metadataStore.updateMetadatas(ctx.request.body);
 		}
 	}
-	setUsageCtrlRequest(conn.request.bind(conn));
 
 	conn.connect();
 }

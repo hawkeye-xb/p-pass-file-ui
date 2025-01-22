@@ -3,13 +3,18 @@ import { RouterView } from 'vue-router'
 import Menu from '@/components/menu/UsageMenu.vue'
 import StatusBar from '@/components/LayoutHeaderStatusBar.vue'
 import { IconSettings, IconUser } from '@arco-design/web-vue/es/icon';
-import { usageService } from '@/services/usage/main';
+import { usageService, getConn } from '@/services/usage/main';
 import { onBeforeUnmount } from 'vue';
+import { useUploadRecordStore } from "@/stores/usage/uploadRecord";
+
+const uploadRecordStore = useUploadRecordStore();
+uploadRecordStore.init();
 
 usageService()
 
 onBeforeUnmount(() => {
 	console.log('usage layout before unmount');
+	// getConn()?.destory();
 })
 </script>
 <template>

@@ -23,6 +23,7 @@ export class CustomConn {
 	public ondata: ((data: any) => void) | null = null;
 
 	public destory() {
+		console.debug('custom conn destory')
 		this.reconnectAttempts = this.maxReconnectAttempts + 1;
 		this.conn?.close();
 		this.conn = undefined;
