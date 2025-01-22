@@ -4,6 +4,7 @@ import { UploadStatusEnum, type UploadRecordType, type UploadStatusType } from '
 import { convertBytes, dateFormat } from '@/utils';
 import { ref, onBeforeUnmount, watch, type PropType, computed } from 'vue';
 import { useUploadRecordStore } from '@/stores/usage/uploadRecord';
+import type { LargeFileUploadAbstractClass } from '@/services/upload/LargeFileUploadAbstractClass';
 
 const uploadRecordStore = useUploadRecordStore();
 const props = defineProps({
@@ -18,26 +19,11 @@ const progressVisible = ref(false);
 const progress = ref(0);
 const speed = ref(''); // bytes/s
 
-const uploader = uploadRecordStore.getLargeFileUploader(props.uploadRecord.id);
-if (uploader) {
-	uploader.onProgress = (p, s) => {
-		// 保留两位小数
-		progress.value = Math.round(p * 100) / 100;
-		speed.value = convertBytes(s) + '/s';
-	}
-
-	if (props.uploadRecord.status === UploadStatusEnum.Uploading) {
-		progressVisible.value = true;
-	}
-	if (props.uploadRecord.status === UploadStatusEnum.Paused) {
-		progressVisible.value = true;
-		speed.value = 'Paused';
-	}
-}
+let uploader: LargeFileUploadAbstractClass | undefined = undefined;
 
 const statusText = ref('');
 
-watch(() => props.uploadRecord.status, (newValue, oldValue) => {
+watch(() => props.uploadRecord.status, (newValue) => {
 	speed.value = '';
 	if (newValue === UploadStatusEnum.Uploading) {
 		progressVisible.value = true;
@@ -55,6 +41,23 @@ watch(() => props.uploadRecord.status, (newValue, oldValue) => {
 		statusText.value = dateFormat(props.uploadRecord.etime, 'YY-MM-DD ')
 	} else {
 		statusText.value = props.uploadRecord.status.toString()
+	}
+
+	uploader = uploadRecordStore.getLargeFileUploader(props.uploadRecord.id);
+	if (uploader) {
+		uploader.onProgress = (p, s) => {
+			// 保留两位小数
+			progress.value = Math.round(p * 100) / 100;
+			speed.value = convertBytes(s) + '/s';
+		}
+
+		if (props.uploadRecord.status === UploadStatusEnum.Uploading) {
+			progressVisible.value = true;
+		}
+		if (props.uploadRecord.status === UploadStatusEnum.Paused) {
+			progressVisible.value = true;
+			speed.value = 'Paused';
+		}
 	}
 }, { immediate: true })
 

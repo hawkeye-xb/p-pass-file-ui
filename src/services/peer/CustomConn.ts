@@ -172,7 +172,6 @@ export class CustomConn {
 
 			const conn = config.target || this.conn;
 			if (conn) {
-				console.debug('send data:', context.action, context.request.id, context);
 				conn.send(context);
 			} else {
 				reject('conn not init');

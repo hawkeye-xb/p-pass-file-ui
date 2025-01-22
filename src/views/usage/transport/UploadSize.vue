@@ -11,6 +11,7 @@ import {
 import { UploadStatusEnum } from '@/services/usage/upload';
 import { useUploadRecordStore } from '@/stores/usage/uploadRecord';
 import { convertBytes } from '@/utils';
+import type { LargeFileUploadAbstractClass } from '@/services/upload/LargeFileUploadAbstractClass';
 
 const uploadRecordStore = useUploadRecordStore();
 
@@ -22,13 +23,7 @@ const props = defineProps({
 })
 
 const sizeText = ref('-');
-const uploader = uploadRecordStore.getLargeFileUploader(props.uploadRecord.id);
-if (uploader) {
-	uploader.onUploadedSizeChange = (size) => {
-		sizeText.value = convertBytes(size) + '/' + convertBytes(props.uploadRecord.size || 0);
-	}
-}
-
+let uploader: LargeFileUploadAbstractClass | undefined = undefined;
 onBeforeUnmount(() => {
 	if (uploader) {
 		uploader.onUploadedSizeChange = undefined;
@@ -37,23 +32,17 @@ onBeforeUnmount(() => {
 
 const deleteIconVisible = ref(false);
 const deleteFromUploadRecord = () => {
-	uploadRecordStore.remove(props.uploadRecord.id);
+	// uploadRecordStore.remove(props.uploadRecord.id);
 }
 
 const pausedIconVisible = ref(false);
 const handlePaused = () => {
-	uploadRecordStore.update({
-		...props.uploadRecord,
-		status: UploadStatusEnum.Paused,
-	})
+	uploadRecordStore.parsedRecord(props.uploadRecord)
 }
 
 const resumeIconVisible = ref(false);
 const handleResume = () => {
-	uploadRecordStore.update({
-		...props.uploadRecord,
-		status: UploadStatusEnum.Waiting,
-	})
+	uploadRecordStore.resumeRecord(props.uploadRecord)
 }
 
 const cancelIconVisible = ref(false);
@@ -91,6 +80,14 @@ watch(() => props.uploadRecord.status, (newValue, oldValue) => {
 		&& newValue !== UploadStatusEnum.Error
 	) {
 		cancelIconVisible.value = true;
+	}
+
+	uploader = uploadRecordStore.getLargeFileUploader(props.uploadRecord.id);
+	if (uploader) {
+		uploader.onUploadedSizeChange = undefined;
+		uploader.onUploadedSizeChange = (size) => {
+			sizeText.value = convertBytes(size) + '/' + convertBytes(props.uploadRecord.size || 0);
+		}
 	}
 }, { immediate: true })
 

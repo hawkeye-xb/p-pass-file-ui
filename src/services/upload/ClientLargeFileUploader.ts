@@ -16,7 +16,6 @@ export class ClientLargeFileUploader extends LargeFileUploadAbstractClass {
 		this.paused = false;
 
 		this.chunkNumber = Math.ceil(this.uploadRecord.size / this.chunkSize);
-		console.log('chunkNumber', this.chunkNumber);
 	}
 
 	public destroy(): void {
@@ -39,13 +38,9 @@ export class ClientLargeFileUploader extends LargeFileUploadAbstractClass {
 
 	private async run() {
 		if (this.paused) { return; }
-		if (this.currentChunkIndex >= this.chunkNumber) {
-			this.onCompleted?.();
-			return;
-		}
+		if (this.currentChunkIndex >= this.chunkNumber) { return; }
 
 		const chunk = await this.splitChunk();
-		console.log('chunk length', chunk.byteLength, Math.min(this.chunkSize, this.uploadRecord.size - this.uploadedSize));
 
 		const stime = Date.now();
 		const ctx = await usageUploadFile({
@@ -76,19 +71,15 @@ export class ClientLargeFileUploader extends LargeFileUploadAbstractClass {
 
 		this.currentChunkIndex++;
 
-		console.log(`upload chunk ${this.currentChunkIndex} success`, this.uploadedSize, this.uploadRecord.size);
 		if (this.uploadedSize < this.uploadRecord.size) {
-			console.log(`upload chunk ${this.currentChunkIndex}`);
 			this.run();
 		} else {
 			// res upload finish
-			console.log('upload finish');
 			this.aggregateFiles();
 		}
 	}
 
 	private async splitChunk() {
-		console.log('splitChunk', this.uploadedSize, Math.min(this.chunkSize, this.uploadRecord.size - this.uploadedSize));
 		const res = await downloadFile({
 			target: this.uploadRecord.uploadSourcePath,
 			offset: this.uploadedSize,

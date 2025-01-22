@@ -2,7 +2,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import { getAllUploadRecord, setAllUploadRecord, UploadStatusEnum, type UploadRecordType } from '@/services/usage/upload'
+import { getAllUploadRecord, setAllUploadRecord, UploadStatusEnum, type UploadRecordType, type UploadStatusType } from '@/services/usage/upload'
 import { downloadFile, getMetadata, usageAggregateFiles, usageCreateDir, usageCreateTemporaryDir, usagePreUploadValidate, usageUploadFile } from '@/ctrls'
 import type { MetadataType } from '@/types'
 import { PATH_TYPE } from "@/const";
@@ -13,45 +13,37 @@ const taskNum = 2;
 const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3MB
 export const useUploadRecordStore = defineStore('uploadRecord', () => {
 	const uploadRecord = ref<UploadRecordType[]>([])
-	const uploadFlatRecord = ref<UploadRecordType[]>([]) // 待执行的任务
-	const setUploadFlatRecord = () => {
-		uploadFlatRecord.value = [];
-		// 持有引用的扁平化
-		const flat = (items: UploadRecordType[]) => {
-			items.forEach(item => {
-				if (item.status !== UploadStatusEnum.Completed && item.status !== UploadStatusEnum.Error) {
-					uploadFlatRecord.value.push(item)
-				}
-				if (item.children) {
-					flat(item.children)
-				}
-			})
-		}
-		flat(uploadRecord.value)
-	};
 
-	const uploadTask: UploadRecordType[] = [];
+	let pendingQueue: UploadRecordType[] = [] // 所有未处理的
+	const processingQueue: Map<string, UploadRecordType> = new Map();
+	// 曾经上传过的。。
+
+	const setRecordToPendingQueue = (record: UploadRecordType) => {
+		if (record.status === UploadStatusEnum.Waiting || record.status === UploadStatusEnum.Uploading || record.status === UploadStatusEnum.Paused) {
+			pendingQueue.push(record)
+		}
+		record.children && record.children.forEach(child => {
+			setRecordToPendingQueue(child)
+		})
+	}
+
 	const largeFileUploaderMap = new Map<string, LargeFileUploadAbstractClass>();
 	function getLargeFileUploader(id: string) {
 		return largeFileUploaderMap.get(id)
 	}
 
+	function syncRecord() {
+		setAllUploadRecord(uploadRecord.value)
+	}
 	function add(record: UploadRecordType) {
 		uploadRecord.value.push(record)
-		setAllUploadRecord(uploadRecord.value)
-		init()
+		syncRecord()
+
+		setRecordToPendingQueue(record)
+		run();
 	}
 
 	function remove(id: string) {
-		if (uploadTask.some(task => task.id === id)) {
-			uploadTask.forEach((task, idx) => {
-				if (task.id === id) {
-					// 取消发送
-					uploadTask.splice(idx, 1)
-				}
-			})
-		}
-
 		const removeItemFromRecord = (items: UploadRecordType[]) => {
 			return items.filter(item => {
 				if (item.id === id) {
@@ -63,77 +55,152 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 				return true
 			})
 		}
-		const res = removeItemFromRecord(uploadRecord.value)
-		setAllUploadRecord(res)
-		init()
+		uploadRecord.value = removeItemFromRecord(uploadRecord.value) // 
+		syncRecord()
 	}
 
-	function update(r: UploadRecordType) { // todo: rename to updateStatus
-		// 更新状态需要重新调度
-		const idx = uploadFlatRecord.value.findIndex(item => item.id === r.id)
-		if (idx === -1) {
-			console.warn('update record not found', r)
-			return
+	function update(record: UploadRecordType) {
+		const updateItem = (items: UploadRecordType[]) => {
+			return items.map(item => {
+				if (item.id === record.id) {
+					return record;
+				}
+				if (item.children) {
+					item.children = updateItem(item.children)
+				}
+				return item;
+			})
 		}
-		uploadFlatRecord.value[idx].status = r.status
-		uploadFlatRecord.value[idx].uploadTempraryPath = r.uploadTempraryPath
+		uploadRecord.value = updateItem(uploadRecord.value)
+		syncRecord()
+	}
 
-		setAllUploadRecord(uploadRecord.value)
-
-		if (r.status === UploadStatusEnum.Completed || r.status === UploadStatusEnum.Error) {
-			uploadFlatRecord.value.splice(idx, 1)
+	function parsed(r: UploadRecordType) {
+		if (processingQueue.has(r.id)) {
+			processingQueue.delete(r.id); // 从任务队列中删除
 		}
-		if (r.status === UploadStatusEnum.Paused && uploadTask.some(task => task.id === r.id)) {
-			uploadTask.splice(uploadTask.findIndex(task => task.id === r.id), 1)
-
-			if (largeFileUploaderMap.has(r.id)) {
-				largeFileUploaderMap.get(r.id)?.pause();
+		update({ ...r, status: UploadStatusEnum.Paused }); // 更新状态为暂停
+		for (const item of pendingQueue) {
+			if (item.id === r.id) {
+				item.status = UploadStatusEnum.Paused; // 更新状态为暂停
+				break;
 			}
+		}
 
-			run()
+		if (largeFileUploaderMap.has(r.id)) { // 如果有上传器，暂停上传
+			const uploader = getLargeFileUploader(r.id)
+			uploader?.pause()
+		// largeFileUploaderMap.delete(r.id) 不移除，可以被恢复, todo: 或者半小时销毁一次
+		}
+
+		// 如果是文件夹，递归处理子项
+		if (r.type === PATH_TYPE.DIR) {
+			r.children = r.children || [];
+			r.children.forEach(child => {
+				parsed(child)
+			})
 		}
 	}
+	function parsedRecord(record: UploadRecordType) {
+		console.log('parsedRecord', record);
+		parsed(record);
+
+		console.log('parsedRecord: pendingQueue', pendingQueue, processingQueue);
+
+		run();
+	}
+
+	function resume(r: UploadRecordType) {
+		update({ ...r, status: UploadStatusEnum.Waiting, });
+		for (const item of pendingQueue) {
+			if (item.id === r.id) {
+				item.status = UploadStatusEnum.Waiting;
+				break;
+			}
+		}
+
+		if (r.type === PATH_TYPE.DIR) {
+			r.children = r.children || [];
+			r.children.forEach(child => {
+				resume(child)
+			})
+		}
+	}
+	function resumeRecord(record: UploadRecordType) {
+		console.log('resumeRecord', record);
+		resume(record);
+
+		run();
+	}
+
 
 	function init() {
+		console.debug('uploadRecordStore: init')
 		const records = getAllUploadRecord()
 		uploadRecord.value = records
-		setUploadFlatRecord()
-		run();
+
+		initPendingQueue();
+	}
+
+	function initPendingQueue() {
+		uploadRecord.value.forEach(record => {
+			setRecordToPendingQueue(record)
+		})
 	}
 
 	// todo: 先不做优先！
 	function run() {
-		if (uploadTask.length >= taskNum) {
+		if (pendingQueue.length === 0) { return; } // 没有要处理的
+		if (processingQueue.size >= taskNum) { return; } // 已经处理的数量大于等于最大处理数量
+
+		for (const record of pendingQueue) { // 进执行队列的
+			if (processingQueue.has(record.id)) { continue; } // 处理中
+			if (record.status === UploadStatusEnum.Uploading) {
+				console.debug('uploadRecordStore: run: resume uploading', record)
+
+				processingQueue.set(record.id, record);
+				handleUpload(record);
+				// 处理中的状态就不用更新了
+				run();
+				break;
+			}
+
+			if (record.status === UploadStatusEnum.Waiting) {
+				processingQueue.set(record.id, record);
+				handleUpload(record);
+
+				record.status = UploadStatusEnum.Uploading; // 持有的是引用，更新状态
+				update(record); // 等待中的状态更新为处理中
+				run();
+				break;
+			}
+		}
+	}
+
+	function uploaded(record: UploadRecordType, status: UploadStatusType) {
+		processingQueue.delete(record.id); // 移除处理中的任务
+		pendingQueue = pendingQueue.filter(item => item.id !== record.id); // 从 pending 队列中移除
+
+		update({
+			...record,
+			status,
+			etime: Date.now(),
+		}); // 更新状态
+		run(); // 继续处理下一个任务
+	}
+	function uploadSuccess(record: UploadRecordType) {
+		uploaded(record, UploadStatusEnum.Completed);
+	}
+	function uploadError(record: UploadRecordType) {
+		uploaded(record, UploadStatusEnum.Error);
+	}
+
+	async function handleUpload(record: UploadRecordType) {
+		if (largeFileUploaderMap.has(record.id)) {
+			largeFileUploaderMap.get(record.id)?.resume(); // 恢复会立马上传，应该区分开的。
 			return;
 		}
 
-		for (const item of uploadFlatRecord.value) {
-			if (item.status === UploadStatusEnum.Uploading && !uploadTask.some(task => task.id === item.id)) { // 并且没有实例，则补充实例
-				uploadTask.push(item);
-				handleUpload(item);
-				run();
-				return;
-			}
-
-			if (item.status === UploadStatusEnum.Waiting && !uploadTask.some(task => task.id === item.id)) {
-				item.status = UploadStatusEnum.Uploading;
-				update(item);
-				uploadTask.push(item);
-				handleUpload(item);
-				run();
-				return;
-			}
-		}
-	}
-
-	function uploadSuccess(record: UploadRecordType) {
-		record.status = UploadStatusEnum.Completed;
-		record.etime = Date.now();
-		update(record); // 已经从队列中移除了
-		uploadTask.splice(uploadTask.findIndex(task => task.id === record.id), 1); // 移除已经完成的任务
-		run();
-	}
-	async function handleUpload(record: UploadRecordType) {
 		if (record.type === PATH_TYPE.DIR) {
 			const ctx = await usageCreateDir({
 				target: record.uploadTargetPath,
@@ -141,6 +208,7 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 			})
 			const res = ctx.response.body;
 			if (res.code !== 0) {
+				uploadError(record);
 				console.warn(res.message)
 				return;
 			}
@@ -161,6 +229,7 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 			})
 			const result = ctx.response.body;
 			if (result.code !== 0) {
+				uploadError(record);
 				console.warn(result.message)
 				return;
 			}
@@ -171,7 +240,6 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 		/**
 		 * 大文件上传
 		 */
-		console.info('大文件上传')
 		if (largeFileUploaderMap.has(record.id)) {
 			largeFileUploaderMap.get(record.id)?.start();
 			return;
@@ -184,6 +252,7 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 		})
 		const preUploadValidateResult = preUploadValidateRes.response.body;
 		if (preUploadValidateResult.code !== 0) {
+			uploadError(record);
 			console.warn(preUploadValidateResult.message)
 			return;
 		}
@@ -191,15 +260,12 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 		const tempRes = await usageCreateTemporaryDir();
 		const tempResult = tempRes.response.body;
 		if (tempResult.code !== 0) {
+			uploadError(record);
 			console.warn(tempResult.message)
 			return;
 		}
 
 		const tempPath = tempResult.data.path;
-		record.uploadTempraryPath = tempPath;
-		record.status = UploadStatusEnum.Uploading;
-		update(record);
-
 		const largeFileUploaderInstance = new ClientLargeFileUploader({
 			uploadRecord: record,
 		});
@@ -207,8 +273,15 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 		largeFileUploaderInstance.onCompleted = () => {
 			uploadSuccess(record);
 			largeFileUploaderMap.delete(record.id);	// 移除已经完成的任务
+			largeFileUploaderInstance.destroy();
 		}
 		largeFileUploaderInstance.start();
+
+		update({
+			...record,
+			uploadTempraryPath: tempPath,
+			status: UploadStatusEnum.Uploading,
+		})
 	}
 
 	return {
@@ -217,6 +290,8 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 		add,
 		remove,
 		update,
+		parsedRecord,
+		resumeRecord,
 		getLargeFileUploader
 	}
 })
@@ -234,7 +309,6 @@ export const generateUploadRecord = async (uploadSrcPath: string, uploadTraget: 
 	}
 	const srcMetadata = result.data as MetadataType;
 	const gcRecord = (info: MetadataType, parentPaths: string[]): UploadRecordType => {
-		console.log(info, parentPaths)
 		return {
 			id: uuidv4(),
 			uploadSourcePath: info.path,
