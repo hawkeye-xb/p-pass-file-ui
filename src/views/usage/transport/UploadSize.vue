@@ -55,29 +55,30 @@ const cancelIconVisible = ref(false);
 // 	})
 // }
 
-watch(() => props.uploadRecord.status, (newValue, oldValue) => {
+watch(() => props.uploadRecord, (newValue, oldValue) => {
+	const status = newValue.status;
 	deleteIconVisible.value = false;
 	pausedIconVisible.value = false;
 	resumeIconVisible.value = false;
 	cancelIconVisible.value = false;
 
-	if (newValue === UploadStatusEnum.Completed) {
+	if (status === UploadStatusEnum.Completed) {
 		sizeText.value = convertBytes(props.uploadRecord.size || 0);
 		uploader && (uploader.onUploadedSizeChange = undefined);
 	}
-	if (newValue === UploadStatusEnum.Completed || newValue === UploadStatusEnum.Canceled) {
+	if (status === UploadStatusEnum.Completed || status === UploadStatusEnum.Canceled) {
 		deleteIconVisible.value = true;
 	}
-	if (newValue === UploadStatusEnum.Waiting || newValue === UploadStatusEnum.Uploading) {
+	if (status === UploadStatusEnum.Waiting || status === UploadStatusEnum.Uploading) {
 		pausedIconVisible.value = true;
 	}
-	if (newValue === UploadStatusEnum.Holded || newValue === UploadStatusEnum.Paused) {
+	if (status === UploadStatusEnum.Holded || status === UploadStatusEnum.Paused) {
 		resumeIconVisible.value = true;
 	}
 	if (
-		newValue !== UploadStatusEnum.Completed
-		&& newValue !== UploadStatusEnum.Canceled
-		&& newValue !== UploadStatusEnum.Error
+		status !== UploadStatusEnum.Completed
+		&& status !== UploadStatusEnum.Canceled
+		&& status !== UploadStatusEnum.Error
 	) {
 		cancelIconVisible.value = true;
 	}

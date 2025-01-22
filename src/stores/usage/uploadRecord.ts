@@ -275,13 +275,14 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 			largeFileUploaderMap.delete(record.id);	// 移除已经完成的任务
 			largeFileUploaderInstance.destroy();
 		}
-		largeFileUploaderInstance.start();
-
 		update({
 			...record,
 			uploadTempraryPath: tempPath,
 			status: UploadStatusEnum.Uploading,
 		})
+
+		console.log('largeFileUploaderInstance.start()')
+		largeFileUploaderInstance.start();
 	}
 
 	return {

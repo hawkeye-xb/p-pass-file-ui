@@ -23,21 +23,22 @@ let uploader: LargeFileUploadAbstractClass | undefined = undefined;
 
 const statusText = ref('');
 
-watch(() => props.uploadRecord.status, (newValue) => {
+watch(() => props.uploadRecord, (newValue) => {
+	const status = newValue.status;
 	speed.value = '';
-	if (newValue === UploadStatusEnum.Uploading) {
+	if (status === UploadStatusEnum.Uploading) {
 		progressVisible.value = true;
 	} else {
 		progressVisible.value = false;
 	}
-	if (newValue === UploadStatusEnum.Paused) {
+	if (status === UploadStatusEnum.Paused) {
 		speed.value = 'Paused';
 	}
 
 	// statusText
 	if (props.uploadRecord.type === PATH_TYPE.DIR) {
 		statusText.value = '-';
-	} else if (newValue === UploadStatusEnum.Completed) {
+	} else if (status === UploadStatusEnum.Completed) {
 		statusText.value = dateFormat(props.uploadRecord.etime, 'YY-MM-DD ')
 	} else {
 		statusText.value = props.uploadRecord.status.toString()
