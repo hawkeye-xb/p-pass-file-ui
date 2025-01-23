@@ -24,7 +24,7 @@ const props = defineProps({
 
 const sizeText = ref('-');
 let uploader: LargeFileUploadAbstractClass | undefined = undefined;
-watch(() => uploadRecordStore.largeFileUploadersChange, () => {
+watch(() => uploadRecordStore.largeFileUploaderSize, () => {
 	uploader = uploadRecordStore.getLargeFileUploader(props.uploadRecord.id);
 	if (uploader) {
 		uploader.onUploadedSizeChange = undefined;

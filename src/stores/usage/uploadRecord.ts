@@ -15,11 +15,13 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 	const uploadRecord = ref<UploadRecordType[]>([])
 
 	let pendingQueue: UploadRecordType[] = [] // 所有未处理的
+	const pendingQueueSize = ref(0);
 	const processingQueue: Map<string, UploadRecordType> = new Map();
 
 	const setRecordToPendingQueue = (record: UploadRecordType) => {
 		if (record.status === UploadStatusEnum.Waiting || record.status === UploadStatusEnum.Uploading || record.status === UploadStatusEnum.Paused) {
 			pendingQueue.push(record)
+			pendingQueueSize.value = pendingQueue.length || 0;
 		}
 		record.children && record.children.forEach(child => {
 			setRecordToPendingQueue(child)
@@ -27,7 +29,7 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 	}
 
 	const largeFileUploaderMap: Map<string, LargeFileUploadAbstractClass> = new Map();
-	const largeFileUploadersChange = ref(0);
+	const largeFileUploaderSize = ref(0);
 	function getLargeFileUploader(id: string) {
 		return largeFileUploaderMap.get(id)
 	}
@@ -55,7 +57,7 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 					if (largeFileUploaderMap.has(id)) {
 						const uploader = getLargeFileUploader(id)
 						largeFileUploaderMap.delete(id)
-						largeFileUploadersChange.value = Date.now()
+						largeFileUploaderSize.value = largeFileUploaderMap.size
 
 						uploader?.pause()
 						setTimeout(() => {
@@ -63,12 +65,9 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 						}, 200);
 					}
 					// 移除队列
-					for (const item of pendingQueue) {
-						if (item.id === id) {
-							pendingQueue.splice(pendingQueue.indexOf(item), 1);
-							break;
-						}
-					}
+					pendingQueue = pendingQueue.filter(item => item.id !== id)
+					pendingQueueSize.value = pendingQueue.length || 0;
+
 					if (processingQueue.has(id)) {
 						processingQueue.delete(id);
 					}
@@ -199,6 +198,7 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 	function uploaded(record: UploadRecordType, status: UploadStatusType) {
 		processingQueue.delete(record.id); // 移除处理中的任务
 		pendingQueue = pendingQueue.filter(item => item.id !== record.id); // 从 pending 队列中移除
+		pendingQueueSize.value = pendingQueue.length || 0;
 
 		update({
 			...record,
@@ -284,12 +284,12 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 			uploadRecord: record,
 		});
 		largeFileUploaderMap.set(record.id, largeFileUploaderInstance);
-		largeFileUploadersChange.value = Date.now();
+		largeFileUploaderSize.value = largeFileUploaderMap.size
 
 		largeFileUploaderInstance.onCompleted = () => {
 			uploadSuccess(record);
 			largeFileUploaderMap.delete(record.id);	// 移除已经完成的任务
-			largeFileUploadersChange.value = Date.now();
+			largeFileUploaderSize.value = largeFileUploaderMap.size
 
 			setTimeout(() => {
 				largeFileUploaderInstance.destroy();
@@ -305,6 +305,7 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 	}
 
 	return {
+		run,
 		init,
 		uploadRecord,
 		add,
@@ -312,8 +313,9 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 		update,
 		parsedRecord,
 		resumeRecord,
-		largeFileUploadersChange,
+		largeFileUploaderSize,
 		getLargeFileUploader,
+		pendingQueueSize,
 	}
 })
 

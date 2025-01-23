@@ -50,7 +50,7 @@ watch(() => props.uploadRecord, (newValue) => {
 }, { immediate: true, deep: true })
 
 let uploader: LargeFileUploadAbstractClass | undefined = undefined;
-watch(() => useUploadRecordStore().largeFileUploadersChange, () => {
+watch(() => useUploadRecordStore().largeFileUploaderSize, () => {
 	uploader = uploadRecordStore.getLargeFileUploader(props.uploadRecord.id);
 	if (uploader) {
 		uploader.onProgress = undefined;

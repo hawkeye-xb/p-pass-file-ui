@@ -20,7 +20,7 @@ onBeforeUnmount(() => {
 <template>
 	<div class="index-layout">
 		<a-page-header :style="{ background: 'var(--color-bg-2)', borderBottom: '1px solid var(--color-neutral-3)' }"
-			title="Pigeon" :show-back="false">
+			title="P-Pass File" :show-back="false">
 			<template #subtitle>
 				<StatusBar :style="{ paddingLeft: '24px' }" />
 			</template>
@@ -33,9 +33,9 @@ onBeforeUnmount(() => {
 							</a-button>
 						</RouterLink>
 
-						<a-avatar :style="{ backgroundColor: '#3370ff' }">
+						<!-- <a-avatar :style="{ backgroundColor: '#3370ff' }">
 							<IconUser />
-						</a-avatar>
+						</a-avatar> -->
 					</a-space>
 				</div>
 			</template>

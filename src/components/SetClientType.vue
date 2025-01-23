@@ -15,10 +15,15 @@ const initClientType = () => {
     return
   }
 
-  if (route.path !== '/') { return; }
+  setTimeout(() => {
+    console.log('route.path', {
+      ...route
+    })
+    if (route.path !== '/') { return; }
 
-  ct === ClientType.Storage && Router.push('/storage/connections')
-  ct === ClientType.Usage && Router.push('/usage/folder')
+    ct === ClientType.Storage && Router.push('/storage/connections')
+    ct === ClientType.Usage && Router.push('/usage/folder')
+  }, 200);
 }
 initClientType()
 

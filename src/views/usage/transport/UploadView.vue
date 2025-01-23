@@ -27,7 +27,7 @@ function filterEmptyDir(rs: UploadRecordType[]) {
 </script>
 <template>
 	<div style="margin: 8px 16px;">
-		<div class="download-view-table-top">
+		<!-- <div class="download-view-table-top">
 			<a-space>
 				<span>Process(13)</span>
 				<span>Finished(100)</span>
@@ -35,6 +35,11 @@ function filterEmptyDir(rs: UploadRecordType[]) {
 			<a-space>
 				<span>Total Progrss: 10%</span>
 				<span>Speed: 100KB/s</span>
+			</a-space>
+		</div> -->
+		<div class="download-view-table-top">
+			<a-space>
+				<a-button>Cleanup Completed</a-button>
 			</a-space>
 		</div>
 		<a-table :data="data" row-key="id" :row-selection="{
@@ -71,6 +76,7 @@ function filterEmptyDir(rs: UploadRecordType[]) {
 	justify-content: space-between;
 	align-items: center;
 	height: 32px;
+	margin-bottom: 8px;
 }
 
 .icon {

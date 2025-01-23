@@ -4,6 +4,7 @@ import { useLinkStore } from '@/stores/link';
 import { CustomConn } from "../peer/CustomConn";
 import { ActionType } from "../peer/type";
 import { setUsageCtrlRequest } from "@/ctrls";
+import { useUploadRecordStore } from "@/stores/usage/uploadRecord";
 
 let conn: CustomConn;
 export const getConn = () => {
@@ -33,6 +34,9 @@ export const usageService = () => {
 		linkStore.updateLink('webRTC', 'success');
 		// todo: 成功的onpen 才设置请求的方式？
 		setUsageCtrlRequest(conn.request.bind(conn));
+		const uploadRecordStore = useUploadRecordStore();
+
+		uploadRecordStore.run();
 	}
 	conn.ondata = (ctx: any) => {
 		if (ctx.action === ActionType.Notify) {
