@@ -129,7 +129,7 @@ async function handleFileUpload(ctx: WebRTCContextType) { // todo: 传输中断�
 		const blob = new Blob([uint8array]);
 		const file = new File([blob], body.filename, { type: 'application/octet-stream' });
 
-		const target = body.parentPaths.length === 0 ? body.target : path.join(body.target, ...body.parentPaths);
+		const target = body.parentPaths?.length ? path.join(body.target, ...body.parentPaths) : body.target;
 
 		const res = await uploadFile({
 			target,
