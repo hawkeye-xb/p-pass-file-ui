@@ -122,7 +122,7 @@ function handleRouteResponseMiddle(fn: any) {
 // 	content: ArrayBuffer;
 // 	filename: string;
 // }
-async function handleFileUpload(ctx: WebRTCContextType) {
+async function handleFileUpload(ctx: WebRTCContextType) { // todo: 传输中断的数据怎么处理？
 	try {
 		const body = ctx.request.body as any;
 		const uint8array = new Uint8Array(body.content);

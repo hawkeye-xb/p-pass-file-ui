@@ -32,7 +32,7 @@ onBeforeUnmount(() => {
 
 const deleteIconVisible = ref(false);
 const deleteFromUploadRecord = () => {
-	// uploadRecordStore.remove(props.uploadRecord.id);
+	uploadRecordStore.removeRecord(props.uploadRecord);
 }
 
 const pausedIconVisible = ref(false);

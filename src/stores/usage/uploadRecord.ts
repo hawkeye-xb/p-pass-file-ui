@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { getAllUploadRecord, setAllUploadRecord, UploadStatusEnum, type UploadRecordType, type UploadStatusType } from '@/services/usage/upload'
-import { downloadFile, getMetadata, usageCreateDir, usageCreateTemporaryDir, usagePreUploadValidate, usageUploadFile } from '@/ctrls'
+import { downloadFile, getMetadata, usageCreateDir, usageCreateTemporaryDir, usageGetMetadata, usagePreUploadValidate, usageUploadFile } from '@/ctrls'
 import type { MetadataType } from '@/types'
 import { PATH_TYPE } from "@/const";
 import type { LargeFileUploadAbstractClass } from "@/services/upload/LargeFileUploadAbstractClass";
@@ -16,7 +16,6 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 
 	let pendingQueue: UploadRecordType[] = [] // 所有未处理的
 	const processingQueue: Map<string, UploadRecordType> = new Map();
-	// 曾经上传过的。。
 
 	const setRecordToPendingQueue = (record: UploadRecordType) => {
 		if (record.status === UploadStatusEnum.Waiting || record.status === UploadStatusEnum.Uploading || record.status === UploadStatusEnum.Paused) {
@@ -46,17 +45,41 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 	function remove(id: string) {
 		const removeItemFromRecord = (items: UploadRecordType[]) => {
 			return items.filter(item => {
-				if (item.id === id) {
-					return false
-				}
 				if (item.children) {
 					item.children = removeItemFromRecord(item.children)
+				}
+
+				if (item.id === id) {
+					// 移除上传器
+					if (largeFileUploaderMap.has(id)) {
+						const uploader = getLargeFileUploader(id)
+						uploader?.pause()
+						uploader?.destroy()
+						largeFileUploaderMap.delete(id)
+					}
+					// 移除队列
+					for (const item of pendingQueue) {
+						if (item.id === id) {
+							pendingQueue.splice(pendingQueue.indexOf(item), 1);
+							break;
+						}
+					}
+					if (processingQueue.has(id)) {
+						processingQueue.delete(id);
+					}
+
+					return false
 				}
 				return true
 			})
 		}
 		uploadRecord.value = removeItemFromRecord(uploadRecord.value) // 
 		syncRecord()
+	}
+
+	function removeRecord(record: UploadRecordType) {
+		remove(record.id)
+		run()
 	}
 
 	function update(record: UploadRecordType) {
@@ -238,28 +261,21 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 			return;
 		}
 
-		const preUploadValidateRes = await usagePreUploadValidate({
-			target: record.uploadTargetPath,
-			name: record.name,
-			size: record.size.toString(),
-		})
-		const preUploadValidateResult = preUploadValidateRes.response.body;
-		if (preUploadValidateResult.code !== 0) {
+		// 预上传校验
+		const [preErr, tempPath] = await preUploadValidate(record);
+		if (preErr) {
 			uploadError(record);
-			console.warn(preUploadValidateResult.message)
 			return;
 		}
 
-		const tempRes = await usageCreateTemporaryDir();
-		const tempResult = tempRes.response.body;
-		if (tempResult.code !== 0) {
+		const [resumeErr, options] = await resumeFormBroken(record);
+		if (resumeErr) {
 			uploadError(record);
-			console.warn(tempResult.message)
 			return;
 		}
 
-		const tempPath = tempResult.data.path;
 		const largeFileUploaderInstance = new ClientLargeFileUploader({
+			...options,
 			uploadRecord: record,
 		});
 		largeFileUploaderMap.set(record.id, largeFileUploaderInstance);
@@ -268,6 +284,7 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 			largeFileUploaderMap.delete(record.id);	// 移除已经完成的任务
 			largeFileUploaderInstance.destroy();
 		}
+		// 如果是断点续传的，状态没有发生改变，怎么处理？
 		update({
 			...record,
 			uploadTempraryPath: tempPath,
@@ -281,7 +298,7 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 		init,
 		uploadRecord,
 		add,
-		remove,
+		removeRecord,
 		update,
 		parsedRecord,
 		resumeRecord,
@@ -319,4 +336,60 @@ export const generateUploadRecord = async (uploadSrcPath: string, uploadTraget: 
 	}
 
 	return gcRecord(srcMetadata, [])
+}
+
+async function preUploadValidate(record: UploadRecordType) {
+	if (record.uploadTempraryPath) return [null, record.uploadTempraryPath];
+
+	const preUploadValidateRes = await usagePreUploadValidate({
+		target: record.uploadTargetPath,
+		name: record.name,
+		size: record.size.toString(),
+	})
+	const preUploadValidateResult = preUploadValidateRes.response.body;
+	if (preUploadValidateResult.code !== 0) {
+		console.warn(preUploadValidateResult.message)
+		return [preUploadValidateResult.message];
+	}
+
+	const tempRes = await usageCreateTemporaryDir();
+	const tempResult = tempRes.response.body;
+	if (tempResult.code !== 0) {
+		console.warn(tempResult.message)
+		return [tempResult.message];
+	}
+
+	return [null, tempResult.data.path];
+}
+
+async function resumeFormBroken(record: UploadRecordType) {
+	const defultResumeInfo = {
+		uploadedSize: 0,
+		currentChunkIndex: 0,
+	}
+	if (!record.uploadTempraryPath) return [null, defultResumeInfo];
+
+	const metadataCtx = await usageGetMetadata({
+		target: record.uploadTargetPath,
+		depth: 100,
+	});
+	const metadataResult = metadataCtx.response.body;
+	if (metadataResult.code !== 0) {
+		console.warn(metadataResult.message)
+		return [metadataResult.message];
+	}
+	const metadata = metadataResult.data as MetadataType;
+	const result = (metadata.children || []).reduce((acc, cur) => {
+		if (cur.name.startsWith(`${record.name}.part.`)) {
+			const chunkIndex = parseInt(cur.name.split('.').pop()!, 10);
+			if (!isNaN(chunkIndex)) {
+				acc.currentChunkIndex = Math.max(acc.currentChunkIndex, chunkIndex);
+			}
+		}
+
+		acc.uploadedSize += cur.size;
+		return acc;
+	}, defultResumeInfo)
+
+	return [null, result];
 }

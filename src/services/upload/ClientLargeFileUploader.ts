@@ -8,14 +8,14 @@ interface ConstructorOptionsType extends OptionsType {
 export class ClientLargeFileUploader extends LargeFileUploadAbstractClass {
 	private uploadRecord: UploadRecordType;
 	private uploadedChunkFilePaths: { index: number; path: string; }[] = [];
-	private chunkNumber: number = 0;
+	private chunkTatalNumber: number = 0;
 
 	constructor(options: ConstructorOptionsType) {
 		super(options);
 		this.uploadRecord = options.uploadRecord;
 		this.paused = false;
 
-		this.chunkNumber = Math.ceil(this.uploadRecord.size / this.chunkSize);
+		this.chunkTatalNumber = Math.ceil(this.uploadRecord.size / this.chunkSize);
 	}
 
 	public destroy(): void {
@@ -38,7 +38,7 @@ export class ClientLargeFileUploader extends LargeFileUploadAbstractClass {
 
 	private async run() {
 		if (this.paused) { return; }
-		if (this.currentChunkIndex >= this.chunkNumber) { return; }
+		if (this.currentChunkIndex >= this.chunkTatalNumber) { return; }
 
 		const chunk = await this.splitChunk();
 
@@ -46,7 +46,7 @@ export class ClientLargeFileUploader extends LargeFileUploadAbstractClass {
 		const ctx = await usageUploadFile({
 			content: new Uint8Array(chunk),
 			target: this.uploadRecord.uploadTempraryPath,
-			name: `${this.uploadRecord.name}.part${this.currentChunkIndex}`,
+			name: `${this.uploadRecord.name}.part.${this.currentChunkIndex}`,
 			parentPaths: [], // 临时目录不需要前缀
 		});
 		const result = ctx.response.body;
@@ -94,6 +94,7 @@ export class ClientLargeFileUploader extends LargeFileUploadAbstractClass {
 			target: this.uploadRecord.uploadTargetPath,
 			name: this.uploadRecord.name,
 			parentPaths: this.uploadRecord.parentPaths,
+			temporaryPath: this.uploadRecord.uploadTempraryPath,
 		});
 		const result = ctx.response.body;
 		if (result.code !== 0) {

@@ -72,7 +72,16 @@ interface AggregateFilesType {
 	target: string, // 目标目录
 	name: string, // 文件名
 	parentPaths?: string[], // 子路径
+	temporaryPath?: string, // 临时目录路径
 }
 export const usageAggregateFiles = (data: AggregateFilesType) => {
 	return request(ActionType.AggregateFiles, data, {})
+}
+
+interface GetMetadataType {
+	target: string, // 目标路径，可以是文件或目录
+	depth?: number, // 目录深度，默认为 1，表示只获取当前目录的元数据
+}
+export const usageGetMetadata = (data: GetMetadataType) => {
+	return request(ActionType.Metadata, data, {})
 }
