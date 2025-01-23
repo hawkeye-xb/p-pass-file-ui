@@ -47,7 +47,7 @@ export class ClientLargeFileUploader extends LargeFileUploadAbstractClass {
 			content: new Uint8Array(chunk),
 			target: this.uploadRecord.uploadTempraryPath,
 			name: `${this.uploadRecord.name}.part.${this.currentChunkIndex}`,
-			parentPaths: [], // 临时目录不需要前缀
+			// parentPaths: [], // 临时目录不需要前缀
 		});
 		const result = ctx.response.body;
 		if (result.code !== 0) {

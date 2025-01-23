@@ -2,21 +2,23 @@
 <script setup lang="ts">
 import { ClientType, getConfig, setConfig } from '@/services';
 import { reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
 const Router = useRouter();
+const route = useRoute();
 
 const clientTypeVisible = ref(false)
 const initClientType = () => {
   const ct = getConfig('clientType')
-  if (ct === ClientType.Storage) {
-    // Router.push('/storage/connections')
-  } else if (ct === ClientType.Usage) {
-    // Router.push('/usage/folder')
-  } else {
+  if (ct !== ClientType.Storage && ct !== ClientType.Usage) {
     clientTypeVisible.value = true
     return
   }
+
+  if (route.path !== '/') { return; }
+
+  ct === ClientType.Storage && Router.push('/storage/connections')
+  ct === ClientType.Usage && Router.push('/usage/folder')
 }
 initClientType()
 
