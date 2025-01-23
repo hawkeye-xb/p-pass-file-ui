@@ -24,6 +24,16 @@ const props = defineProps({
 
 const sizeText = ref('-');
 let uploader: LargeFileUploadAbstractClass | undefined = undefined;
+watch(() => uploadRecordStore.largeFileUploadersChange, () => {
+	uploader = uploadRecordStore.getLargeFileUploader(props.uploadRecord.id);
+	if (uploader) {
+		uploader.onUploadedSizeChange = undefined;
+		uploader.onUploadedSizeChange = (size) => {
+			sizeText.value = convertBytes(size) + '/' + convertBytes(props.uploadRecord.size || 0);
+		}
+	}
+}, { immediate: true })
+
 onBeforeUnmount(() => {
 	if (uploader) {
 		uploader.onUploadedSizeChange = undefined;
@@ -82,15 +92,7 @@ watch(() => props.uploadRecord, (newValue, oldValue) => {
 	) {
 		cancelIconVisible.value = true;
 	}
-
-	uploader = uploadRecordStore.getLargeFileUploader(props.uploadRecord.id);
-	if (uploader) {
-		uploader.onUploadedSizeChange = undefined;
-		uploader.onUploadedSizeChange = (size) => {
-			sizeText.value = convertBytes(size) + '/' + convertBytes(props.uploadRecord.size || 0);
-		}
-	}
-}, { immediate: true })
+}, { immediate: true, deep: true })
 
 </script>
 <template>

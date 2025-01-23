@@ -1,6 +1,6 @@
 // 菜单，头部等会需要这里的信息，与本地同步放在这里
 import { v4 as uuidv4 } from "uuid";
-import { ref } from 'vue'
+import { ref, type Ref } from 'vue'
 import { defineStore } from 'pinia'
 import { getAllUploadRecord, setAllUploadRecord, UploadStatusEnum, type UploadRecordType, type UploadStatusType } from '@/services/usage/upload'
 import { downloadFile, getMetadata, usageCreateDir, usageCreateTemporaryDir, usageGetMetadata, usagePreUploadValidate, usageUploadFile } from '@/ctrls'
@@ -26,7 +26,8 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 		})
 	}
 
-	const largeFileUploaderMap = new Map<string, LargeFileUploadAbstractClass>();
+	const largeFileUploaderMap: Map<string, LargeFileUploadAbstractClass> = new Map();
+	const largeFileUploadersChange = ref(0);
 	function getLargeFileUploader(id: string) {
 		return largeFileUploaderMap.get(id)
 	}
@@ -53,9 +54,13 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 					// 移除上传器
 					if (largeFileUploaderMap.has(id)) {
 						const uploader = getLargeFileUploader(id)
-						uploader?.pause()
-						uploader?.destroy()
 						largeFileUploaderMap.delete(id)
+						largeFileUploadersChange.value = Date.now()
+
+						uploader?.pause()
+						setTimeout(() => {
+							uploader?.destroy()
+						}, 200);
 					}
 					// 移除队列
 					for (const item of pendingQueue) {
@@ -113,7 +118,6 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 		if (largeFileUploaderMap.has(r.id)) { // 如果有上传器，暂停上传
 			const uploader = getLargeFileUploader(r.id)
 			uploader?.pause()
-		// largeFileUploaderMap.delete(r.id) 不移除，可以被恢复, todo: 或者半小时销毁一次
 		}
 
 		// 如果是文件夹，递归处理子项
@@ -172,7 +176,6 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 		for (const record of pendingQueue) { // 进执行队列的
 			if (processingQueue.has(record.id)) { continue; } // 处理中
 			if (record.status === UploadStatusEnum.Uploading) {
-				console.debug('uploadRecordStore: run: resume uploading', record)
 
 				processingQueue.set(record.id, record);
 				handleUpload(record);
@@ -274,20 +277,27 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 			return;
 		}
 
+		record.uploadTempraryPath = tempPath;
 		const largeFileUploaderInstance = new ClientLargeFileUploader({
 			...options,
+			currentChunkIndex: options.currentChunkIndex + 1, // 从下一个开始，个数怎么处理？
 			uploadRecord: record,
 		});
 		largeFileUploaderMap.set(record.id, largeFileUploaderInstance);
+		largeFileUploadersChange.value = Date.now();
+
 		largeFileUploaderInstance.onCompleted = () => {
 			uploadSuccess(record);
 			largeFileUploaderMap.delete(record.id);	// 移除已经完成的任务
-			largeFileUploaderInstance.destroy();
+			largeFileUploadersChange.value = Date.now();
+
+			setTimeout(() => {
+				largeFileUploaderInstance.destroy();
+			}, 200);
 		}
 		// 如果是断点续传的，状态没有发生改变，怎么处理？
 		update({
 			...record,
-			uploadTempraryPath: tempPath,
 			status: UploadStatusEnum.Uploading,
 		})
 
@@ -302,7 +312,8 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 		update,
 		parsedRecord,
 		resumeRecord,
-		getLargeFileUploader
+		largeFileUploadersChange,
+		getLargeFileUploader,
 	}
 })
 
@@ -363,14 +374,19 @@ async function preUploadValidate(record: UploadRecordType) {
 }
 
 async function resumeFormBroken(record: UploadRecordType) {
-	const defultResumeInfo = {
+	const defultResumeInfo: {
+		uploadedSize: number;
+		currentChunkIndex: number;
+		uploadedChunkFilePaths: { index: number; path: string; }[];
+	} = {
 		uploadedSize: 0,
 		currentChunkIndex: 0,
+		uploadedChunkFilePaths: [], // { index: number; path: string; }[]
 	}
 	if (!record.uploadTempraryPath) return [null, defultResumeInfo];
 
 	const metadataCtx = await usageGetMetadata({
-		target: record.uploadTargetPath,
+		target: record.uploadTempraryPath,
 		depth: 100,
 	});
 	const metadataResult = metadataCtx.response.body;
@@ -384,6 +400,10 @@ async function resumeFormBroken(record: UploadRecordType) {
 			const chunkIndex = parseInt(cur.name.split('.').pop()!, 10);
 			if (!isNaN(chunkIndex)) {
 				acc.currentChunkIndex = Math.max(acc.currentChunkIndex, chunkIndex);
+				acc.uploadedChunkFilePaths.push({
+					index: chunkIndex,
+					path: cur.path,
+				});
 			}
 		}
 

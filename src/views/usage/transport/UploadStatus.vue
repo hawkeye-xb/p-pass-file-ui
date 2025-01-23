@@ -18,9 +18,6 @@ const progressVisible = ref(false);
 
 const progress = ref(0);
 const speed = ref(''); // bytes/s
-
-let uploader: LargeFileUploadAbstractClass | undefined = undefined;
-
 const statusText = ref('');
 
 watch(() => props.uploadRecord, (newValue) => {
@@ -34,6 +31,13 @@ watch(() => props.uploadRecord, (newValue) => {
 	if (status === UploadStatusEnum.Paused) {
 		speed.value = 'Paused';
 	}
+	if (props.uploadRecord.status === UploadStatusEnum.Uploading) {
+		progressVisible.value = true;
+	}
+	if (props.uploadRecord.status === UploadStatusEnum.Paused) {
+		progressVisible.value = true;
+		speed.value = 'Paused';
+	}
 
 	// statusText
 	if (props.uploadRecord.type === PATH_TYPE.DIR) {
@@ -43,21 +47,17 @@ watch(() => props.uploadRecord, (newValue) => {
 	} else {
 		statusText.value = props.uploadRecord.status.toString()
 	}
+}, { immediate: true, deep: true })
 
+let uploader: LargeFileUploadAbstractClass | undefined = undefined;
+watch(() => useUploadRecordStore().largeFileUploadersChange, () => {
 	uploader = uploadRecordStore.getLargeFileUploader(props.uploadRecord.id);
 	if (uploader) {
+		uploader.onProgress = undefined;
 		uploader.onProgress = (p, s) => {
 			// 保留两位小数
 			progress.value = Math.round(p * 100) / 100;
 			speed.value = convertBytes(s) + '/s';
-		}
-
-		if (props.uploadRecord.status === UploadStatusEnum.Uploading) {
-			progressVisible.value = true;
-		}
-		if (props.uploadRecord.status === UploadStatusEnum.Paused) {
-			progressVisible.value = true;
-			speed.value = 'Paused';
 		}
 	}
 }, { immediate: true })
