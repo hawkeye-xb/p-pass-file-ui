@@ -70,7 +70,7 @@ interface AggregateFilesType {
 	target: string, // 目标目录
 	name: string, // 文件名
 	parentPaths?: string[], // 父目录
-	tempraryPath?: string, // 临时目录
+	temporaryPath?: string, // 临时目录
 }
 export const aggregateFiles = (data: AggregateFilesType) => {
 	return request('/file/aggregate', {

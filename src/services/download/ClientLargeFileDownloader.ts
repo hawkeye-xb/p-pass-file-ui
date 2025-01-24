@@ -58,7 +58,7 @@ export class ClientLargeFileDownloader {
 		const stime = Date.now();
 		const blob = new Blob([chunk]);
 		const uploadRes = await uploadFile({
-			target: this.downloadRecord.downloadTempraryPath,
+			target: this.downloadRecord.locationTemporaryPath,
 			name: `${this.downloadRecord.name}.part.${this.currentChunkIndex}`,
 			file: new File([blob], `${this.downloadRecord.name}.part.${this.currentChunkIndex}`, { type: 'application/octet-stream' }),
 		})
@@ -86,7 +86,7 @@ export class ClientLargeFileDownloader {
 		if (this.downloadedSize < this.downloadRecord.size) {
 			this.run();
 		} else {
-			this.aggregateFiles();
+			this.mergeFiles();
 		}
 	}
 
@@ -101,13 +101,13 @@ export class ClientLargeFileDownloader {
 		return res.data as ArrayBuffer;
 	}
 
-	private async aggregateFiles() {
+	private async mergeFiles() {
 		const res = await aggregateFiles({
 			filePaths: this.downloadedChunkFilePaths,
-			target: this.downloadRecord.downloadTargetPath,
+			target: this.downloadRecord.locationSavePath,
 			name: this.downloadRecord.name,
 			parentPaths: this.downloadRecord.parentPaths,
-			tempraryPath: this.downloadRecord.downloadTempraryPath,
+			temporaryPath: this.downloadRecord.locationTemporaryPath,
 		})
 		const resJson = await res.json();
 		if (resJson.code !== 0) {

@@ -22,8 +22,8 @@ export type DownloadRecordType = {
 
 	parentPaths: string[];
 	downloadSourcePath: string; // 资源路径
-	downloadTargetPath: string; // 下载到的目录
-	downloadTempraryPath: string; // 本地临时目录
+	locationSavePath: string; // 下载到的目录
+	locationTemporaryPath: string; // 本地临时目录
 }
 
 const STORAGE_KEY = 'downloadRecord'

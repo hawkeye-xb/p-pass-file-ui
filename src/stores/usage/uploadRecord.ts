@@ -196,6 +196,7 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 	}
 
 	function uploaded(record: UploadRecordType, status: UploadStatusType) {
+		// 没从大文件移除。 
 		processingQueue.delete(record.id); // 移除处理中的任务
 		pendingQueue = pendingQueue.filter(item => item.id !== record.id); // 从 pending 队列中移除
 		pendingQueueSize.value = pendingQueue.length || 0;
@@ -236,6 +237,7 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 			return;
 		}
 		// 小文件上传
+		// todo: 小文件上传也要校验...
 		if (record.size !== undefined && record.size < MAX_FILE_SIZE) {
 			const res = await downloadFile({
 				target: record.uploadSourcePath,
@@ -260,10 +262,10 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 		/**
 		 * 大文件上传
 		 */
-		if (largeFileUploaderMap.has(record.id)) {
-			largeFileUploaderMap.get(record.id)?.start();
-			return;
-		}
+		// if (largeFileUploaderMap.has(record.id)) {
+		// 	largeFileUploaderMap.get(record.id)?.start();
+		// 	return;
+		// } // 重复了
 
 		// 预上传校验
 		const [preErr, tempPath] = await preUploadValidate(record);
@@ -278,7 +280,7 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 			return;
 		}
 
-		record.uploadTempraryPath = tempPath;
+		record.uploadTemporaryPath = tempPath;
 		const largeFileUploaderInstance = new ClientLargeFileUploader({
 			...options,
 			currentChunkIndex: options.currentChunkIndex + 1, // 从下一个开始，个数怎么处理？
@@ -294,7 +296,7 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 
 			setTimeout(() => {
 				largeFileUploaderInstance.destroy();
-			}, 200);
+			}, 0);
 		}
 		// 如果是断点续传的，状态没有发生改变，怎么处理？
 		update({
@@ -338,7 +340,7 @@ export const generateUploadRecord = async (uploadSrcPath: string, uploadTraget: 
 			uploadSourcePath: info.path,
 			uploadTargetPath: uploadTraget.path,
 			parentPaths: parentPaths,
-			uploadTempraryPath: '', // 开始上传了再给临时目录
+			uploadTemporaryPath: '', // 开始上传了再给临时目录
 			name: info.name,
 			status: UploadStatusEnum.Waiting,
 			stime: 0,
@@ -353,7 +355,7 @@ export const generateUploadRecord = async (uploadSrcPath: string, uploadTraget: 
 }
 
 async function preUploadValidate(record: UploadRecordType) {
-	if (record.uploadTempraryPath) return [null, record.uploadTempraryPath];
+	if (record.uploadTemporaryPath) return [null, record.uploadTemporaryPath];
 
 	const preUploadValidateRes = await usagePreUploadValidate({
 		target: record.uploadTargetPath,
@@ -386,10 +388,10 @@ async function resumeFormBroken(record: UploadRecordType) {
 		currentChunkIndex: 0,
 		uploadedChunkFilePaths: [], // { index: number; path: string; }[]
 	}
-	if (!record.uploadTempraryPath) return [null, defultResumeInfo];
+	if (!record.uploadTemporaryPath) return [null, defultResumeInfo];
 
 	const metadataCtx = await usageGetMetadata({
-		target: record.uploadTempraryPath,
+		target: record.uploadTemporaryPath,
 		depth: 100,
 	});
 	const metadataResult = metadataCtx.response.body;

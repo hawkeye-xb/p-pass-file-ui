@@ -49,7 +49,7 @@ export class ClientLargeFileUploader extends LargeFileUploadAbstractClass {
 		const stime = Date.now(); // 这个处理不是Record stime
 		const ctx = await usageUploadFile({
 			content: new Uint8Array(chunk),
-			target: this.uploadRecord.uploadTempraryPath,
+			target: this.uploadRecord.uploadTemporaryPath,
 			name: `${this.uploadRecord.name}.part.${this.currentChunkIndex}`,
 			// parentPaths: [], // 临时目录不需要前缀
 		});
@@ -99,7 +99,7 @@ export class ClientLargeFileUploader extends LargeFileUploadAbstractClass {
 			target: this.uploadRecord.uploadTargetPath,
 			name: this.uploadRecord.name,
 			parentPaths: this.uploadRecord.parentPaths,
-			temporaryPath: this.uploadRecord.uploadTempraryPath,
+			temporaryPath: this.uploadRecord.uploadTemporaryPath,
 		});
 		const result = ctx.response.body;
 		if (result.code !== 0) {
