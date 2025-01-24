@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { useConnectionsStore } from '@/stores/connections';
+
+const connectionsStore = useConnectionsStore();
 </script>
 <template>
-	123
-	<!-- <div class="home-view" v-for="conn in connectionsStore.connections">
+	<div class="home-view" v-for="conn in connectionsStore.connections">
 		<a-card hoverable class="connection-view-card">
 			<div :style="{
 				display: 'flex',
@@ -19,7 +21,7 @@
 				<a-badge :status="conn.open ? 'success' : 'danger'" :text="conn.open ? '已连接' : '未连接'" />
 			</div>
 		</a-card>
-	</div> -->
+	</div>
 </template>
 <style scoped>
 .home-view {

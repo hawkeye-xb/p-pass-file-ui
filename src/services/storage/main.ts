@@ -47,13 +47,28 @@ export const storageService = () => {
 
 	peer.onconnection = (conn: DataConnection) => {
 		conn.on('open', () => {
-			connectionsStore.addConnectionMap(conn);
+			console.debug('conn open', conn);
 
+			connectionsStore.addConnection(conn);
 			sendMetadata(conn);
 		});
 		conn.on('close', () => {
-			connectionsStore.removeConnectionMap(conn);
+			console.warn('conn close', conn);
+
+			// 这里应该是主动发起的 close 监听
+			connectionsStore.removeConnection(conn);
 		});
+		conn.on('error', (err) => {
+			console.warn('conn error', err);
+		});
+		conn.on('iceStateChanged', (state) => {
+			console.debug('conn iceStateChanged', state);
+
+			if (state === 'failed') {
+				connectionsStore.removeConnection(conn);
+			}
+		});
+
 		// 存储侧接收到数据
 		conn.on('data', async (d) => {
 			try {
@@ -72,8 +87,8 @@ export const storageService = () => {
 	initPeerResponse();
 
 	const notifyAllConns = () => {
-		const conns = connectionsStore.getConnectionsMap() as Map<string, DataConnection>;
-		for (const [key, conn] of conns) {
+		const conns = connectionsStore.connections as DataConnection[];
+		for (const conn of conns) {
 			sendMetadata(conn);
 		}
 	}

@@ -94,12 +94,16 @@ export class CustomPeer {
 	}
 
 	private handleOpen(id: string) {
+		console.debug('peer open:', id);
+
 		this.reconnectAttempts = 0; // 重置重连次数
 		this.onopen?.();
 		// 是否需要直接发起conn，使用侧再处理
 	}
 
 	private handleClose() { // 断连或者销毁会触发
+		console.debug('peer close');
+
 		this.onclose?.();
 
 		if (this.peer && this.peer.destroyed) {
@@ -142,6 +146,8 @@ export class CustomPeer {
 	}
 
 	private handleDisconnected() { // 应该属于心跳包断连
+		console.debug('peer disconnected');
+
 		this.ondisconnected?.();
 
 		const timer = setTimeout(() => {

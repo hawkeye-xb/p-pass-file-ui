@@ -8,6 +8,7 @@ export const setUsageCtrlRequest = (req: any) => {
 interface CreateDirType {
 	target: string,
 	name: string,
+	parentPaths?: string[], // 子路径
 }
 export const usageCreateDir = (data: CreateDirType) => {
 	return request(ActionType.CreateDir, data, {})

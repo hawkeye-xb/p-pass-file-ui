@@ -224,6 +224,7 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 			const ctx = await usageCreateDir({
 				target: record.uploadTargetPath,
 				name: record.name,
+				parentPaths: record.parentPaths
 			})
 			const res = ctx.response.body;
 			if (res.code !== 0) {

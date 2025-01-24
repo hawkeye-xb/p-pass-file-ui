@@ -3,30 +3,20 @@ import { defineStore } from 'pinia'
 import type { DataConnection } from 'peerjs'
 
 export const useConnectionsStore = defineStore('connections', () => {
-	const connectionMap = ref<Map<string, DataConnection>>(new Map())
-	function addConnectionMap(connection: DataConnection) {
-		connectionMap.value.set(connection.peer, connection)
-	}
-	function removeConnectionMap(connection: DataConnection) {
-		connectionMap.value.delete(connection.peer)
-	}
-	function getConnectionsMap() {
-		return connectionMap.value
-	}
-
 	const connections = ref<DataConnection[]>([])
 
-	function addConnection(connection: DataConnection) {
-		connections.value.push(connection)
+	function addConnection(conn: DataConnection) {
+		connections.value.push(conn)
 	}
 
-	function setConnections(conns: DataConnection[]) {
-		connections.value = conns
+	function removeConnection(conn: DataConnection) {
+		const index = connections.value.indexOf(conn)
+		if (index !== -1) {
+			const conn = connections.value[index]
+			conn.close()
+			connections.value.splice(index, 1)
+		}
 	}
 
-	function removeConnection(connection: DataConnection) {
-		connections.value = connections.value.filter(c => c !== connection)
-	}
-
-	return { setConnections, connections, addConnection, removeConnection, getConnectionsMap, addConnectionMap, removeConnectionMap }
+	return { connections, addConnection, removeConnection }
 })
