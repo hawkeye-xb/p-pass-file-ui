@@ -73,14 +73,13 @@ interface AggregateFilesType {
 	tempraryPath?: string, // 临时目录
 }
 export const aggregateFiles = (data: AggregateFilesType) => {
-	if (data.parentPaths) {
-		data.target = path.join(data.target, ...data.parentPaths)
-		delete data.parentPaths;
-	}
-
 	return request('/file/aggregate', {
 		method: 'POST',
 		headers,
-		body: JSON.stringify(data)
+		body: JSON.stringify({
+			...data,
+			target: data.parentPaths?.length ? path.join(data.target, ...data.parentPaths) : data.target,
+			parentPaths: undefined,
+		})
 	})
 }

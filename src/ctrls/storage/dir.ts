@@ -13,15 +13,13 @@ interface CreateDirType {
 	parentPaths?: string[],
 }
 export const createDir = (data: CreateDirType) => {
-	if (data.parentPaths?.length) {
-		data.target = path.join(data.target, ...data.parentPaths);
-		delete data.parentPaths;
-	}
-
 	return request('/dir', {
 		method: 'POST',
 		headers,
-		body: JSON.stringify(data)
+		body: JSON.stringify({
+			name: data.name,
+			target: data.parentPaths?.length ? path.join(data.target, ...data.parentPaths) : data.target,
+		})
 	})
 }
 
