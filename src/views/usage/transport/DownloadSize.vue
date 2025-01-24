@@ -1,0 +1,101 @@
+<script setup lang="ts">
+import { DownloadStatusEnum, type DownloadRecordType } from '@/services/usage/download';
+import { ref, watch, type PropType } from 'vue';
+import {
+	IconDelete,
+	IconClose,
+	IconFolder,
+	IconPause,
+	IconPlayArrow,
+} from '@arco-design/web-vue/es/icon';
+import { convertBytes } from '@/utils';
+
+const props = defineProps({
+	downloadRecord: {
+		type: Object as PropType<DownloadRecordType>,
+		required: true,
+	},
+})
+
+const sizeText = ref('-');
+
+const deleteIconVisible = ref(false);
+const handleDelete = () => {
+}
+const pausedIconVisible = ref(false);
+const handlePaused = () => {
+}
+const resumeIconVisible = ref(false);
+const handleResume = () => {
+}
+watch(() => props.downloadRecord, (newValue, oldValue) => {
+	const status = newValue.status;
+	deleteIconVisible.value = false;
+	pausedIconVisible.value = false;
+	resumeIconVisible.value = false;
+
+	if (status === DownloadStatusEnum.Completed) {
+		sizeText.value = convertBytes(props.downloadRecord.size || 0);
+
+		deleteIconVisible.value = true;
+	}
+	if (status === DownloadStatusEnum.Waiting || status === DownloadStatusEnum.Downloading) {
+		pausedIconVisible.value = true;
+	}
+	if (status === DownloadStatusEnum.Paused) {
+		resumeIconVisible.value = true;
+	}
+}, { immediate: true, deep: true })
+
+</script>
+<template>
+	<div class="size-cell">
+		<a-space class="hover-hook">
+			<a-tooltip content="Show in folder(todo)">
+				<IconFolder class="icon" />
+			</a-tooltip>
+			<a-tooltip content="cancel & delete download" v-if="deleteIconVisible">
+				<IconClose class="icon" @click="handleDelete" />
+			</a-tooltip>
+			<a-tooltip content="Pause upload" v-if="pausedIconVisible">
+				<IconPause class="icon" @click="handlePaused" />
+			</a-tooltip>
+			<a-tooltip content="Resume upload" v-if="resumeIconVisible">
+				<IconPlayArrow class="icon" @click="handleResume" />
+			</a-tooltip>
+		</a-space>
+		<span class="hover-hook-span">{{ sizeText }}</span>
+	</div>
+</template>
+
+<style scoped>
+.size-cell {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	position: relative;
+	/* width: 88px; */
+	height: 22px;
+}
+
+.hover-hook {
+	display: none;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+}
+
+.size-cell:hover .hover-hook {
+	display: flex;
+}
+
+.hover-hook-span {
+	display: block;
+}
+
+.size-cell:hover .hover-hook-span {
+	display: none;
+}
+</style>

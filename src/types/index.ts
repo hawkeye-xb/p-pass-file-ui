@@ -7,7 +7,7 @@ export interface MetadataType {
 	mtime: string,
 	type: string,
 	children?: MetadataType[],
-	parent: string | null,
+	parent: string | null, // 父路径path，用不上，尴尬
 }
 
 export const MetadataTypeDefaultValue: MetadataType = {

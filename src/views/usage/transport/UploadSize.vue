@@ -75,21 +75,17 @@ watch(() => props.uploadRecord, (newValue, oldValue) => {
 	if (status === UploadStatusEnum.Completed) {
 		sizeText.value = convertBytes(props.uploadRecord.size || 0);
 		uploader && (uploader.onUploadedSizeChange = undefined);
-	}
-	if (status === UploadStatusEnum.Completed || status === UploadStatusEnum.Canceled) {
+
 		deleteIconVisible.value = true;
+		cancelIconVisible.value = true;
 	}
 	if (status === UploadStatusEnum.Waiting || status === UploadStatusEnum.Uploading) {
 		pausedIconVisible.value = true;
 	}
-	if (status === UploadStatusEnum.Holded || status === UploadStatusEnum.Paused) {
+	if (status === UploadStatusEnum.Paused) {
 		resumeIconVisible.value = true;
 	}
-	if (
-		status !== UploadStatusEnum.Completed
-		&& status !== UploadStatusEnum.Canceled
-		&& status !== UploadStatusEnum.Error
-	) {
+	if (status !== UploadStatusEnum.Error) {
 		cancelIconVisible.value = true;
 	}
 }, { immediate: true, deep: true })

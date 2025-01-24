@@ -6,9 +6,12 @@ import { IconSettings, IconUser } from '@arco-design/web-vue/es/icon';
 import { usageService, getConn } from '@/services/usage/main';
 import { onBeforeUnmount } from 'vue';
 import { useUploadRecordStore } from "@/stores/usage/uploadRecord";
+import { useDownloadRecordStore } from '@/stores/usage/downloadRecord';
 
 const uploadRecordStore = useUploadRecordStore();
+const downloadRecordStore = useDownloadRecordStore();
 uploadRecordStore.init();
+downloadRecordStore.init();
 
 usageService()
 

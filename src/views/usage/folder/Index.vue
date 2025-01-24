@@ -12,16 +12,16 @@ import MoveToModal from './MoveToModal.vue';
 import Icon from './Icon.vue';
 import { convertBytes, dateFormat } from '@/utils';
 import Footer from './Footer.vue';
-import { useDownloadStore } from '@/stores/download';
 import { useRouter } from 'vue-router';
 import { getConfig } from '@/services';
 import { generateUploadRecord, useUploadRecordStore } from '@/stores/usage/uploadRecord';
+import { generateDownloadRecord, useDownloadRecordStore } from '@/stores/usage/downloadRecord';
 
 const Router = useRouter();
 
 const metadataStore = useMetadatasStore();
 const uploadRecordStore = useUploadRecordStore();
-const downloadStore = useDownloadStore();
+const downloadRecordStore = useDownloadRecordStore();
 
 // breadcrumb
 const breadcrumb: Ref<string[]> = ref([]);
@@ -149,7 +149,12 @@ const handleDownload = (k: string | number | Record<string, any> | undefined, re
   if (k !== DOPTION_VALUES.Download) {
     return;
   }
-  downloadStore.createDownloadTask(record, '/Users/lixixi/Downloads');
+  // console.log(record) // todo: ? 怎么会有children呢。。
+  const item = generateDownloadRecord(record)
+  if (!item) {
+    return;
+  }
+  downloadRecordStore.add(item);
 }
 const handleCellOptionSelected = (k: string | number | Record<string, any> | undefined, record: any) => {
   const currentFolder = getCurrentFolder(metadataStore.metadatas, breadcrumb.value);

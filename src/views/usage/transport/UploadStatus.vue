@@ -31,13 +31,6 @@ watch(() => props.uploadRecord, (newValue) => {
 	if (status === UploadStatusEnum.Paused) {
 		speed.value = 'Paused';
 	}
-	if (props.uploadRecord.status === UploadStatusEnum.Uploading) {
-		progressVisible.value = true;
-	}
-	if (props.uploadRecord.status === UploadStatusEnum.Paused) {
-		progressVisible.value = true;
-		speed.value = 'Paused';
-	}
 
 	// statusText
 	if (props.uploadRecord.type === PATH_TYPE.DIR) {

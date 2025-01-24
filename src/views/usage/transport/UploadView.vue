@@ -37,11 +37,11 @@ function filterEmptyDir(rs: UploadRecordType[]) {
 				<span>Speed: 100KB/s</span>
 			</a-space>
 		</div> -->
-		<div class="download-view-table-top">
+		<!-- <div class="download-view-table-top">
 			<a-space>
 				<a-button>Cleanup Completed</a-button>
 			</a-space>
-		</div>
+		</div> -->
 		<a-table :data="data" row-key="id" :row-selection="{
 			type: 'checkbox',
 			showCheckedAll: true,
