@@ -255,7 +255,7 @@ async function fileDownload(record: DownloadRecordType) {
 			target: record.downloadSourcePath,
 		});
 		const body = ctx.response.body;
-		if (body.code !== 200) { // rtc 之间是200，得改了
+		if (body.code !== 0) {
 			return body;
 		}
 		const arrayBuffer = body.data;
