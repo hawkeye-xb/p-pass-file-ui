@@ -23,7 +23,7 @@ const initClientType = () => {
 
     ct === ClientType.Storage && Router.push('/storage/connections')
     ct === ClientType.Usage && Router.push('/usage/folder')
-  }, 200);
+  }, 100);
 }
 initClientType()
 

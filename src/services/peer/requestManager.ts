@@ -25,7 +25,7 @@ export function generateWebRTCContext(action: ActionType, body: unknown): WebRTC
     },
     response: {
       body: {
-        code: 200,
+        code: 0,
         data: undefined,
         message: ''
       },

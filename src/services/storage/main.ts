@@ -98,7 +98,7 @@ export const storageService = () => {
 		onmessage: async () => { // 接受推送，重新获取元数据
 			const res = await getWatchTargetsMetadata();
 			const result = await res.json();
-			if (result.code !== 200) {
+			if (result.code !== 0) {
 				return;
 			}
 			metadataStore.updateMetadatas(result.data)
@@ -165,7 +165,7 @@ async function handleFileDownload(ctx: WebRTCContextType) {
 		const res = await downloadFile(ctx.request.body as any);
 		const buffer = await res.arrayBuffer();
 		ctx.response.body = {
-			code: 200,
+			code: 0,
 			data: buffer,
 			message: 'success',
 		};

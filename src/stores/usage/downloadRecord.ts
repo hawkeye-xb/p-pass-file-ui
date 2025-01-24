@@ -18,10 +18,42 @@ export const useDownloadRecordStore = defineStore('downloadRecord', () => {
 	const processingQueue: Ref<DownloadRecordType[]> = ref([]); // 任务队列
 
 	const largeFileDownloaderMap: Map<string, ClientLargeFileDownloader> = new Map();
-	// size change ,called action
+	const largeFileDownloaderSize = ref(0);
+
+	function getLargeFileDownloader(record: DownloadRecordType) {
+		return largeFileDownloaderMap.get(record.id);
+	}
 
 	function update(record: DownloadRecordType) {
 		downloadRecord.value = handleRecordUpdate(downloadRecord.value, record, (item) => record);
+		syncRecord();
+	}
+
+	function paused(record: DownloadRecordType) {
+		const records = handleRecordUpdate(downloadRecord.value, record, (item) => {
+			item.status = DownloadStatusEnum.Paused;
+			item.children?.forEach((child) => paused(child));
+			return item;
+		})
+
+		return records;
+	}
+	function pausedRecord(record: DownloadRecordType) {
+		downloadRecord.value = paused(record);
+		syncRecord();
+	}
+
+	function resume(record: DownloadRecordType) {
+		const records = handleRecordUpdate(downloadRecord.value, record, (item) => {
+			item.status = DownloadStatusEnum.Waiting;
+			item.children?.forEach((child) => resume(child));
+			return item;
+		})
+		return records;
+	}
+
+	function resumeRecord(record: DownloadRecordType) {
+		downloadRecord.value = resume(record);
 		syncRecord();
 	}
 
@@ -54,7 +86,7 @@ export const useDownloadRecordStore = defineStore('downloadRecord', () => {
 		syncRecord();
 
 		setRecordToPendingQueue(record);
-		run();
+		// run();
 	}
 
 	function init() {
@@ -164,10 +196,13 @@ export const useDownloadRecordStore = defineStore('downloadRecord', () => {
 			downloadRecord: record,
 		});
 		largeFileDownloaderMap.set(record.id, largeFileDownloader);
+		largeFileDownloaderSize.value = largeFileDownloaderMap.size;
 
 		const completedAndDestroy = () => {
 			handleCompleted(record, DownloadStatusEnum.Completed);
 			largeFileDownloaderMap.delete(record.id);
+			largeFileDownloaderSize.value = largeFileDownloaderMap.size;
+
 			setTimeout(() => {
 				largeFileDownloader.destroy();
 			}, 0);
@@ -181,7 +216,11 @@ export const useDownloadRecordStore = defineStore('downloadRecord', () => {
 		init,
 		downloadRecord,
 		add,
-		// pendingQueue, processingQueue
+		pendingQueue,
+		pausedRecord,
+		resumeRecord,
+		largeFileDownloaderSize,
+		getLargeFileDownloader,
 	}
 })
 

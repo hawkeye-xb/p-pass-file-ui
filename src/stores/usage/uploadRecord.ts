@@ -62,7 +62,7 @@ export const useUploadRecordStore = defineStore('uploadRecord', () => {
 						uploader?.pause()
 						setTimeout(() => {
 							uploader?.destroy()
-						}, 200);
+						}, 0);
 					}
 					// 移除队列
 					pendingQueue = pendingQueue.filter(item => item.id !== id)
