@@ -64,7 +64,7 @@ export const storageService = () => {
 		conn.on('iceStateChanged', (state) => {
 			console.debug('conn iceStateChanged', state);
 
-			if (state === 'failed') {
+			if (state === 'disconnected') {
 				connectionsStore.removeConnection(conn);
 			}
 		});
