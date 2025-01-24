@@ -86,3 +86,12 @@ interface GetMetadataType {
 export const usageGetMetadata = (data: GetMetadataType) => {
 	return request(ActionType.Metadata, data, {})
 }
+
+interface DownloadFileType {
+	target: string, // 目标文件
+	offset?: number, // 偏移量
+	size?: number, // 大小
+}
+export const usageDownloadFile = (data: DownloadFileType) => {
+	return request(ActionType.DownloadFile, data, {})
+}

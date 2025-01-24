@@ -46,7 +46,7 @@ export class ClientLargeFileUploader extends LargeFileUploadAbstractClass {
 
 		const chunk = await this.splitChunk();
 
-		const stime = Date.now();
+		const stime = Date.now(); // 这个处理不是Record stime
 		const ctx = await usageUploadFile({
 			content: new Uint8Array(chunk),
 			target: this.uploadRecord.uploadTempraryPath,
@@ -89,6 +89,7 @@ export class ClientLargeFileUploader extends LargeFileUploadAbstractClass {
 			offset: this.uploadedSize,
 			size: Math.min(this.chunkSize, this.uploadRecord.size - this.uploadedSize),
 		})
+		// todo: error?
 		return await res.arrayBuffer();
 	}
 
