@@ -44,9 +44,9 @@ export class ClientLargeFileUploader extends LargeFileUploadAbstractClass {
 		if (this.paused) { return; }
 		// if (this.currentChunkIndex >= this.chunkTatalNumber) { return; }
 
+		const stime = Date.now();
 		const chunk = await this.splitChunk();
 
-		const stime = Date.now(); // 这个处理不是Record stime
 		const ctx = await usageUploadFile({
 			content: new Uint8Array(chunk),
 			target: this.uploadRecord.uploadTemporaryPath,

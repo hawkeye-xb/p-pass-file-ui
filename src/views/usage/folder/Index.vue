@@ -178,7 +178,7 @@ const handleCellOptionSelected = (k: string | number | Record<string, any> | und
 }
 
 // footer
-const handleBatchOptions = (action: DOPTION_VALUES) => {
+const handleBatchOptions = async (action: DOPTION_VALUES) => {
   const selectedValue = data.value.filter((el) => selectedKeys.value.includes(el.ino));
 
   if (action === DOPTION_VALUES.Delete) {
@@ -189,7 +189,26 @@ const handleBatchOptions = (action: DOPTION_VALUES) => {
     moveSrc.value = selectedValue.map(el => el.path);
   }
   if (action === DOPTION_VALUES.Download) {
-    console.warn('download', selectedValue)
+    if (!window.electron) {
+      Message.error('下载需要在客户端环境使用');
+      return;
+    }
+    const selector = await window.electron.openFileSelector({
+      properties: ['openDirectory'],
+    })
+    if (selector.canceled) {
+      return;
+    }
+    const target = selector.filePaths[0];
+    selectedValue.forEach(selected => {
+      const item = metadataStore.findMetadataByIno(metadataStore.metadatas, selected.ino);
+      if (item) {
+        const record = generateDownloadRecord(item, target);
+        if (record) {
+          downloadRecordStore.add(record);
+        }
+      }
+    })
   }
 
   selectedKeys.value = [];

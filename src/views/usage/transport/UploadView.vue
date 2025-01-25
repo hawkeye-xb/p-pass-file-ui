@@ -10,7 +10,7 @@ const uploadRecordStore = useUploadRecordStore();
 
 const selectedKeys = ref<number[]>([]);
 const data = computed(() => {
-	return filterEmptyDir(uploadRecordStore.uploadRecord).reverse();
+	return filterEmptyDir(uploadRecordStore.uploadRecord); // 另外排序
 })
 
 function filterEmptyDir(rs: UploadRecordType[]) {

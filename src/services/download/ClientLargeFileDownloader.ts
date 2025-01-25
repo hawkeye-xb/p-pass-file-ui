@@ -55,9 +55,9 @@ export class ClientLargeFileDownloader {
 	private async run() {
 		if (this.paused) { return; }
 
+		const stime = Date.now();
 		const chunk = await this.splitChunk();
 
-		const stime = Date.now();
 		const blob = new Blob([chunk]);
 		const name = `${this.downloadRecord.name}.part.${this.currentChunkIndex}`;
 		const uploadRes = await uploadFile({

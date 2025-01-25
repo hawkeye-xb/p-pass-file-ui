@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { PATH_TYPE } from '@/const';
 import { computed, ref } from 'vue';
-
-import { convertBytes } from '@/utils';
 import type { DownloadRecordType } from '@/services/usage/download';
 import { useDownloadRecordStore } from '@/stores/usage/downloadRecord';
 import DownloadStatus from './DownloadStatus.vue';
@@ -21,31 +19,10 @@ function filterEmptyDir(rs: DownloadRecordType[]) {
 	}).map(el => ({ ...el }));
 }
 const data = computed(() => {
-	return filterEmptyDir(downloadRecordStore.downloadRecord).reverse();
+	return filterEmptyDir(downloadRecordStore.downloadRecord);
 })
 
 const selectedKeys = ref<number[]>([]);
-
-// const handleProgressText = (status: DownloadStatus) => {
-// 	switch (status) {
-// 		case DownloadStatus.waiting:
-// 			return 'Waiting';
-// 		case DownloadStatus.transporting:
-// 			return 'Transporting';
-// 		case DownloadStatus.paused:
-// 			return 'Paused';
-// 		case DownloadStatus.holded:
-// 			return 'Holded';
-// 		case DownloadStatus.cancelled:
-// 			return 'Cancelled';
-// 		case DownloadStatus.failed:
-// 			return 'Failed';
-// 		case DownloadStatus.finished:
-// 			return 'Finished';
-// 		default:
-// 			return '';
-// 	}
-// }
 </script>
 <template>
 	<div style="margin: 8px 16px;">
