@@ -286,9 +286,9 @@ export const useDownloadRecordStore = defineStore('downloadRecord', () => {
 	}
 })
 
-export const generateDownloadRecord = (downloadTarget: MetadataType): DownloadRecordType | undefined => {
-	const downloadPath = getConfig('downloadPath');
-	if (!downloadPath) { return; }
+export const generateDownloadRecord = (downloadTarget: MetadataType, locationSavePath: string): DownloadRecordType | undefined => {
+	// const downloadPath = getConfig('downloadPath');
+	// if (!downloadPath) { return; }
 
 	// metadata 已经有 children信息
 	const gcRecord = (info: MetadataType, parentPaths: string[]): DownloadRecordType => {
@@ -301,7 +301,7 @@ export const generateDownloadRecord = (downloadTarget: MetadataType): DownloadRe
 			size: info.size,
 			type: info.type as PATH_TYPE,
 			downloadSourcePath: info.path,
-			locationSavePath: downloadPath,
+			locationSavePath,
 			locationTemporaryPath: '',
 			parentPaths,
 			children: info.children?.map((child) => gcRecord(child, [...parentPaths, info.name])) || undefined,

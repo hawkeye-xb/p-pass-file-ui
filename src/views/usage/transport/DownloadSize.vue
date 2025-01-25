@@ -11,6 +11,9 @@ import {
 import { convertBytes } from '@/utils';
 import { useDownloadRecordStore } from '@/stores/usage/downloadRecord';
 import type { ClientLargeFileDownloader } from '@/services/download/ClientLargeFileDownloader';
+import { Message } from '@arco-design/web-vue';
+import path from 'path-browserify';
+import { PATH_TYPE } from '@/const';
 
 const downloadRecordStore = useDownloadRecordStore();
 
@@ -42,7 +45,9 @@ watch(() => props.downloadRecord, (newValue, oldValue) => {
 	resumeIconVisible.value = false;
 
 	if (status === DownloadStatusEnum.Completed) {
-		sizeText.value = convertBytes(props.downloadRecord.size || 0);
+		if (props.downloadRecord.type === PATH_TYPE.FILE) {
+			sizeText.value = convertBytes(props.downloadRecord.size || 0)
+		}
 
 		deleteIconVisible.value = true;
 	}
@@ -57,6 +62,10 @@ watch(() => props.downloadRecord, (newValue, oldValue) => {
 let downloader: ClientLargeFileDownloader | undefined;
 const totalSize = convertBytes(props.downloadRecord.size || 0);
 watch(() => downloadRecordStore.largeFileDownloaderSize, () => {
+	if (props.downloadRecord.type !== PATH_TYPE.FILE || props.downloadRecord.size < 3 * 1024 * 1024) { // todo: 统一设置大文件阈值
+		return;
+	}
+
 	downloader = downloadRecordStore.getLargeFileDownloader(props.downloadRecord);
 	if (downloader) {
 		downloader.onDownloadSizeChange = undefined;
@@ -71,12 +80,23 @@ onBeforeUnmount(() => {
 		downloader.onDownloadSizeChange = undefined;
 	}
 })
+
+const handleOpenFolder = () => {
+	if (!window.electron) {
+		Message.error('打开文件夹需要在客户端环境使用');
+		return;
+	}
+	const fullPath = props.downloadRecord.parentPaths.length > 0
+		? path.join(props.downloadRecord.locationSavePath, ...props.downloadRecord.parentPaths, props.downloadRecord.name)
+		: path.join(props.downloadRecord.locationSavePath, props.downloadRecord.name);
+	window.electron.showItemInFolder(fullPath);
+}
 </script>
 <template>
 	<div class="size-cell">
 		<a-space class="hover-hook">
 			<a-tooltip content="Show in folder(todo)">
-				<IconFolder class="icon" />
+				<IconFolder class="icon" @click="handleOpenFolder" />
 			</a-tooltip>
 			<a-tooltip content="cancel & delete download" v-if="deleteIconVisible">
 				<IconClose class="icon" @click="handleDelete" />

@@ -17,10 +17,37 @@ interface OpenDialogReturnValue {
 	 */
 	bookmarks?: string[];
 }
-
+interface OpenDialogOptions {
+	title?: string;
+	defaultPath?: string;
+	/**
+	 * Custom label for the confirmation button, when left empty the default label will
+	 * be used.
+	 */
+	buttonLabel?: string;
+	filters?: FileFilter[];
+	/**
+	 * Contains which features the dialog should use. The following values are
+	 * supported:
+	 */
+	properties?: Array<'openFile' | 'openDirectory' | 'multiSelections' | 'showHiddenFiles' | 'createDirectory' | 'promptToCreate' | 'noResolveAliases' | 'treatPackageAsDirectory' | 'dontAddToRecent'>;
+	/**
+	 * Message to display above input boxes.
+	 *
+	 * @platform darwin
+	 */
+	message?: string;
+	/**
+	 * Create security scoped bookmarks when packaged for the Mac App Store.
+	 *
+	 * @platform darwin,mas
+	 */
+	securityScopedBookmarks?: boolean;
+}
 interface Window {
 	electron?: {
-		openFileSelector: (options: any) => Promise<OpenDialogReturnValue>
+		openFileSelector: (options: OpenDialogOptions) => Promise<OpenDialogReturnValue>;
+		showItemInFolder: (fullPath: string) => void;
 	},
 	conn: any,
 }

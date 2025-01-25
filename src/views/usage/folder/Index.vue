@@ -60,7 +60,7 @@ const cellClick = (record: any) => {
 const beforeUploadFile = async () => {
   try {
     if (!window.electron) {
-      Message.error('请在electron环境下使用');
+      Message.error('上传需要在客户端环境使用');
       return;
     }
 
@@ -145,12 +145,23 @@ const handleMoveTo = (k: string | number | Record<string, any> | undefined, src:
   moveToVisible.value = true;
   moveSrc.value = src; // 设置单个，批量操作再设置多个
 }
-const handleDownload = (k: string | number | Record<string, any> | undefined, record: MetadataType) => {
+const handleDownload = async (k: string | number | Record<string, any> | undefined, record: MetadataType) => {
   if (k !== DOPTION_VALUES.Download) {
     return;
   }
-  // console.log(record) // todo: ? 怎么会有children呢。。
-  const item = generateDownloadRecord(record)
+  if (!window.electron) {
+    Message.error('下载需要在客户端环境使用');
+    return;
+  }
+  const selector = await window.electron.openFileSelector({
+    properties: ['openDirectory'],
+  })
+  if (selector.canceled) {
+    return;
+  }
+  const target = selector.filePaths[0];
+
+  const item = generateDownloadRecord(record, target) // todo: ? record 怎么会有children呢。。
   if (!item) {
     return;
   }
@@ -176,6 +187,9 @@ const handleBatchOptions = (action: DOPTION_VALUES) => {
   if (action === DOPTION_VALUES.MoveTo) {
     moveToVisible.value = true;
     moveSrc.value = selectedValue.map(el => el.path);
+  }
+  if (action === DOPTION_VALUES.Download) {
+    console.warn('download', selectedValue)
   }
 
   selectedKeys.value = [];

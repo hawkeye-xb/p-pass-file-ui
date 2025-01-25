@@ -21,7 +21,7 @@ function filterEmptyDir(rs: DownloadRecordType[]) {
 	}).map(el => ({ ...el }));
 }
 const data = computed(() => {
-	return filterEmptyDir(downloadRecordStore.downloadRecord);
+	return filterEmptyDir(downloadRecordStore.downloadRecord).reverse();
 })
 
 const selectedKeys = ref<number[]>([]);

@@ -79,7 +79,7 @@ export class ClientLargeFileDownloader {
 		})
 		const etime = Date.now();
 		const duration = etime - stime;
-		const speed = this.chunkSize / duration * 1000;
+		const speed = chunk.byteLength / duration * 1000;
 		this.onProgress?.(this.downloadedSize / this.downloadRecord.size, speed);
 
 		this.downloadedSize += chunk.byteLength;
