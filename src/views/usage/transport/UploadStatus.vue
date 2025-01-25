@@ -48,7 +48,6 @@ watch(() => useUploadRecordStore().largeFileUploaderSize, () => {
 	if (uploader) {
 		uploader.onProgress = undefined;
 		uploader.onProgress = (p, s) => {
-			// 保留两位小数
 			progress.value = Math.round(p * 100) / 100;
 			speed.value = convertBytes(s) + '/s';
 		}
@@ -64,7 +63,7 @@ onBeforeUnmount(() => {
 <template>
 	<div>
 		<div v-if="progressVisible" style="display: flex;">
-			<div style="width: 160px; margin-right: 8px;">
+			<div style="width: 152px; margin-right: 8px;">
 				<a-progress :percent="progress" :show-text="false">
 				</a-progress>
 			</div>

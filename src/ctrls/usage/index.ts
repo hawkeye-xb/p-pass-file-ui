@@ -62,6 +62,10 @@ export const usageUploadFile = (data: {
 	name: string,
 	parentPaths?: string[], // 子路径
 }) => {
+	console.debug('usageUploadFile', {
+		...data,
+		content: data.content.length,
+	})
 	return request(ActionType.UploadFile, data, {})
 }
 

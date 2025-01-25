@@ -45,6 +45,10 @@ export const preUploadValidate = (data: PreUploadValidateType) => {
 	})
 }
 
+/*
+	todo：修改这个问题
+	为了保持后缀，文件上传会使用name + filename的后缀
+*/ 
 interface UploadFileFormDataType {
 	target: string, // 目标目录
 	name: string, // 文件名

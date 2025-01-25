@@ -142,6 +142,7 @@ async function handleFileUpload(ctx: WebRTCContextType) { // todo: 传输中断�
 		const body = ctx.request.body as any;
 		const uint8array = new Uint8Array(body.content);
 		const blob = new Blob([uint8array]);
+		// body.filename 是没有的，所以服务端没有后缀
 		const file = new File([blob], body.filename, { type: 'application/octet-stream' });
 
 		const target = body.parentPaths?.length ? path.join(body.target, ...body.parentPaths) : body.target;

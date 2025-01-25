@@ -6,6 +6,7 @@ export interface OptionsType {
 	currentChunkIndex?: number;
 	downloadedSize?: number;
 	downloadRecord: DownloadRecordType;
+	downloadedChunkFilePaths?: { index: number; path: string; }[];
 }
 
 export class ClientLargeFileDownloader {
@@ -27,6 +28,7 @@ export class ClientLargeFileDownloader {
 		if (options.currentChunkIndex) { this.currentChunkIndex = options.currentChunkIndex; }
 		if (options.downloadedSize) { this.downloadedSize = options.downloadedSize; }
 		this.downloadRecord = options.downloadRecord;
+		if (options.downloadedChunkFilePaths) { this.downloadedChunkFilePaths = options.downloadedChunkFilePaths; }
 	}
 
 	public start() {
@@ -57,10 +59,11 @@ export class ClientLargeFileDownloader {
 
 		const stime = Date.now();
 		const blob = new Blob([chunk]);
+		const name = `${this.downloadRecord.name}.part.${this.currentChunkIndex}`;
 		const uploadRes = await uploadFile({
 			target: this.downloadRecord.locationTemporaryPath,
-			name: `${this.downloadRecord.name}.part.${this.currentChunkIndex}`,
-			file: new File([blob], `${this.downloadRecord.name}.part.${this.currentChunkIndex}`, { type: 'application/octet-stream' }),
+			name,
+			file: new File([blob], 'filename', { type: 'application/octet-stream' }),
 		})
 		const uploadResJson = await uploadRes.json();
 		if (uploadResJson.code !== 0) {

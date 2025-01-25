@@ -9,11 +9,13 @@ import {
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useUploadRecordStore } from '@/stores/usage/uploadRecord';
+import { useDownloadRecordStore } from '@/stores/usage/downloadRecord';
 
 const route = useRoute();
 const Router = useRouter();
 
 const uploadRecordStore = useUploadRecordStore();
+const downloadRecordStore = useDownloadRecordStore();
 
 const selectedKeys = ref([route.path]);
 
@@ -39,7 +41,10 @@ watch(
 		</a-menu-item>
 		<a-sub-menu key="/usage/transport">
 			<template #icon>
-				<IconSwap></IconSwap>
+				<a-badge :count="(uploadRecordStore.pendingQueueSize + downloadRecordStore.pendingQueue.length) || 0"
+					:dot="true" :offset="[2]">
+					<IconSwap></IconSwap>
+				</a-badge>
 			</template>
 			<template #title>Transport</template>
 			<a-menu-item key="/usage/transport/upload" v-on:click="() => { Router.push('/usage/transport/upload') }">
@@ -52,7 +57,9 @@ watch(
 			</a-menu-item>
 			<a-menu-item key="/usage/transport/download" v-on:click="() => { Router.push('/usage/transport/download') }">
 				<template #icon>
-					<IconDownload></IconDownload>
+					<a-badge :count="downloadRecordStore.pendingQueue.length || 0" :dot="true" :offset="[2]">
+						<IconDownload></IconDownload>
+					</a-badge>
 				</template>
 				Download
 			</a-menu-item>

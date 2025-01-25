@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { DownloadStatusEnum, type DownloadRecordType } from '@/services/usage/download';
-import { ref, watch, type PropType } from 'vue';
+import { onBeforeUnmount, ref, watch, type PropType } from 'vue';
 import {
 	IconDelete,
 	IconClose,
@@ -9,6 +9,10 @@ import {
 	IconPlayArrow,
 } from '@arco-design/web-vue/es/icon';
 import { convertBytes } from '@/utils';
+import { useDownloadRecordStore } from '@/stores/usage/downloadRecord';
+import type { ClientLargeFileDownloader } from '@/services/download/ClientLargeFileDownloader';
+
+const downloadRecordStore = useDownloadRecordStore();
 
 const props = defineProps({
 	downloadRecord: {
@@ -21,12 +25,15 @@ const sizeText = ref('-');
 
 const deleteIconVisible = ref(false);
 const handleDelete = () => {
+	downloadRecordStore.removeRecord(props.downloadRecord);
 }
 const pausedIconVisible = ref(false);
 const handlePaused = () => {
+	downloadRecordStore.pausedRecord(props.downloadRecord);
 }
 const resumeIconVisible = ref(false);
 const handleResume = () => {
+	downloadRecordStore.resumeRecord(props.downloadRecord);
 }
 watch(() => props.downloadRecord, (newValue, oldValue) => {
 	const status = newValue.status;
@@ -47,6 +54,23 @@ watch(() => props.downloadRecord, (newValue, oldValue) => {
 	}
 }, { immediate: true, deep: true })
 
+let downloader: ClientLargeFileDownloader | undefined;
+const totalSize = convertBytes(props.downloadRecord.size || 0);
+watch(() => downloadRecordStore.largeFileDownloaderSize, () => {
+	downloader = downloadRecordStore.getLargeFileDownloader(props.downloadRecord);
+	if (downloader) {
+		downloader.onDownloadSizeChange = undefined;
+		downloader.onDownloadSizeChange = (size) => {
+			sizeText.value = convertBytes(size) + '/' + totalSize;
+		}
+	}
+}, { immediate: true })
+
+onBeforeUnmount(() => {
+	if (downloader) {
+		downloader.onDownloadSizeChange = undefined;
+	}
+})
 </script>
 <template>
 	<div class="size-cell">

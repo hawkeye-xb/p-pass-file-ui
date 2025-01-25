@@ -3,9 +3,10 @@ import { ref, onBeforeUnmount, watch, type PropType, computed } from 'vue';
 import { useDownloadRecordStore } from '@/stores/usage/downloadRecord';
 import { DownloadStatusEnum, type DownloadRecordType } from '@/services/usage/download';
 import { PATH_TYPE } from '@/const';
-import { dateFormat } from '@/utils';
+import { convertBytes, dateFormat } from '@/utils';
+import type { ClientLargeFileDownloader } from '@/services/download/ClientLargeFileDownloader';
 
-// const downloadRecordStore = useDownloadRecordStore();
+const downloadRecordStore = useDownloadRecordStore();
 const props = defineProps({
 	downloadRecord: {
 		type: Object as PropType<DownloadRecordType>,
@@ -42,12 +43,29 @@ watch(() => props.downloadRecord, (newValue) => {
 	}
 }, { immediate: true, deep: true })
 
+let downloader: ClientLargeFileDownloader | undefined;
+watch(() => downloadRecordStore.largeFileDownloaderSize, () => {
+	downloader = downloadRecordStore.getLargeFileDownloader(props.downloadRecord);
+	if (downloader) {
+		downloader.onProgress = undefined;
+		downloader.onProgress = (p, s) => {
+			progress.value = Math.round(p * 100) / 100;
+			speed.value = convertBytes(s) + '/s';
+		}
+	}
+}, { immediate: true })
+
+onBeforeUnmount(() => {
+	if (downloader) {
+		downloader.onProgress = undefined;
+	}
+})
 </script>
 
 <template>
 	<div>
 		<div v-if="progressVisible" style="display: flex;">
-			<div style="width: 160px; margin-right: 8px;">
+			<div style="width: 152px; margin-right: 8px;">
 				<a-progress :percent="progress" :show-text="false">
 				</a-progress>
 			</div>
