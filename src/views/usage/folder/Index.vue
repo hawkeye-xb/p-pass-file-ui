@@ -43,7 +43,7 @@ const data: ComputedRef<MetadataType[]> = computed(() => {
       (res as any).disabled = true;
     }
     return res;
-  }) || [];
+  }).reverse() || [];
 });
 
 const selectedKeys = ref<number[]>([]);

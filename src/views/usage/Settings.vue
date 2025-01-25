@@ -34,7 +34,7 @@ const saveConnDeviceId = () => {
 			</a-space>
 		</div>
 
-		<div class="settings-list-item">
+		<!-- <div class="settings-list-item">
 			<div class="settings-list-item-label">Max Download Task</div>
 			<div>5</div>
 		</div>
@@ -45,7 +45,7 @@ const saveConnDeviceId = () => {
 				<div>{{ downloadPath }}</div>
 			</div>
 
-		</div>
+		</div> -->
 	</div>
 </template>
 

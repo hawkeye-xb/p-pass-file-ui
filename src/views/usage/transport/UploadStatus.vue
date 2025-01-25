@@ -36,7 +36,7 @@ watch(() => props.uploadRecord, (newValue) => {
 	if (props.uploadRecord.type === PATH_TYPE.DIR) {
 		statusText.value = '-';
 	} else if (status === UploadStatusEnum.Completed) {
-		statusText.value = dateFormat(props.uploadRecord.etime, 'YY-MM-DD ')
+		statusText.value = dateFormat(props.uploadRecord.etime, 'YY-MM-DD HH:mm:ss')
 	} else {
 		statusText.value = props.uploadRecord.status.toString()
 	}

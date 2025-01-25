@@ -12,6 +12,7 @@ import { UploadStatusEnum } from '@/services/usage/upload';
 import { useUploadRecordStore } from '@/stores/usage/uploadRecord';
 import { convertBytes } from '@/utils';
 import type { LargeFileUploadAbstractClass } from '@/services/upload/LargeFileUploadAbstractClass';
+import { PATH_TYPE } from '@/const';
 
 const uploadRecordStore = useUploadRecordStore();
 
@@ -25,6 +26,10 @@ const props = defineProps({
 const sizeText = ref('-');
 let uploader: LargeFileUploadAbstractClass | undefined = undefined;
 watch(() => uploadRecordStore.largeFileUploaderSize, () => {
+	if (props.uploadRecord.type === PATH_TYPE.DIR || props.uploadRecord.size < 3 * 1024 * 1024) {
+		return;
+	}
+
 	uploader = uploadRecordStore.getLargeFileUploader(props.uploadRecord.id);
 	if (uploader) {
 		uploader.onUploadedSizeChange = undefined;
@@ -73,7 +78,7 @@ watch(() => props.uploadRecord, (newValue, oldValue) => {
 	cancelIconVisible.value = false;
 
 	if (status === UploadStatusEnum.Completed) {
-		sizeText.value = convertBytes(props.uploadRecord.size || 0);
+		if (props.uploadRecord.type !== PATH_TYPE.DIR) sizeText.value = convertBytes(props.uploadRecord.size || 0);
 		uploader && (uploader.onUploadedSizeChange = undefined);
 
 		deleteIconVisible.value = true;
@@ -97,9 +102,9 @@ watch(() => props.uploadRecord, (newValue, oldValue) => {
 			<!-- <a-tooltip content="Show in folder(todo)">
 				<IconFolder class="icon" />
 			</a-tooltip> -->
-			<a-tooltip content="Delete from upload history" v-if="deleteIconVisible">
+			<!-- <a-tooltip content="Delete from upload history" v-if="deleteIconVisible">
 				<IconDelete class="icon" @click="deleteFromUploadRecord" />
-			</a-tooltip>
+			</a-tooltip> -->
 			<a-tooltip content="Pause upload" v-if="pausedIconVisible">
 				<IconPause class="icon" @click="handlePaused" />
 			</a-tooltip>

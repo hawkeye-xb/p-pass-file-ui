@@ -46,7 +46,7 @@ const isRoot = computed(() => {
 	<a-dropdown @select="handleSelect" :popup-max-height="false" position="br">
 		<IconMore style="cursor: pointer;" />
 		<template #content>
-			<a-doption :value="DOPTION_VALUES.Share">
+			<!-- <a-doption :value="DOPTION_VALUES.Share">
 				<template #icon>
 					<IconShareInternal />
 				</template>
@@ -71,7 +71,7 @@ const isRoot = computed(() => {
 					<IconPaste />
 				</template>
 				<template #default>Paste (todo)</template>
-			</a-doption>
+			</a-doption> -->
 			<a-doption :value="DOPTION_VALUES.MoveTo" v-if="!isRoot">
 				<template #icon>
 					<IconExport />

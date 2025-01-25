@@ -37,7 +37,7 @@ watch(() => props.downloadRecord, (newValue) => {
 
 	if (props.downloadRecord.type === PATH_TYPE.DIR) { return; }
 	if (status === DownloadStatusEnum.Completed) {
-		statusText.value = dateFormat(props.downloadRecord.etime, 'YY-MM-DD hh:mm:ss')
+		statusText.value = dateFormat(props.downloadRecord.etime, 'YY-MM-DD HH:mm:ss')
 	} else {
 		statusText.value = props.downloadRecord.status.toString()
 	}

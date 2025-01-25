@@ -8,9 +8,9 @@ const emit = defineEmits<{
 <template>
 	<div class="folder-view-footer">
 		<a-space>
-			<a-button @click="emit('selected', DOPTION_VALUES.Share)">Share</a-button>
+			<!-- <a-button @click="emit('selected', DOPTION_VALUES.Share)">Share</a-button> -->
 			<a-button @click="emit('selected', DOPTION_VALUES.Download)">Download</a-button>
-			<a-button @click="emit('selected', DOPTION_VALUES.Copy)">Copy</a-button>
+			<!-- <a-button @click="emit('selected', DOPTION_VALUES.Copy)">Copy</a-button> -->
 			<a-button @click="emit('selected', DOPTION_VALUES.MoveTo)">Move To</a-button>
 			<a-button status="danger" @click="emit('selected', DOPTION_VALUES.Delete)">Delete</a-button>
 		</a-space>

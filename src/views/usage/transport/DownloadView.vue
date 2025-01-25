@@ -59,11 +59,7 @@ const selectedKeys = ref<number[]>([]);
 				<span>Speed: 100KB/s</span>
 			</a-space>
 		</div> -->
-		<a-table :data="data" row-key="id" :row-selection="{
-			type: 'checkbox',
-			showCheckedAll: true,
-			onlyCurrent: true,
-		}" :pagination="{
+		<a-table :data="data" row-key="id" :pagination="{
 			defaultPageSize: 15
 		}" v-model:selectedKeys="selectedKeys">
 			<template #columns>

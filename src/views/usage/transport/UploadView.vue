@@ -10,7 +10,7 @@ const uploadRecordStore = useUploadRecordStore();
 
 const selectedKeys = ref<number[]>([]);
 const data = computed(() => {
-	return filterEmptyDir(uploadRecordStore.uploadRecord);
+	return filterEmptyDir(uploadRecordStore.uploadRecord).reverse();
 })
 
 function filterEmptyDir(rs: UploadRecordType[]) {
@@ -42,11 +42,7 @@ function filterEmptyDir(rs: UploadRecordType[]) {
 				<a-button>Cleanup Completed</a-button>
 			</a-space>
 		</div> -->
-		<a-table :data="data" row-key="id" :row-selection="{
-			type: 'checkbox',
-			showCheckedAll: true,
-			onlyCurrent: true,
-		}" :pagination="{
+		<a-table :data="data" row-key="id" :pagination="{
 			defaultPageSize: 15
 		}" v-model:selectedKeys="selectedKeys">
 			<template #columns>
