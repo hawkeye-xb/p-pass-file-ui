@@ -2,5 +2,5 @@
 </script>
 
 <template>
-  <div>Home View, Set loading page</div>
+  <div></div>
 </template>

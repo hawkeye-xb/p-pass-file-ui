@@ -26,7 +26,6 @@ const props = defineProps({
 
 const sizeText = ref('-');
 
-const deleteIconVisible = ref(false);
 const handleDelete = () => {
 	downloadRecordStore.removeRecord(props.downloadRecord);
 }
@@ -40,16 +39,11 @@ const handleResume = () => {
 }
 watch(() => props.downloadRecord, (newValue, oldValue) => {
 	const status = newValue.status;
-	deleteIconVisible.value = false;
 	pausedIconVisible.value = false;
 	resumeIconVisible.value = false;
 
-	if (status === DownloadStatusEnum.Completed) {
-		if (props.downloadRecord.type === PATH_TYPE.FILE) {
-			sizeText.value = convertBytes(props.downloadRecord.size || 0)
-		}
-
-		deleteIconVisible.value = true;
+	if (status === DownloadStatusEnum.Completed && props.downloadRecord.type === PATH_TYPE.FILE) {
+		sizeText.value = convertBytes(props.downloadRecord.size || 0)
 	}
 	if (status === DownloadStatusEnum.Waiting || status === DownloadStatusEnum.Downloading) {
 		pausedIconVisible.value = true;
@@ -98,7 +92,7 @@ const handleOpenFolder = () => {
 			<a-tooltip content="Show in folder(todo)">
 				<IconFolder class="icon" @click="handleOpenFolder" />
 			</a-tooltip>
-			<a-tooltip content="cancel & delete download" v-if="deleteIconVisible">
+			<a-tooltip content="cancel & delete download">
 				<IconClose class="icon" @click="handleDelete" />
 			</a-tooltip>
 			<a-tooltip content="Pause upload" v-if="pausedIconVisible">

@@ -27,18 +27,6 @@ export const handleOptionSelected = (key: string | number | Record<string, any> 
 		return;
 	}
 	if (key === DOPTION_VALUES.Download) {
-		// const dl = async () => {
-		// 	const params = {
-		// 		target: record.path,
-		// 		// offset, size not used
-		// 	}
-		// 	const fn = record.type === PATH_TYPE.DIR ? downloadDirZip : downloadFile
-		// 	const filename = record.type === PATH_TYPE.DIR ? path.basename(record.path) + '.zip' : path.basename(record.path)
-		// 	const res: any = await fn(params)
-		// 	processStream(res.body, filename)
-		// 	// todo: error
-		// }
-		// dl();
 		return;
 	}
 	if (key === DOPTION_VALUES.Paste) {

@@ -22,3 +22,22 @@ export function convertBytes(bytes: number): string {
 export const dateFormat = (now: string | number | Date | dayjs.Dayjs | null | undefined, fm = "YYYY-MM-DD HH:mm:ss") => {
 	return dayjs(now).format(fm);
 };
+
+export const deviceEnv = () => {
+	if (window.electron) {
+		return window.electron.systemInfo.platform;
+	} else {
+		// 通过UA判断
+		const ua = navigator.userAgent;
+		if (ua.indexOf("Windows") !== -1) {
+			return "win32";
+		}
+		if (ua.indexOf("Mac") !== -1) {
+			return "darwin";
+		}
+		if (ua.indexOf("Linux") !== -1) {
+			return "linux";
+		}
+		return "unknown";
+	}
+}

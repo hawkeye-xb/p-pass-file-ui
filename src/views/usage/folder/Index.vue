@@ -57,14 +57,14 @@ const cellClick = (record: any) => {
   }
 };
 
-const beforeUploadFile = async () => {
+const beforeUpload = async (option: OpenDialogOptions) => {
   try {
     if (!window.electron) {
       Message.error('上传需要在客户端环境使用');
       return;
     }
 
-    const selector = await window.electron.openFileSelector({})
+    const selector = await window.electron.openFileSelector(option)
     if (selector.canceled) {
       return;
     }
@@ -79,6 +79,17 @@ const beforeUploadFile = async () => {
     console.warn(error)
   }
 }
+const beforeUploadFile = async () => {
+  beforeUpload({
+    properties: ['openFile', 'multiSelections'],
+  })
+}
+const beforeUploadDir = async () => {
+  beforeUpload({
+    properties: ['openDirectory', 'multiSelections'],
+  })
+}
+
 const handleCreateDirButtonClick = () => {
   if (breadcrumb.value.length === 0) {
     console.warn('breadcrumb.length === 0');
@@ -231,6 +242,7 @@ alertVisible.value = !connDeviceId;
     </a-alert>
     <a-space style="margin: 8px 16px;">
       <a-button type="primary" @click="beforeUploadFile" :disabled="breadcrumb.length === 0">Upload File</a-button>
+      <a-button type="primary" @click="beforeUploadDir" :disabled="breadcrumb.length === 0">Upload Folder</a-button>
       <a-button v-on:click="handleCreateDirButtonClick" :disabled="breadcrumb.length === 0">Create Dir</a-button>
     </a-space>
 
