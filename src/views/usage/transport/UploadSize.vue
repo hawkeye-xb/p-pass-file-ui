@@ -13,6 +13,9 @@ import { useUploadRecordStore } from '@/stores/usage/uploadRecord';
 import { convertBytes } from '@/utils';
 import type { LargeFileUploadAbstractClass } from '@/services/upload/LargeFileUploadAbstractClass';
 import { PATH_TYPE } from '@/const';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const uploadRecordStore = useUploadRecordStore();
 
@@ -97,26 +100,23 @@ watch(() => props.uploadRecord, (newValue, oldValue) => {
 
 </script>
 <template>
-	<div class="size-cell">
-		<a-space class="hover-hook">
-			<!-- <a-tooltip content="Show in folder(todo)">
-				<IconFolder class="icon" />
-			</a-tooltip> -->
-			<!-- <a-tooltip content="Delete from upload history" v-if="deleteIconVisible">
-				<IconDelete class="icon" @click="deleteFromUploadRecord" />
-			</a-tooltip> -->
-			<a-tooltip content="Pause upload" v-if="pausedIconVisible">
-				<IconPause class="icon" @click="handlePaused" />
-			</a-tooltip>
-			<a-tooltip content="Resume upload" v-if="resumeIconVisible">
-				<IconPlayArrow class="icon" @click="handleResume" />
-			</a-tooltip>
-			<a-tooltip content="Cancel upload and delete record form upload history" v-if="cancelIconVisible">
-				<IconClose class="icon" @click="deleteFromUploadRecord" />
-			</a-tooltip>
-		</a-space>
-		<span class="hover-hook-span">{{ sizeText }}</span>
-	</div>
+  <div class="size-cell">
+    <a-space class="hover-hook">
+      <a-tooltip :content="t('transport.download.showInFolder')">
+        <IconFolder class="icon" />
+      </a-tooltip>
+      <a-tooltip :content="t('transport.download.pause')" v-if="pausedIconVisible">
+        <IconPause class="icon" @click="handlePaused" />
+      </a-tooltip>
+      <a-tooltip :content="t('transport.download.resume')" v-if="resumeIconVisible">
+        <IconPlayArrow class="icon" @click="handleResume" />
+      </a-tooltip>
+      <a-tooltip :content="t('transport.download.cancel')" v-if="cancelIconVisible">
+        <IconClose class="icon" @click="deleteFromUploadRecord" />
+      </a-tooltip>
+    </a-space>
+    <span class="hover-hook-span">{{ sizeText }}</span>
+  </div>
 </template>
 
 <style scoped>

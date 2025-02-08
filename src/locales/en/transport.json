@@ -1,10 +1,12 @@
 {
   "upload": {
     "title": "Upload",
-    "process": "Process",
+    "process": "Processing",
     "finished": "Finished",
     "totalProgress": "Total Progress",
-    "speed": "Speed"
+    "speed": "Speed",
+    "size": "Size",
+    "status": "Status"
   },
   "download": {
     "title": "Download",

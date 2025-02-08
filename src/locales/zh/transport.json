@@ -4,7 +4,9 @@
     "process": "处理中",
     "finished": "已完成",
     "totalProgress": "总进度",
-    "speed": "速度"
+    "speed": "速度",
+    "size": "大小",
+    "status": "状态"
   },
   "download": {
     "title": "下载",

@@ -5,7 +5,9 @@ import UploadStatus from './UploadStatus.vue';
 import UploadSize from './UploadSize.vue';
 import type { UploadRecordType } from '@/services/usage/upload';
 import { PATH_TYPE } from '@/const';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const uploadRecordStore = useUploadRecordStore();
 
 const selectedKeys = ref<number[]>([]);
@@ -29,34 +31,29 @@ function filterEmptyDir(rs: UploadRecordType[]) {
 	<div style="margin: 8px 16px;">
 		<!-- <div class="download-view-table-top">
 			<a-space>
-				<span>Process(13)</span>
-				<span>Finished(100)</span>
+				<span>{{ t('transport.upload.process') }}(13)</span>
+				<span>{{ t('transport.upload.finished') }}(100)</span>
 			</a-space>
 			<a-space>
-				<span>Total Progrss: 10%</span>
-				<span>Speed: 100KB/s</span>
-			</a-space>
-		</div> -->
-		<!-- <div class="download-view-table-top">
-			<a-space>
-				<a-button>Cleanup Completed</a-button>
+				<span>{{ t('transport.upload.totalProgress') }}: 10%</span>
+				<span>{{ t('transport.upload.speed') }}: 100KB/s</span>
 			</a-space>
 		</div> -->
 		<a-table :data="data" row-key="id" :pagination="{
 			defaultPageSize: 15
 		}" v-model:selectedKeys="selectedKeys">
 			<template #columns>
-				<a-table-column title="Name" data-index="name">
+				<a-table-column :title="t('transport.upload.title') " data-index="name">
 					<template #cell="{ record }">
 						{{ record.name }}
 					</template>
 				</a-table-column>
-				<a-table-column title="Size" data-index="size" :width="200">
+				<a-table-column :title="t('transport.upload.size')" data-index="size" :width="200">
 					<template #cell="{ record }">
 						<UploadSize :uploadRecord="record" />
 					</template>
 				</a-table-column>
-				<a-table-column title="Status" data-index="status" :width="280">
+				<a-table-column :title="t('transport.upload.status')" data-index="status" :width="280">
 					<template #cell="{ record }">
 						<UploadStatus :uploadRecord="record" />
 					</template>
