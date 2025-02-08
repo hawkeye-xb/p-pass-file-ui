@@ -1,5 +1,5 @@
 import type { DataConnection, PeerError, PeerErrorType } from "peerjs";
-import type { ActionType, WebRTCContextType } from "./type";
+import { ActionType, type WebRTCContextType } from "./type";
 import { deleteRequest, generateWebRTCContext, getRequest, setRequest } from "./requestManager";
 
 import { CustomPeer } from "./CustomPeer";
@@ -12,8 +12,13 @@ export class CustomConn {
 	private connDeviceId: string = '';
 	private reconnectAttempts: number = 0;
 	private maxReconnectAttempts: number = 5;
-	private reconnectInterval: number = 1000; // 重连间隔时间（毫秒）
+	private baseReconnectInterval: number = 1000; // 基础重连间隔时间（毫秒）
 	private reconnectTimeout: number | null = null;
+	
+	private heartbeatInterval: number = 10000; // 心跳间隔，默认10秒
+    private heartbeatTimeout: number = 5000;   // 心跳超时时间，默认5秒
+    private heartbeatTimer: number | null = null;
+    private lastHeartbeatResponse: number = 0;
 
 	public onopen: (() => void) | null = null;
 	public onclose: (() => void) | null = null;
@@ -24,6 +29,7 @@ export class CustomConn {
 
 	public destory() {
 		console.debug('custom conn destory')
+		this.stopHeartbeat();
 		this.reconnectAttempts = this.maxReconnectAttempts + 1;
 		this.conn?.close();
 		this.conn = undefined;
@@ -42,13 +48,13 @@ export class CustomConn {
 	constructor(deviceId: string, connDeviceId: string, options?: {
 		reconnectAttempts?: number;
 		maxReconnectAttempts?: number;
-		reconnectInterval?: number;
+		baseReconnectInterval?: number;
 	}) {
 		this.deviceId = deviceId;
 		this.connDeviceId = connDeviceId;
 		this.reconnectAttempts = options?.reconnectAttempts || 0;
 		this.maxReconnectAttempts = options?.maxReconnectAttempts || 5;
-		this.reconnectInterval = options?.reconnectInterval || 1000;
+		this.baseReconnectInterval = options?.baseReconnectInterval || 1000;
 	}
 
 	public connect() {
@@ -110,12 +116,20 @@ export class CustomConn {
 	}
 
 	private handleOpen() {
-		this.reconnectAttempts = 0; // 重置重连次数
-
+		// 先停止之前的心跳，确保清理干净
+		this.stopHeartbeat();
+		this.reconnectAttempts = 0;
+		
+		// 确保连接正常后再启动心跳
+		if (this.conn?.open) {
+			this.startHeartbeat();
+		}
+	
 		this.onopen?.();
 	}
 
 	private handleClose() { // close 和Error不管如何都先发起重连
+		this.stopHeartbeat(); // 连接关闭时停止心跳
 		this.onclose?.();
 
 		this.handleReconnect();
@@ -129,7 +143,6 @@ export class CustomConn {
 	}
 
 	private handleReconnect() {
-		// console.debug('connect failed, reconnect...', this.reconnectAttempts);
 		console.trace('connect failed, reconnect...', this.reconnectAttempts);
 		if (this.reconnectTimeout) {
 			return;
@@ -139,18 +152,20 @@ export class CustomConn {
 			return;
 		}
 		if (this.customPeer?.peer?.disconnected) {
-			// 已经断开连接
-			this.customPeer.peer.reconnect(); // 会重复调用open 创建新内容；如果信令重连还是失败呢？怎么处理？todo：怎么重建所有
+			this.customPeer.peer.reconnect();
 			return;
 		}
 
+		// 计算当前重连间隔时间：基础间隔 * (2^重连次数)
+		const currentInterval = this.baseReconnectInterval * Math.pow(2, this.reconnectAttempts);
+		
 		this.reconnectAttempts++;
 		this.reconnectTimeout = setTimeout(() => {
 			this.conn = undefined;
 			clearTimeout(this.reconnectTimeout!);
 			this.reconnectTimeout = null;
 			this.connect();
-		}, this.reconnectInterval);
+		}, currentInterval);
 	}
 
 	public request<T>(action: ActionType, body: unknown, config: {
@@ -192,4 +207,45 @@ export class CustomConn {
 			console.warn(error);
 		}
 	}
+
+	// 添加心跳相关方法
+    private startHeartbeat() {
+        this.stopHeartbeat();
+		// 添加双重检查
+		if (this.heartbeatTimer || !this.conn?.open) {
+			return;
+		}
+		
+        this.lastHeartbeatResponse = Date.now();
+        
+        this.heartbeatTimer = setInterval(() => {
+            this.sendHeartbeat();
+            
+            // 检查上次心跳响应时间
+            if (Date.now() - this.lastHeartbeatResponse > this.heartbeatTimeout) {
+                console.warn('心跳超时，判定连接已断开');
+                this.handleConnectionLost();
+            }
+        }, this.heartbeatInterval);
+    }
+	private stopHeartbeat() {
+        if (this.heartbeatTimer) {
+            clearInterval(this.heartbeatTimer);
+            this.heartbeatTimer = null;
+        }
+    }
+	private async sendHeartbeat() {
+        try {
+            await this.request(ActionType.Heartbeat, {}, {});
+            this.lastHeartbeatResponse = Date.now();
+        } catch (error) {
+            console.warn('心跳发送失败:', error);
+        }
+    }
+	private handleConnectionLost() {
+        this.stopHeartbeat();
+        this.conn?.close();
+        this.conn = undefined;
+        this.handleReconnect();
+    }
 }

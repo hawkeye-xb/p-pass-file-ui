@@ -1,5 +1,6 @@
 import Peer from 'peerjs';
 import { PeerErrorType, type DataConnection, type PeerError } from 'peerjs';
+import { ActionType } from './type';
 
 export class CustomPeer {
 	private deviceId: string = '';
@@ -112,48 +113,97 @@ export class CustomPeer {
 	}
 
 	private handleError(error: PeerError<`${PeerErrorType}`>) {
-		console.warn('error name:', error.name, 'error type:', error.type, 'error msg:', error.message, 'error stack:', error.stack);
+		console.warn('error name:', error.name, 'error type:', error.type, 'error msg:', error.message);
 
 		switch (error.type) {
-			case PeerErrorType.PeerUnavailable: // 尝试连接的对等端不存在；另外一端主动断开连接
-				// console.warn("PeerUnavailable:", error);
+			// 连接相关错误
+			case PeerErrorType.PeerUnavailable:
+				// 对方不在线或不存在，这种情况下应该停止重连
+				this.reconnectAttempts = this.maxReconnectAttempts;
+				console.warn("目标 Peer 不可用，可能离线或不存在");
 				break;
-			case PeerErrorType.InvalidID: // 传入 Peer 构造函数的 ID 包含非法字符
-				// console.warn("InvalidID:", error);
+
+			// 配置相关错误
+			case PeerErrorType.InvalidID:
+				// ID格式错误，这是致命错误，需要检查ID格式
+				console.error("Peer ID 格式无效");
+				throw error;
+			case PeerErrorType.InvalidKey:
+				// API密钥错误，这是致命错误，需要检查配置
+				console.error("API Key 无效");
+				throw error;
+			case PeerErrorType.UnavailableID:
+				// ID已被占用，这是致命错误，需要更换ID
+				console.error("Peer ID 已被占用");
+				throw error;
+
+			// 网络连接相关错误
+			case PeerErrorType.Disconnected:
+				// 与信令服务器断开连接，可以尝试重连
+				console.warn("与信令服务器断开连接");
+				this.handleErrorReconnect();
 				break;
-			case PeerErrorType.InvalidKey: // 传入 Peer 构造函数的 API 密钥包含非法字符或不在系统中（仅限云服务器）。
-				// console.warn("InvalidKey:", error);
-				break;
-			case PeerErrorType.UnavailableID: // 传递给 Peer 构造函数的 ID 已被占用。
-				// console.warn("UnavailableID:", error);
-				break;
-			case PeerErrorType.Disconnected: // 与信令断连
 			case PeerErrorType.SocketError:
 			case PeerErrorType.SocketClosed:
-				// this.peer?.reconnect(); // 断连监听了，这里不需要再处理
+				// Socket错误，可以尝试重连
+				console.warn("Socket连接错误");
+				this.handleErrorReconnect();
 				break;
-			case PeerErrorType.SslUnavailable: // 正在安全使用，但云服务器不支持 SSL。请使用自定义 PeerServer。
-			case PeerErrorType.BrowserIncompatible: // 浏览器不支持 WebRTC
+
+			// 环境相关错误
+			case PeerErrorType.SslUnavailable:
+				// SSL不可用，这是致命错误，需要检查服务器配置
+				console.error("SSL 不可用，请检查服务器配置");
+				throw error;
+			case PeerErrorType.BrowserIncompatible:
+				// 浏览器不兼容，这是致命错误
+				console.error("浏览器不支持 WebRTC");
+				throw error;
+
+			// 其他错误
 			case PeerErrorType.Network:
+				// 网络错误，可以尝试重连
+				console.warn("网络错误");
+				this.handleErrorReconnect();
+				break;
 			case PeerErrorType.ServerError:
-			case PeerErrorType.WebRTC: // 原生 WebRTC 错误
+				// 服务器错误，可以尝试重连
+				console.warn("服务器错误");
+				this.handleErrorReconnect();
+				break;
+			case PeerErrorType.WebRTC:
+				// WebRTC错误，可能需要重新建立连接
+				console.warn("WebRTC 错误");
+				this.handleErrorReconnect();
+				break;
 			default:
-				console.error("Unknown error:", error);
+				console.error("未知错误:", error);
 				throw error;
 		}
 
 		this.onerror?.(error);
 	}
 
-	private handleDisconnected() { // 应该属于心跳包断连
+	private handleDisconnected() {
 		console.debug('peer disconnected');
-
 		this.ondisconnected?.();
-
+	
+		// 添加重连状态追踪
+		if (this.peer?.destroyed) {
+			console.warn('Peer已销毁，不进行重连');
+			return;
+		}
+	
+		// 使用递增重连间隔
+		const currentInterval = this.reconnectInterval * Math.pow(2, this.reconnectAttempts);
+		this.reconnectAttempts++;
+	
 		const timer = setTimeout(() => {
 			clearTimeout(timer);
-			this.peer?.reconnect();
-		}, this.reconnectInterval);
+			if (this.peer?.disconnected) {
+				this.peer.reconnect();
+			}
+		}, currentInterval);
 	}
 
 
@@ -171,6 +221,18 @@ export class CustomPeer {
 	}
 
 	private handleConnection(conn: DataConnection) {
+		// 添加心跳响应处理
+        conn.on('data', (data: any) => {
+            if (data?.action === ActionType.Heartbeat) {
+                // 立即响应心跳
+                conn.send({
+                    action: ActionType.Heartbeat,
+                    response: true,
+                    timestamp: Date.now()
+                });
+            }
+        });
+
 		this.onconnection?.(conn);
 	}
 }
