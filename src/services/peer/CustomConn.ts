@@ -110,6 +110,12 @@ export class CustomConn {
 	}
 
 	private handleData(data: any) {
+		console.debug('conn data:', data);
+		if (data === ActionType.HeartbeatPong) {
+			this.lastHeartbeatResponse = Date.now();
+			return;
+		}
+
 		this.ondata?.(data);
 
 		this.handleConnResponse(data);
@@ -215,7 +221,7 @@ export class CustomConn {
 		if (this.heartbeatTimer || !this.conn?.open) {
 			return;
 		}
-		
+
         this.lastHeartbeatResponse = Date.now();
         
         this.heartbeatTimer = setInterval(() => {
@@ -236,8 +242,7 @@ export class CustomConn {
     }
 	private async sendHeartbeat() {
         try {
-            await this.request(ActionType.Heartbeat, {}, {});
-            this.lastHeartbeatResponse = Date.now();
+            this.conn?.send(ActionType.HeartbeatPing);
         } catch (error) {
             console.warn('心跳发送失败:', error);
         }

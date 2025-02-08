@@ -2,7 +2,8 @@ import type { DataConnection } from "peerjs";
 
 // 是否需要区分不同的使用方式
 export enum ActionType {
-  Heartbeat,
+  HeartbeatPing,
+  HeartbeatPong,
   WatchedMetadata, // 监听元数据
   // Base
   MoveRes,
