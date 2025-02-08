@@ -83,7 +83,7 @@ const beforeUpload = async (option: OpenDialogOptions) => {
 }
 const beforeUploadFile = async () => {
   beforeUpload({
-    properties: ['openFile', 'multiSelections'],
+    properties: ['openDirectory', 'openFile', 'multiSelections'], // win下默认最后一个
   })
 }
 const beforeUploadDir = async () => {
@@ -231,6 +231,8 @@ const handleBatchOptions = async (action: DOPTION_VALUES) => {
 const alertVisible = ref(false)
 const connDeviceId = getConfig('connDeviceId')
 alertVisible.value = !connDeviceId;
+
+const platform = window.electron?.systemInfo?.platform;
 </script>
 
 <template>
@@ -242,10 +244,19 @@ alertVisible.value = !connDeviceId;
         {{ t('folder.alert.goSettings') }}
       </a-link>
     </a-alert>
-    <a-space style="margin: 8px 16px;">
-      <a-button type="primary" @click="beforeUploadFile" :disabled="breadcrumb.length === 0">{{ t('folder.actions.uploadFile') }}</a-button>
-      <a-button type="primary" @click="beforeUploadDir" :disabled="breadcrumb.length === 0">{{ t('folder.actions.uploadFolder') }}</a-button>
-      <a-button v-on:click="handleCreateDirButtonClick" :disabled="breadcrumb.length === 0">{{ t('folder.actions.createDir') }}</a-button>
+    <a-space style="margin: 8px 16px;" v-if="platform === 'darwin'">
+      <a-button type="primary" @click="beforeUploadFile" :disabled="breadcrumb.length === 0">{{
+      t('folder.actions.uploadFile') }}</a-button>
+      <a-button v-on:click="handleCreateDirButtonClick" :disabled="breadcrumb.length === 0">{{
+      t('folder.actions.createDir') }}</a-button>
+    </a-space>
+    <a-space style="margin: 8px 16px;" v-if="platform !== 'darwin'">
+      <a-button type="primary" @click="beforeUploadFile" :disabled="breadcrumb.length === 0">{{
+      t('folder.actions.uploadFile') }}</a-button>
+      <a-button type="primary" @click="beforeUploadDir" :disabled="breadcrumb.length === 0">{{
+      t('folder.actions.uploadFolder') }}</a-button>
+      <a-button v-on:click="handleCreateDirButtonClick" :disabled="breadcrumb.length === 0">{{
+      t('folder.actions.createDir') }}</a-button>
     </a-space>
 
     <div class="dir-main">

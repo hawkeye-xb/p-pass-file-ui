@@ -34,5 +34,8 @@
     "createDir": "Create Dir",
     "cancel": "Cancel",
     "move": "Move"
+  },
+  "error": {
+    "clientRequired": "Upload requires client environment"
   }
 }

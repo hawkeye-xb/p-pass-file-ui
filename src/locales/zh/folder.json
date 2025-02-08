@@ -34,5 +34,8 @@
     "createDir": "新建文件夹",
     "cancel": "取消",
     "move": "移动"
+  },
+  "error": {
+    "clientRequired": "上传需要在客户端环境使用"
   }
 }
