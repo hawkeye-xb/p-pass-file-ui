@@ -5,8 +5,11 @@ import type { DownloadRecordType } from '@/services/usage/download';
 import { useDownloadRecordStore } from '@/stores/usage/downloadRecord';
 import DownloadStatus from './DownloadStatus.vue';
 import DownloadSize from './DownloadSize.vue';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const downloadRecordStore = useDownloadRecordStore();
+
 function filterEmptyDir(rs: DownloadRecordType[]) {
 	return rs.filter((item: DownloadRecordType) => {
 		if (item.type === PATH_TYPE.DIR) {
@@ -28,29 +31,29 @@ const selectedKeys = ref<number[]>([]);
 	<div style="margin: 8px 16px;">
 		<!-- <div class="download-view-table-top">
 			<a-space>
-				<span>Process(13)</span>
-				<span>Finished(100)</span>
+				<span>{{ t('transport.download.process') }}(13)</span>
+				<span>{{ t('transport.download.finished') }}(100)</span>
 			</a-space>
 			<a-space>
-				<span>Total Progrss: 10%</span>
-				<span>Speed: 100KB/s</span>
+				<span>{{ t('transport.download.totalProgress') }}: 10%</span>
+				<span>{{ t('transport.download.speed') }}: 100KB/s</span>
 			</a-space>
 		</div> -->
 		<a-table :data="data" row-key="id" :pagination="{
 			defaultPageSize: 15
 		}" v-model:selectedKeys="selectedKeys">
 			<template #columns>
-				<a-table-column title="Name" data-index="name">
+				<a-table-column :title="t('transport.download.title') " data-index="name">
 					<template #cell="{ record }">
 						{{ record.name }}
 					</template>
 				</a-table-column>
-				<a-table-column title="Size" data-index="size" :width="200">
+				<a-table-column :title="t('transport.download.size')" data-index="size" :width="200">
 					<template #cell="{ record }">
 						<DownloadSize :download-record="record"></DownloadSize>
 					</template>
 				</a-table-column>
-				<a-table-column title="Status" data-index="status" :width="280">
+				<a-table-column :title="t('transport.download.status')" data-index="status" :width="280">
 					<template #cell="{ record }">
 						<DownloadStatus :download-record="record"></DownloadStatus>
 					</template>

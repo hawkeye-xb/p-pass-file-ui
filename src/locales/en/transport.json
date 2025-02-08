@@ -10,10 +10,17 @@
   },
   "download": {
     "title": "Download",
+    "process": "Processing",
+    "finished": "Finished",
+    "totalProgress": "Total Progress",
+    "speed": "Speed",
+    "size": "Size",
+    "status": "Status",
     "showInFolder": "Show in folder",
     "deleteFromHistory": "Delete from history",
     "pause": "Pause",
     "resume": "Resume",
-    "cancel": "Cancel and delete from history"
+    "cancel": "Cancel and delete from history",
+    "electronRequired": "Opening folder requires client environment"
   }
 }

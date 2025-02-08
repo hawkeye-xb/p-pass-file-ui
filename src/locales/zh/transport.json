@@ -10,10 +10,17 @@
   },
   "download": {
     "title": "下载",
+    "process": "处理中",
+    "finished": "已完成",
+    "totalProgress": "总进度",
+    "speed": "速度",
+    "size": "大小",
+    "status": "状态",
     "showInFolder": "在文件夹中显示",
     "deleteFromHistory": "从历史记录中删除",
     "pause": "暂停",
     "resume": "继续",
-    "cancel": "取消并从历史记录中删除"
+    "cancel": "取消并从历史记录中删除",
+    "electronRequired": "打开文件夹需要在客户端环境使用"
   }
 }

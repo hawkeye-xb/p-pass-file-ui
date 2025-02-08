@@ -14,6 +14,9 @@ import type { ClientLargeFileDownloader } from '@/services/download/ClientLargeF
 import { Message } from '@arco-design/web-vue';
 import path from 'path-browserify';
 import { PATH_TYPE } from '@/const';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const downloadRecordStore = useDownloadRecordStore();
 
@@ -76,10 +79,10 @@ onBeforeUnmount(() => {
 })
 
 const handleOpenFolder = () => {
-	if (!window.electron) {
-		Message.error('打开文件夹需要在客户端环境使用');
-		return;
-	}
+  if (!window.electron) {
+    Message.error(t('transport.download.electronRequired')); // 需要添加新的翻译键
+    return;
+  }
 	const fullPath = props.downloadRecord.parentPaths.length > 0
 		? path.join(props.downloadRecord.locationSavePath, ...props.downloadRecord.parentPaths, props.downloadRecord.name)
 		: path.join(props.downloadRecord.locationSavePath, props.downloadRecord.name);
@@ -87,23 +90,23 @@ const handleOpenFolder = () => {
 }
 </script>
 <template>
-	<div class="size-cell">
-		<a-space class="hover-hook">
-			<a-tooltip content="Show in folder(todo)">
-				<IconFolder class="icon" @click="handleOpenFolder" />
-			</a-tooltip>
-			<a-tooltip content="cancel & delete download">
-				<IconClose class="icon" @click="handleDelete" />
-			</a-tooltip>
-			<a-tooltip content="Pause upload" v-if="pausedIconVisible">
-				<IconPause class="icon" @click="handlePaused" />
-			</a-tooltip>
-			<a-tooltip content="Resume upload" v-if="resumeIconVisible">
-				<IconPlayArrow class="icon" @click="handleResume" />
-			</a-tooltip>
-		</a-space>
-		<span class="hover-hook-span">{{ sizeText }}</span>
-	</div>
+  <div class="size-cell">
+    <a-space class="hover-hook">
+      <a-tooltip :content="t('transport.download.showInFolder')">
+        <IconFolder class="icon" @click="handleOpenFolder" />
+      </a-tooltip>
+      <a-tooltip :content="t('transport.download.cancel')">
+        <IconClose class="icon" @click="handleDelete" />
+      </a-tooltip>
+      <a-tooltip :content="t('transport.download.pause')" v-if="pausedIconVisible">
+        <IconPause class="icon" @click="handlePaused" />
+      </a-tooltip>
+      <a-tooltip :content="t('transport.download.resume')" v-if="resumeIconVisible">
+        <IconPlayArrow class="icon" @click="handleResume" />
+      </a-tooltip>
+    </a-space>
+    <span class="hover-hook-span">{{ sizeText }}</span>
+  </div>
 </template>
 
 <style scoped>
