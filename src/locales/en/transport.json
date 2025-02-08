@@ -1,0 +1,17 @@
+{
+  "upload": {
+    "title": "Upload",
+    "process": "Process",
+    "finished": "Finished",
+    "totalProgress": "Total Progress",
+    "speed": "Speed"
+  },
+  "download": {
+    "title": "Download",
+    "showInFolder": "Show in folder",
+    "deleteFromHistory": "Delete from history",
+    "pause": "Pause",
+    "resume": "Resume",
+    "cancel": "Cancel and delete from history"
+  }
+}

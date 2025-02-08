@@ -14,6 +14,9 @@ import {
 import { getConfig } from '@/services/index'
 import { DOPTION_VALUES, rootPath } from './utils'
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const trashConfig = getConfig('trash')
 
@@ -43,61 +46,26 @@ const isRoot = computed(() => {
 </script>
 
 <template>
-	<a-dropdown @select="handleSelect" :popup-max-height="false" position="br">
-		<IconMore style="cursor: pointer;" />
-		<template #content>
-			<!-- <a-doption :value="DOPTION_VALUES.Share">
-				<template #icon>
-					<IconShareInternal />
-				</template>
-				<template #default>Share (todo)</template>
-			</a-doption>
-			<a-doption :value="DOPTION_VALUES.Link">
-				<template #icon>
-					<IconLink />
-				</template>
-				<template #default>Copy Link (todo)</template>
-			</a-doption>
-			<a-divider style="margin: 0;" />
-
-			<a-doption :value="DOPTION_VALUES.Copy" v-if="!isRoot">
-				<template #icon>
-					<IconCopy />
-				</template>
-				<template #default>Copy (todo)</template>
-			</a-doption>
-			<a-doption :value="DOPTION_VALUES.Paste" v-if="props.record.type === 'directory'">
-				<template #icon>
-					<IconPaste />
-				</template>
-				<template #default>Paste (todo)</template>
-			</a-doption> -->
-			<a-doption :value="DOPTION_VALUES.MoveTo" v-if="!isRoot">
-				<template #icon>
-					<IconExport />
-				</template>
-				<template #default>Move To</template>
-			</a-doption>
-			<a-doption :value="DOPTION_VALUES.Rename" v-if="!isRoot">
-				<template #icon>
-					<IconEdit />
-				</template>
-				<template #default>Rename</template>
-			</a-doption>
-			<a-doption :value="DOPTION_VALUES.Download">
-				<template #icon>
-					<IconDownload />
-				</template>
-				<template #default>Download</template>
-			</a-doption>
-			<a-divider style="margin: 0;" v-if="!isRoot" />
-
-			<a-doption :value="DOPTION_VALUES.Delete" v-if="!isRoot">
-				<template #icon>
-					<IconDelete />
-				</template>
-				<template #default>{{ trashConfig ? 'Move To Trash' : 'Delete' }}</template>
-			</a-doption>
-		</template>
-	</a-dropdown>
+  <a-dropdown @select="handleSelect" :popup-max-height="false" position="br">
+    <IconMore style="cursor: pointer;" />
+    <template #content>
+      <a-doption :value="DOPTION_VALUES.MoveTo" v-if="!isRoot">
+        <template #icon><IconExport /></template>
+        <template #default>{{ t('folder.options.moveTo') }}</template>
+      </a-doption>
+      <a-doption :value="DOPTION_VALUES.Rename" v-if="!isRoot">
+        <template #icon><IconEdit /></template>
+        <template #default>{{ t('folder.options.rename') }}</template>
+      </a-doption>
+      <a-doption :value="DOPTION_VALUES.Download">
+        <template #icon><IconDownload /></template>
+        <template #default>{{ t('folder.options.download') }}</template>
+      </a-doption>
+      <a-divider style="margin: 0;" v-if="!isRoot" />
+      <a-doption :value="DOPTION_VALUES.Delete" v-if="!isRoot">
+        <template #icon><IconDelete /></template>
+        <template #default>{{ trashConfig ? t('folder.options.moveToTrash') : t('folder.options.delete') }}</template>
+      </a-doption>
+    </template>
+  </a-dropdown>
 </template>

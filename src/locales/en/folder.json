@@ -1,0 +1,38 @@
+{
+  "alert": {
+    "noDevice": "Please set the ID of the connected device to obtain data",
+    "goSettings": "Go to settings"
+  },
+  "actions": {
+    "uploadFile": "Upload File",
+    "uploadFolder": "Upload Folder",
+    "createDir": "Create Dir",
+    "newFolder": "New Folder"
+  },
+  "breadcrumb": {
+    "roots": "Roots"
+  },
+  "table": {
+    "name": "Name",
+    "size": "Size",
+    "mtime": "Modified Time",
+    "newName": "Please enter new name"
+  },
+  "options": {
+    "share": "Share",
+    "copyLink": "Copy Link",
+    "copy": "Copy",
+    "paste": "Paste",
+    "moveTo": "Move To",
+    "rename": "Rename",
+    "download": "Download",
+    "delete": "Delete",
+    "moveToTrash": "Move To Trash"
+  },
+  "moveToModal": {
+    "title": "Move To",
+    "createDir": "Create Dir",
+    "cancel": "Cancel",
+    "move": "Move"
+  }
+}

@@ -3,6 +3,9 @@ import { reactive, ref } from 'vue';
 import { addWatchTarget, removeWatchTarget, getWatchTargets, getConfig, setConfig, ClientType } from '@/services/index';
 import { IconDelete, IconRefresh, IconEdit, IconCopy, IconSave } from '@arco-design/web-vue/es/icon';
 import BaseSettings from '@/components/BaseSettings.vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 
 // config
@@ -67,7 +70,7 @@ downloadPath.value = getConfig('downloadPath') || '';
 		<div v-if="cType === ClientType.Storage">
 			<a-divider />
 			<div v-for="target in targets" :key="target" class="settings-list-item">
-				<div class="settings-list-item-label">Watch Target:</div>
+				<div class="settings-list-item-label">{{ t('settings.watchTarget.title') }}:</div>
 				<div class="settings-list-item-content">
 					<div>{{ target }}</div>
 				</div>
@@ -82,25 +85,25 @@ downloadPath.value = getConfig('downloadPath') || '';
 			<div class="settings-list-item">
 				<div class="settings-list-item-label"></div>
 				<a-space>
-					<a-button @click="handleClick">Add Target</a-button>
+					<a-button @click="handleClick">{{ t('settings.watchTarget.add') }}</a-button>
 				</a-space>
 			</div>
 
 			<div class="settings-list-item">
-				<div class="settings-list-item-label">Move To Trash</div>
+				<div class="settings-list-item-label">{{ t('settings.moveToTrash') }}</div>
 				<a-switch :model-value="trash" type="round" @change="handleTrashConfigChange" />
 			</div>
 		</div>
 
-		<a-modal v-model:visible="visible" title="Add Watch Target" @cancel="handleCancel" @before-ok="handleBeforeOk">
+		<a-modal v-model:visible="visible" :title="t('settings.watchTarget.modal.title')" @cancel="handleCancel" @before-ok="handleBeforeOk">
 			<a-form :model="form" :ref="formRef">
-				<a-form-item field="target" label="Target" :rules="[
+				<a-form-item field="target" :label="t('settings.watchTarget.modal.label')" :rules="[
 					{
 						required: true,
-						message: 'Please input target!',
+						message: t('settings.watchTarget.modal.required'),
 					}
 				]">
-					<a-input v-model="form.target" />
+					<a-input v-model="form.target" :placeholder="t('settings.watchTarget.modal.placeholder')" />
 				</a-form-item>
 			</a-form>
 		</a-modal>

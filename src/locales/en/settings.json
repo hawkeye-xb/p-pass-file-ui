@@ -1,0 +1,29 @@
+{
+  "watchTarget": {
+    "title": "Watch Target",
+    "add": "Add Target",
+    "modal": {
+      "title": "Add Watch Target",
+      "label": "Target",
+      "placeholder": "Please input target path",
+      "required": "Please input target!"
+    }
+  },
+  "moveToTrash": "Move To Trash",
+  "connDeviceId": {
+    "label": "Connection Device ID",
+    "placeholder": "Please enter device ID",
+    "save": "Save"
+  },
+  "download": {
+    "maxTask": "Max Download Task",
+    "path": "Download Path"
+  },
+  "deviceId": {
+    "label": "Device ID",
+    "copy": {
+      "tooltip": "Copy",
+      "success": "Copied!"
+    }
+  }
+}

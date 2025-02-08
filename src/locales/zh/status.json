@@ -1,0 +1,12 @@
+{
+  "services": {
+    "ws": "WS 服务",
+    "signaling": "信令服务",
+    "storage": "存储设备"
+  },
+  "actions": {
+    "reconnect": "重新连接",
+    "refresh": "重连",
+    "close": "关闭"
+  }
+}

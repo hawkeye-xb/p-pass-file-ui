@@ -1,0 +1,12 @@
+{
+  "services": {
+    "ws": "WS Service",
+    "signaling": "Signaling",
+    "storage": "Storage Device"
+  },
+  "actions": {
+    "reconnect": "Reconnect",
+    "refresh": "Refresh",
+    "close": "Close"
+  }
+}

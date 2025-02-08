@@ -16,7 +16,9 @@ import { useRouter } from 'vue-router';
 import { getConfig } from '@/services';
 import { generateUploadRecord, useUploadRecordStore } from '@/stores/usage/uploadRecord';
 import { generateDownloadRecord, useDownloadRecordStore } from '@/stores/usage/downloadRecord';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const Router = useRouter();
 
 const metadataStore = useMetadatasStore();
@@ -235,15 +237,15 @@ alertVisible.value = !connDeviceId;
 
   <div style="position: relative; flex: 1;">
     <a-alert type="warning" v-if="alertVisible">
-      Please set the id of the connected device to obtain data.
+      {{ t('folder.alert.noDevice') }}
       <a-link @click="() => { Router.push('/usage/settings') }">
-        go to settings
+        {{ t('folder.alert.goSettings') }}
       </a-link>
     </a-alert>
     <a-space style="margin: 8px 16px;">
-      <a-button type="primary" @click="beforeUploadFile" :disabled="breadcrumb.length === 0">Upload File</a-button>
-      <a-button type="primary" @click="beforeUploadDir" :disabled="breadcrumb.length === 0">Upload Folder</a-button>
-      <a-button v-on:click="handleCreateDirButtonClick" :disabled="breadcrumb.length === 0">Create Dir</a-button>
+      <a-button type="primary" @click="beforeUploadFile" :disabled="breadcrumb.length === 0">{{ t('folder.actions.uploadFile') }}</a-button>
+      <a-button type="primary" @click="beforeUploadDir" :disabled="breadcrumb.length === 0">{{ t('folder.actions.uploadFolder') }}</a-button>
+      <a-button v-on:click="handleCreateDirButtonClick" :disabled="breadcrumb.length === 0">{{ t('folder.actions.createDir') }}</a-button>
     </a-space>
 
     <div class="dir-main">
@@ -264,7 +266,7 @@ alertVisible.value = !connDeviceId;
         defaultPageSize: 15
       }" v-model:selectedKeys="selectedKeys">
         <template #columns>
-          <a-table-column title="Name" data-index="name" :sortable="{
+          <a-table-column :title="t('folder.table.name')" data-index="name" :sortable="{
             sortDirections: ['descend', 'ascend'],
           }">
             <template #cell="{ record }">
@@ -279,14 +281,14 @@ alertVisible.value = !connDeviceId;
                 allow-clear />
             </template>
           </a-table-column>
-          <a-table-column title="Size" data-index="size" :width="180" :sortable="{
+          <a-table-column :title="t('folder.table.size')" data-index="size" :width="180" :sortable="{
             sortDirections: ['descend', 'ascend'],
           }">
             <template #cell="{ record }">
               {{ record.type === 'directory' ? '-' : convertBytes(Number(record.size)) }}
             </template>
           </a-table-column>
-          <a-table-column title="Mtime" data-index="mtime" :width="360" :sortable="{
+          <a-table-column :title="t('folder.table.mtime')" data-index="mtime" :width="360" :sortable="{
             sortDirections: ['descend', 'ascend'],
           }">
             <template #cell="{ record }">

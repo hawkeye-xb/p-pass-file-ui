@@ -1,0 +1,29 @@
+{
+  "watchTarget": {
+    "title": "监控目标",
+    "add": "添加目标",
+    "modal": {
+      "title": "添加监控目标",
+      "label": "目标",
+      "placeholder": "请输入目标路径",
+      "required": "请输入目标路径！"
+    }
+  },
+  "moveToTrash": "移动到回收站",
+  "connDeviceId": {
+    "label": "连接设备 ID",
+    "placeholder": "请输入设备 ID",
+    "save": "保存"
+  },
+  "download": {
+    "maxTask": "最大下载任务数",
+    "path": "下载路径"
+  },
+  "deviceId": {
+    "label": "设备 ID",
+    "copy": {
+      "tooltip": "复制",
+      "success": "已复制！"
+    }
+  }
+}

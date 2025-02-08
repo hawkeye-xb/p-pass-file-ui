@@ -5,6 +5,9 @@ import type { MetadataType } from '@/types';
 import { PATH_TYPE } from '@/const';
 import { usageMoveRes } from '@/ctrls';
 import { Message } from '@arco-design/web-vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const metadataStore = useMetadatasStore();
 
@@ -65,27 +68,31 @@ const handleMove = async () => {
 }
 </script>
 <template>
-	<a-modal v-model:visible="props.visible" @cancel="handleCancel" unmountOnClose title="Move To"
-		modal-class="move-to-modal-class" :render-to-body="true">
-		<div>
-			<a-tree blockNode :data="treeData" :default-expand-all="false" :show-line="true"
-				@select="handleTreeSelect"></a-tree>
-		</div>
-		<template #footer>
-			<div class="move-to-modal-footer">
-				<a-button @click="() => {
-
-				}">Create Dir</a-button>
-
-				<a-space>
-					<a-button @click="() => {
-						emit('update:visible', false)
-					}">Cancel</a-button>
-					<a-button type="primary" @click="handleMove">Move</a-button>
-				</a-space>
-			</div>
-		</template>
-	</a-modal>
+  <a-modal 
+    v-model:visible="props.visible" 
+    @cancel="handleCancel" 
+    :title="t('folder.moveToModal.title')"
+    modal-class="move-to-modal-class" 
+    :render-to-body="true"
+  >
+    <div>
+      <a-tree blockNode :data="treeData" :default-expand-all="false" :show-line="true"
+          @select="handleTreeSelect"></a-tree>
+    </div>
+    <template #footer>
+      <div class="move-to-modal-footer">
+        <a-button @click="() => {}">{{ t('folder.moveToModal.createDir') }}</a-button>
+        <a-space>
+          <a-button @click="() => { emit('update:visible', false) }">
+            {{ t('folder.moveToModal.cancel') }}
+          </a-button>
+          <a-button type="primary" @click="handleMove">
+            {{ t('folder.moveToModal.move') }}
+          </a-button>
+        </a-space>
+      </div>
+    </template>
+  </a-modal>
 </template>
 
 <style lang="css" scoped>
