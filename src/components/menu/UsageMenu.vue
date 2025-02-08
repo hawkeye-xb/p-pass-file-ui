@@ -10,6 +10,9 @@ import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useUploadRecordStore } from '@/stores/usage/uploadRecord';
 import { useDownloadRecordStore } from '@/stores/usage/downloadRecord';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const route = useRoute();
 const Router = useRouter();
@@ -37,7 +40,7 @@ watch(
 			<template #icon>
 				<IconFolder></IconFolder>
 			</template>
-			Folder
+			{{ t('menu.folder') }}
 		</a-menu-item>
 		<a-sub-menu key="/usage/transport">
 			<template #icon>
@@ -46,14 +49,14 @@ watch(
 					<IconSwap></IconSwap>
 				</a-badge>
 			</template>
-			<template #title>Transport</template>
+			<template #title>{{ t('menu.transport.title') }}</template>
 			<a-menu-item key="/usage/transport/upload" v-on:click="() => { Router.push('/usage/transport/upload') }">
 				<template #icon>
 					<a-badge :count="uploadRecordStore.pendingQueueSize || 0" :dot="true" :offset="[2]">
 						<IconUpload></IconUpload>
 					</a-badge>
 				</template>
-				Upload
+				{{ t('menu.transport.upload') }}
 			</a-menu-item>
 			<a-menu-item key="/usage/transport/download" v-on:click="() => { Router.push('/usage/transport/download') }">
 				<template #icon>
@@ -61,14 +64,14 @@ watch(
 						<IconDownload></IconDownload>
 					</a-badge>
 				</template>
-				Download
+				{{ t('menu.transport.download') }}
 			</a-menu-item>
 		</a-sub-menu>
 		<a-menu-item key="/usage/settings" v-on:click="() => { Router.push('/usage/settings') }">
 			<template #icon>
 				<IconSettings></IconSettings>
 			</template>
-			Settings
+			{{ t('menu.settings') }}
 		</a-menu-item>
 	</a-menu>
 </template>

@@ -15,8 +15,8 @@ export class CustomConn {
 	private baseReconnectInterval: number = 1000; // 基础重连间隔时间（毫秒）
 	private reconnectTimeout: number | null = null;
 	
-	private heartbeatInterval: number = 10000; // 心跳间隔，默认10秒
-    private heartbeatTimeout: number = 5000;   // 心跳超时时间，默认5秒
+	private heartbeatInterval: number = 5000; // 心跳间隔，默认10秒
+    private heartbeatTimeout: number = 10000;   // 心跳超时时间，默认5秒
     private heartbeatTimer: number | null = null;
     private lastHeartbeatResponse: number = 0;
 
@@ -110,9 +110,8 @@ export class CustomConn {
 	}
 
 	private handleData(data: any) {
-		console.debug('conn data:', data);
-		if (data === ActionType.HeartbeatPong) {
-			this.lastHeartbeatResponse = Date.now();
+		this.lastHeartbeatResponse = Date.now();
+		if (data === ActionType.HeartbeatPong || data === ActionType.HeartbeatPing) {
 			return;
 		}
 

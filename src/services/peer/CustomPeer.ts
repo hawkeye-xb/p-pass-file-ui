@@ -221,13 +221,6 @@ export class CustomPeer {
 	}
 
 	private handleConnection(conn: DataConnection) {
-		// 添加心跳响应处理
-        conn.on('data', (data: any) => {
-            if (data === ActionType.HeartbeatPing) {
-                conn.send(ActionType.HeartbeatPong);
-			}
-        });
-
 		this.onconnection?.(conn);
 	}
 }

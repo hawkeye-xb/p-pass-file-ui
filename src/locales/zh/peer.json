@@ -1,0 +1,14 @@
+{
+  "error": {
+    "peerUnavailable": "目标设备不可用，可能离线或不存在",
+    "invalidId": "设备 ID 格式无效",
+    "networkError": "网络连接错误",
+    "socketError": "Socket 连接错误",
+    "serverError": "服务器错误"
+  },
+  "status": {
+    "connecting": "正在连接...",
+    "connected": "已连接",
+    "disconnected": "已断开连接"
+  }
+}

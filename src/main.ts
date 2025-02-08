@@ -9,8 +9,10 @@ import router from './router'
 import ArcoVue from '@arco-design/web-vue';
 import '@arco-design/web-vue/dist/arco.css';
 
-const app = createApp(App)
+import { i18n } from './i18n'
 
+const app = createApp(App)
+app.use(i18n)
 app.use(createPinia())
 app.use(router)
 app.use(ArcoVue)

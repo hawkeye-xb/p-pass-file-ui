@@ -1,0 +1,10 @@
+{
+  "folder": "Folder",
+  "transport": {
+    "title": "Transport",
+    "upload": "Upload",
+    "download": "Download"
+  },
+  "settings": "Settings",
+  "connections": "Connections"
+}

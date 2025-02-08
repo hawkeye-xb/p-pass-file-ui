@@ -1,0 +1,14 @@
+{
+  "error": {
+    "peerUnavailable": "Peer unavailable, maybe offline or not exist",
+    "invalidId": "Invalid device ID format",
+    "networkError": "Network connection error",
+    "socketError": "Socket connection error",
+    "serverError": "Server error"
+  },
+  "status": {
+    "connecting": "Connecting...",
+    "connected": "Connected",
+    "disconnected": "Disconnected"
+  }
+}
