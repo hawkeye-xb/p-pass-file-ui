@@ -29,7 +29,7 @@ export class CustomPeer {
 
 	public restart() {
 		this.reconnectAttempts = 0;
-		this.handleErrorReconnect();
+		this.handleErrorReCreate();
 	}
 
 	public reconnect() {
@@ -48,12 +48,18 @@ export class CustomPeer {
 	}
 
 	public init() {
-		if (this.peer && this.peer.open && !this.peer.destroyed && !this.peer.disconnected) {
-			console.warn('peer already init'); // 这里应该走不到
+		if (this.peer && this.peer.open) {
+			if (!this.peer.disconnected) {
+				// 已经在 handleDisconnected 中处理
+			}
+
+			if (!this.peer.destroyed) { // 没有被销毁，先销毁，会回调到 onclose
+				this.peer.destroy()
+			}
 			return;
 		}
 
-		const afterGerenate = () => {
+		const afterGenerate = () => {
 			if (import.meta.env.DEV) {
 				// @ts-ignore
 				window.peer = this.peer;
@@ -68,7 +74,7 @@ export class CustomPeer {
 			const winPeer = window.peer || undefined;
 			if (winPeer && winPeer.open && !winPeer.destroyed && !winPeer.disconnected) {
 				this.peer = winPeer;
-				afterGerenate();
+				afterGenerate();
 				return;
 			}
 		}
@@ -82,7 +88,7 @@ export class CustomPeer {
 				]
 			}
 		});
-		afterGerenate();
+		afterGenerate();
 	}
 
 	private bindEvents() {
@@ -107,8 +113,9 @@ export class CustomPeer {
 
 		this.onclose?.();
 
-		if (this.peer && this.peer.destroyed) {
-			this.handleErrorReconnect();
+		if (this.peer && this.peer.destroyed) { // 已经被销毁
+			this.peer = undefined;
+			this.handleErrorReCreate(); // 重新创建
 		}
 	}
 
@@ -141,13 +148,13 @@ export class CustomPeer {
 			case PeerErrorType.Disconnected:
 				// 与信令服务器断开连接，可以尝试重连
 				console.warn("与信令服务器断开连接");
-				this.handleErrorReconnect();
+				this.handleErrorReCreate();
 				break;
 			case PeerErrorType.SocketError:
 			case PeerErrorType.SocketClosed:
 				// Socket错误，可以尝试重连
 				console.warn("Socket连接错误");
-				this.handleErrorReconnect();
+				this.handleErrorReCreate();
 				break;
 
 			// 环境相关错误
@@ -164,17 +171,17 @@ export class CustomPeer {
 			case PeerErrorType.Network:
 				// 网络错误，可以尝试重连
 				console.warn("网络错误");
-				this.handleErrorReconnect();
+				this.handleErrorReCreate();
 				break;
 			case PeerErrorType.ServerError:
 				// 服务器错误，可以尝试重连
 				console.warn("服务器错误");
-				this.handleErrorReconnect();
+				this.handleErrorReCreate();
 				break;
 			case PeerErrorType.WebRTC:
 				// WebRTC错误，可能需要重新建立连接
 				console.warn("WebRTC 错误");
-				this.handleErrorReconnect();
+				this.handleErrorReCreate();
 				break;
 			default:
 				console.error("未知错误:", error);
@@ -207,7 +214,7 @@ export class CustomPeer {
 	}
 
 
-	private handleErrorReconnect() {
+	private handleErrorReCreate() {
 		if (this.reconnectTimeout) { return; }
 		if (this.reconnectAttempts >= this.maxReconnectAttempts) { return; }
 
