@@ -7,6 +7,18 @@
 	color: var(--color-text-2);
 }
 
+/* 为主题设置添加特殊样式 */
+.settings-list-item.theme-settings {
+  height: auto;
+  margin-bottom: 16px;
+	align-items: baseline;
+}
+
+.settings-list-item.theme-settings .settings-list-item-content {
+  padding: 16px 16px 16px 0;
+  background-color: var(--color-bg-2);
+}
+
 .settings-list-item-label {
 	padding-right: 16px;
 	text-align: right;

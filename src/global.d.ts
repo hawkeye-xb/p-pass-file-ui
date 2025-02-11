@@ -66,7 +66,13 @@ interface Window {
 			electron: string;
 			node: string;
 			appVersion: string;
-		}
+		},
+		theme: {
+      getCurrentTheme: () => Promise<'light' | 'dark'>;
+      setTheme: (theme: 'system' | 'light' | 'dark') => void;
+      onThemeChange: (callback: (theme: 'light' | 'dark') => void) => void;
+      removeThemeChangeListener: () => void;
+    };
 	},
 	conn: any,
 }

@@ -25,5 +25,11 @@
       "tooltip": "复制",
       "success": "已复制！"
     }
+  },
+  "theme": {
+    "label": "外观",
+    "system": "自动",
+    "light": "浅色",
+    "dark": "深色"
   }
 }
