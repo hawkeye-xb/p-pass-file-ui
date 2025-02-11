@@ -1,4 +1,5 @@
-import type { DataConnection, PeerError, PeerErrorType } from "peerjs";
+import type { DataConnection, PeerError } from "peerjs";
+import { PeerErrorType } from "peerjs";
 import { ActionType, type WebRTCContextType } from "./type";
 import { deleteRequest, generateWebRTCContext, getRequest, setRequest } from "./requestManager";
 
@@ -11,7 +12,7 @@ export class CustomConn {
 	public conn: DataConnection | undefined = undefined;
 	private connDeviceId: string = '';
 	private reconnectAttempts: number = 0;
-	private maxReconnectAttempts: number = 5;
+	private maxReconnectAttempts: number = 100;
 	private baseReconnectInterval: number = 1000; // 基础重连间隔时间（毫秒）
 	private reconnectTimeout: number | null = null;
 	
@@ -67,8 +68,7 @@ export class CustomConn {
 			}
 			this.customPeer.onerror = (err) => {
 				this.onerror?.(err);
-
-				this.handleReconnect();
+				this.handleReconnect(); // 不管啥错，先重连。。
 			}
 
 			this.customPeer.init();
@@ -76,6 +76,17 @@ export class CustomConn {
 		}
 		this.connectDevice();
 	}
+
+	// private handlePeerError(error: PeerError<`${PeerErrorType}`>) {
+	// 	switch (error.type) {
+	// 		case PeerErrorType.PeerUnavailable:
+	// 			this.handleReconnect(); // 重连
+	// 			break;
+	// 		// case PeerErrorType.InvalidID: // 应该重置id？
+	// 		default:
+	// 			console.error("未知错误:", error);
+	// 	}
+	// }
 
 	private connectDevice() {
 		try {
@@ -110,6 +121,8 @@ export class CustomConn {
 	}
 
 	private handleData(data: any) {
+		console.debug('custom conn data:', data);
+
 		this.lastHeartbeatResponse = Date.now();
 		if (data === ActionType.HeartbeatPong || data === ActionType.HeartbeatPing) {
 			return;
@@ -161,8 +174,11 @@ export class CustomConn {
 			return;
 		}
 
-		// 计算当前重连间隔时间：基础间隔 * (2^重连次数)
-		const currentInterval = this.baseReconnectInterval * Math.pow(2, this.reconnectAttempts);
+		// 计算当前重连间隔时间：基础间隔 * (2^重连次数)，最大16秒
+		const currentInterval = Math.min(
+			this.baseReconnectInterval * Math.pow(2, this.reconnectAttempts),
+			16000
+		);
 		
 		this.reconnectAttempts++;
 		this.reconnectTimeout = setTimeout(() => {

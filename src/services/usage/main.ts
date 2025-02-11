@@ -6,6 +6,7 @@ import { ActionType } from "../peer/type";
 import { setUsageCtrlRequest } from "@/ctrls";
 import { useUploadRecordStore } from "@/stores/usage/uploadRecord";
 import { useDownloadRecordStore } from "@/stores/usage/downloadRecord";
+import { Notification } from "@arco-design/web-vue";
 
 let conn: CustomConn;
 export const getConn = () => {
@@ -27,11 +28,22 @@ export const usageService = () => {
 		linkStore.updateLink('webRTC', 'warning')
 		metadataStore.updateMetadatas([]);
 	}
-	conn.onerror = () => {
+	conn.onerror = (error) => {
 		linkStore.updateLink('webRTC', 'danger')
 		metadataStore.updateMetadatas([]);
+		
+		console.debug('conn error', error);
+		Notification.error({
+			id: error.type,
+			title: error.name,
+			content: error.message,
+			duration: 0,
+			closable: true,
+		})
 	}
 	conn.onopen = () => {
+		Notification.clear();
+		
 		linkStore.updateLink('webRTC', 'success');
 		// todo: 成功的onpen 才设置请求的方式？
 		setUsageCtrlRequest(conn.request.bind(conn));

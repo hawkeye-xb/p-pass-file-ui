@@ -5,7 +5,7 @@ import { ActionType } from './type';
 export class CustomPeer {
 	private deviceId: string = '';
 	private reconnectAttempts: number = 0;
-	private maxReconnectAttempts: number = 5;
+	private maxReconnectAttempts: number = 100;
 	private reconnectInterval: number = 1000; // 重连间隔时间（毫秒）
 	private reconnectTimeout: number | null = null;
 
@@ -124,32 +124,32 @@ export class CustomPeer {
 
 		switch (error.type) {
 			// 连接相关错误
-			case PeerErrorType.PeerUnavailable:
-				// 对方不在线或不存在，这种情况下应该停止重连
-				this.reconnectAttempts = this.maxReconnectAttempts;
-				console.warn("目标 Peer 不可用，可能离线或不存在");
-				break;
+			// case PeerErrorType.PeerUnavailable:
+			// 	// 对方不在线或不存在，这种情况下应该停止重连
+			// 	this.reconnectAttempts = this.maxReconnectAttempts;
+			// 	console.warn("目标 Peer 不可用，可能离线或不存在");
+			// 	break;
 
-			// 配置相关错误
-			case PeerErrorType.InvalidID:
-				// ID格式错误，这是致命错误，需要检查ID格式
-				console.error("Peer ID 格式无效");
-				throw error;
-			case PeerErrorType.InvalidKey:
-				// API密钥错误，这是致命错误，需要检查配置
-				console.error("API Key 无效");
-				throw error;
+			// 配置相关错误 // 自生成的，不处理
+			// case PeerErrorType.InvalidID:
+			// 	// ID格式错误，这是致命错误，需要检查ID格式
+			// 	console.error("Peer ID 格式无效");
+			// 	throw error;
+			// case PeerErrorType.InvalidKey:
+			// 	// API密钥错误，这是致命错误，需要检查配置
+			// 	console.error("API Key 无效");
+			// 	throw error;
 			case PeerErrorType.UnavailableID:
 				// ID已被占用，这是致命错误，需要更换ID
-				console.error("Peer ID 已被占用");
-				throw error;
+				console.error("Peer ID 已被占用"); // 销毁重建
+				// throw error;
 
-			// 网络连接相关错误
-			case PeerErrorType.Disconnected:
-				// 与信令服务器断开连接，可以尝试重连
-				console.warn("与信令服务器断开连接");
-				this.handleErrorReCreate();
-				break;
+			// 网络连接相关错误 // 会触发 断连监听，发生重连
+			// case PeerErrorType.Disconnected:
+			// 	// 与信令服务器断开连接，可以尝试重连
+			// 	console.warn("与信令服务器断开连接");
+			// 	this.handleErrorReCreate();
+			// 	break;
 			case PeerErrorType.SocketError:
 			case PeerErrorType.SocketClosed:
 				// Socket错误，可以尝试重连
@@ -161,11 +161,11 @@ export class CustomPeer {
 			case PeerErrorType.SslUnavailable:
 				// SSL不可用，这是致命错误，需要检查服务器配置
 				console.error("SSL 不可用，请检查服务器配置");
-				throw error;
+				// throw error;
 			case PeerErrorType.BrowserIncompatible:
 				// 浏览器不兼容，这是致命错误
 				console.error("浏览器不支持 WebRTC");
-				throw error;
+				// throw error;
 
 			// 其他错误
 			case PeerErrorType.Network:
@@ -185,7 +185,7 @@ export class CustomPeer {
 				break;
 			default:
 				console.error("未知错误:", error);
-				throw error;
+				// throw error;
 		}
 
 		this.onerror?.(error);
@@ -201,16 +201,12 @@ export class CustomPeer {
 			return;
 		}
 	
-		// 使用递增重连间隔
-		const currentInterval = this.reconnectInterval * Math.pow(2, this.reconnectAttempts);
-		this.reconnectAttempts++;
-	
 		const timer = setTimeout(() => {
 			clearTimeout(timer);
 			if (this.peer?.disconnected) {
 				this.peer.reconnect();
 			}
-		}, currentInterval);
+		}, 3000);
 	}
 
 
@@ -218,13 +214,15 @@ export class CustomPeer {
 		if (this.reconnectTimeout) { return; }
 		if (this.reconnectAttempts >= this.maxReconnectAttempts) { return; }
 
+		const currentInterval = this.reconnectInterval * Math.pow(2, this.reconnectAttempts);
 		this.reconnectAttempts++;
+
 		this.reconnectTimeout = setTimeout(() => {
 			clearTimeout(this.reconnectTimeout!);
 			this.reconnectTimeout = null;
 
 			this.init();
-		}, this.reconnectInterval);
+		}, Math.min(currentInterval, 16000));
 	}
 
 	private handleConnection(conn: DataConnection) {

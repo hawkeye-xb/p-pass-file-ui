@@ -10,6 +10,7 @@ import { useConnectionsStore } from '@/stores/connections';
 import { initWs } from './ws';
 import { initWatchTargets } from './watchs';
 import path from 'path-browserify';
+import { Notification } from '@arco-design/web-vue';
 
 export const storageService = () => {
 	const deviceId = getConfig('deviceId');
@@ -197,7 +198,8 @@ function initPeerResponse() {
 function handlePeerError(error: PeerError<`${PeerErrorType}`>) {
 	switch (error.type) {
 		case PeerErrorType.PeerUnavailable: // 尝试连接的对等端不存在；另外一端主动断开连接
-			console.warn("PeerUnavailable:", error); // 使用侧断连？无影响
+			console.warn("目标 Peer 不可用，可能离线或不存在");
+			console.warn("PeerUnavailable:", error); // 使用侧断连？无影响. 可以检测联通性，处理展示的连接数据
 			break;
 		case PeerErrorType.InvalidID: // 传入 Peer 构造函数的 ID 包含非法字符
 			console.warn("InvalidID:", error); // 自生成的，不处理
@@ -219,6 +221,13 @@ function handlePeerError(error: PeerError<`${PeerErrorType}`>) {
 		case PeerErrorType.ServerError:
 		case PeerErrorType.WebRTC: // 原生 WebRTC 错误
 		default:
+			Notification.error({
+				id: error.type,
+				title: error.name,
+				content: error.message,
+				duration: 0,
+				closable: true,
+			})
 			throw error;
 	}
 }
