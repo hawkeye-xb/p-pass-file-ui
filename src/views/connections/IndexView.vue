@@ -25,7 +25,8 @@ const connectionsStore = useConnectionsStore();
 </template>
 <style scoped>
 .home-view {
-	margin: 8px 16px;
+	background: var(--color-bg-2);
+	padding: 8px 16px;
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
 	gap: 20px;
