@@ -5,8 +5,6 @@ import StatusBar from '@/components/LayoutHeaderStatusBar.vue'
 import { IconSettings, IconUser } from '@arco-design/web-vue/es/icon'
 import { storageService } from '@/services/storage/main'
 import LanguageSwitch from '@/components/LanguageSwitch.vue'
-import ThemeSwitch from '@/components/ThemeSwitch.vue'
-
 
 storageService()
 </script>
@@ -21,7 +19,6 @@ storageService()
       <template #extra>
         <div>
           <a-space>
-            <ThemeSwitch />
 						<LanguageSwitch />
             <RouterLink to="/storage/settings">
               <a-button shape="circle">

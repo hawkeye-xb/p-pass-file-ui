@@ -25,5 +25,16 @@
       "tooltip": "Copy",
       "success": "Copied!"
     }
+  },
+  "theme": {
+    "label": "Appearance",
+    "system": "Auto",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "language": {
+    "label": "Language",
+    "zh": "中文",
+    "en": "English"
   }
 }

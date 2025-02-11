@@ -3,7 +3,6 @@ import { RouterView } from 'vue-router'
 import Menu from '@/components/menu/UsageMenu.vue'
 import StatusBar from '@/components/LayoutHeaderStatusBar.vue'
 import LanguageSwitch from '@/components/LanguageSwitch.vue'
-import ThemeSwitch from '@/components/ThemeSwitch.vue'
 import { IconSettings, IconUser } from '@arco-design/web-vue/es/icon';
 import { usageService, getConn } from '@/services/usage/main';
 import { onBeforeUnmount } from 'vue';
@@ -32,7 +31,6 @@ onBeforeUnmount(() => {
 			<template #extra>
 				<div>
 					<a-space>
-						<ThemeSwitch />
 						<LanguageSwitch />
 						<RouterLink to="/usage/settings">
 							<a-button shape="circle">

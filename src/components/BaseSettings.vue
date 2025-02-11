@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { getConfig } from '@/services/index';
 import { IconCopy } from '@arco-design/web-vue/es/icon';
 import { Message } from '@arco-design/web-vue';
+import LanguageSwitch from '@/components/LanguageSwitch.vue'
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
@@ -35,6 +36,9 @@ const setTheme = (theme: 'light' | 'dark') => {
 const handleThemeChange = (value: 'system' | 'light' | 'dark') => {
   currentTheme.value = value;
   window.electron?.theme.setTheme(value);
+  if (value !== 'system') {
+    setTheme(value);
+  }
 }
 
 const handleSystemThemeChange = (theme: 'light' | 'dark') => {
@@ -71,6 +75,13 @@ onUnmounted(() => {
         </a-button>
       </a-tooltip>
     </a-space>
+  </div>
+
+	<div class="settings-list-item">
+    <div class="settings-list-item-label">{{ t('settings.language.label') }}</div>
+    <div class="settings-list-item-content" style="padding: 0;">
+			<LanguageSwitch />
+    </div>
   </div>
 
   <!-- 主题设置部分 -->
@@ -157,7 +168,7 @@ onUnmounted(() => {
 }
 
 .theme-option.active .theme-preview {
-  border: 2px solid rgb(var(--primary-5));
+  border: 1px solid rgb(var(--primary-5));
 }
 
 .theme-preview {

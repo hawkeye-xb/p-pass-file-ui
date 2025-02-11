@@ -31,5 +31,10 @@
     "system": "自动",
     "light": "浅色",
     "dark": "深色"
+  },
+  "language": {
+    "label": "语言",
+    "zh": "中文",
+    "en": "English"
   }
 }
