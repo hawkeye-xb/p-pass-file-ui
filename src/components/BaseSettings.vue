@@ -5,6 +5,7 @@ import { IconCopy } from '@arco-design/web-vue/es/icon';
 import { Message } from '@arco-design/web-vue';
 import LanguageSwitch from '@/components/LanguageSwitch.vue'
 import { useI18n } from 'vue-i18n';
+import { themeService } from '@/services/theme';
 
 const { t } = useI18n();
 
@@ -25,39 +26,28 @@ const handleCopyDeviceId = () => {
 // 主题设置相关
 const currentTheme = ref<'system' | 'light' | 'dark'>('system');
 
-const setTheme = (theme: 'light' | 'dark') => {
-  if (theme === 'dark') {
-    document.body.setAttribute('arco-theme', 'dark');
-  } else {
-    document.body.removeAttribute('arco-theme');
-  }
-}
-
 const handleThemeChange = (value: 'system' | 'light' | 'dark') => {
   currentTheme.value = value;
   window.electron?.theme.setTheme(value);
   if (value !== 'system') {
-    setTheme(value);
+    themeService.setTheme(value);
   }
 }
 
 const handleSystemThemeChange = (theme: 'light' | 'dark') => {
   if (currentTheme.value === 'system') {
-    setTheme(theme);
+    themeService.setTheme(theme);
   }
 }
 
 onMounted(async () => {
   const theme = await window.electron?.theme.getCurrentTheme();
   if (theme) {
-    setTheme(theme);
+    themeService.setTheme(theme);
+    currentTheme.value = theme;
   }
-  window.electron?.theme.onThemeChange(handleSystemThemeChange);
 });
 
-onUnmounted(() => {
-  window.electron?.theme.removeThemeChangeListener();
-});
 </script>
 
 <template>
