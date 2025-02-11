@@ -4,6 +4,7 @@ import Menu from '@/components/menu/StorageMenu.vue'
 import StatusBar from '@/components/LayoutHeaderStatusBar.vue'
 import { IconSettings, IconUser } from '@arco-design/web-vue/es/icon'
 import { storageService } from '@/services/storage/main'
+import LanguageSwitch from '@/components/LanguageSwitch.vue'
 
 storageService()
 </script>
@@ -13,6 +14,7 @@ storageService()
     <a-page-header :style="{ background: 'var(--color-bg-2)', borderBottom: '1px solid var(--color-neutral-3)' }"
       title="P-Pass File" :show-back="false">
       <template #subtitle>
+        <LanguageSwitch />
         <StatusBar :style="{ paddingLeft: '24px' }" />
       </template>
       <template #extra>

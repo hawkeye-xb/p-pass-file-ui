@@ -7,7 +7,7 @@ import { RouterView } from 'vue-router'
 
 </script>
 <template>
-	<div style="flex: 1;">
+	<div style="flex: 1;background: var(--color-bg-2);">
 		<RouterView />
 	</div>
 	<!-- <div class="transport-layout">

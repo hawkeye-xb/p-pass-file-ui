@@ -237,7 +237,7 @@ const platform = window.electron?.systemInfo?.platform;
 
 <template>
 
-  <div style="position: relative; flex: 1;">
+  <div style="position: relative; flex: 1;background: var(--color-bg-2);">
     <a-alert type="warning" v-if="alertVisible">
       {{ t('folder.alert.noDevice') }}
       <a-link @click="() => { Router.push('/usage/settings') }">
