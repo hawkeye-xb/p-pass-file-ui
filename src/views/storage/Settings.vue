@@ -17,28 +17,19 @@ cType.value = getConfig('clientType') || '';
 // storage watch targets
 const targets = ref([])
 
-const visible = ref(false);
-const formRef = ref(undefined);
-const form = reactive({
-	target: '',
-});
-
-const handleClick = () => {
-	visible.value = true;
+const handleClick = async () => {
+	if (window.electron) {
+		const selector = await window.electron.openFileSelector({
+			properties: ['openDirectory'],
+		})
+		if (selector.canceled) {
+      return;
+    }
+    const target = selector.filePaths[0];
+		addWatchTarget(target);
+		init();
+	}
 };
-const handleBeforeOk = (done: any) => {
-	// todo: 表单验证
-	window.setTimeout(() => {
-		done()
-		// prevent close
-		// done(false)
-		addWatchTarget(form.target)
-		init()
-	}, 1000)
-};
-const handleCancel = () => {
-	visible.value = false;
-}
 
 const handleRemove = (target: string) => {
 	removeWatchTarget(target)
@@ -94,19 +85,6 @@ downloadPath.value = getConfig('downloadPath') || '';
 				<a-switch :model-value="trash" type="round" @change="handleTrashConfigChange" />
 			</div>
 		</div>
-
-		<a-modal v-model:visible="visible" :title="t('settings.watchTarget.modal.title')" @cancel="handleCancel" @before-ok="handleBeforeOk">
-			<a-form :model="form" :ref="formRef">
-				<a-form-item field="target" :label="t('settings.watchTarget.modal.label')" :rules="[
-					{
-						required: true,
-						message: t('settings.watchTarget.modal.required'),
-					}
-				]">
-					<a-input v-model="form.target" :placeholder="t('settings.watchTarget.modal.placeholder')" />
-				</a-form-item>
-			</a-form>
-		</a-modal>
 	</div>
 </template>
 
