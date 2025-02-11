@@ -38,7 +38,6 @@ const webRtcReconnect = () => {
 			<a-badge :status="linkStore.signalingLink" :text="t('status.services.signaling')"></a-badge>
 			<template #content>
 				<a-doption @click="signalingReconnect">{{ t('status.actions.reconnect') }}</a-doption>
-				<a-doption @click="signalingReflesh">{{ t('status.actions.refresh') }}</a-doption>
 			</template>
 		</a-dropdown>
 		<a-dropdown trigger="hover" v-if="linkStore.webRTCLink">
