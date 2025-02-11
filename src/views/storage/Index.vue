@@ -4,7 +4,6 @@ import Menu from '@/components/menu/StorageMenu.vue'
 import StatusBar from '@/components/LayoutHeaderStatusBar.vue'
 import { IconSettings, IconUser } from '@arco-design/web-vue/es/icon'
 import { storageService } from '@/services/storage/main'
-import LanguageSwitch from '@/components/LanguageSwitch.vue'
 
 storageService()
 </script>
@@ -19,7 +18,6 @@ storageService()
       <template #extra>
         <div>
           <a-space>
-						<LanguageSwitch />
             <RouterLink to="/storage/settings">
               <a-button shape="circle">
                 <IconSettings />
