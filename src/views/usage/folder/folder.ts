@@ -17,7 +17,7 @@ export const unlink = async (targets: string[]) => {
 	const trashConfig = getConfig('trash')
 	await usageDeleteRes({
 		targets,
-		trash: trashConfig,
+		trash: false,
 		force: trashConfig
 	})
 }
