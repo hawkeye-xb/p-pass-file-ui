@@ -39,3 +39,45 @@
 .settings-list-item-options {
 	margin: 0 10px;
 }
+
+/* 设备类型切换器样式 */
+.client-type-switch {
+  background-color: var(--color-fill-2);
+  border-radius: 24px;
+  padding: 2px;
+  display: inline-flex;
+  position: relative;
+}
+
+.client-type-option {
+  padding: 6px 24px;
+  border-radius: 20px;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s ease;
+  color: var(--color-text-3);
+  font-size: 14px;
+}
+
+.client-type-option.active {
+  color: rgb(var(--primary-6));
+  background-color: var(--color-bg-2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.client-type-option:hover:not(.active) {
+  color: rgb(var(--primary-6));
+}
+
+/* 适配设备类型选择器的容器样式 */
+.settings-list-item.client-type-settings {
+  height: auto;
+  margin-bottom: 16px;
+  padding: 8px 0;
+}
+
+.settings-list-item.client-type-settings .settings-list-item-content {
+  background-color: transparent;
+  padding: 0;
+}

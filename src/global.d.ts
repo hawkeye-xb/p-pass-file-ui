@@ -73,6 +73,7 @@ interface Window {
       onThemeChange: (callback: (theme: 'light' | 'dark') => void) => void;
       removeThemeChangeListener: () => void;
     };
+		relaunchApp: () => void,
 	},
 	conn: any,
 }

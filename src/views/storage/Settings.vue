@@ -80,10 +80,10 @@ downloadPath.value = getConfig('downloadPath') || '';
 				</a-space>
 			</div>
 
-			<div class="settings-list-item">
+			<!-- <div class="settings-list-item">
 				<div class="settings-list-item-label">{{ t('settings.moveToTrash') }}</div>
 				<a-switch :model-value="trash" type="round" @change="handleTrashConfigChange" />
-			</div>
+			</div> -->
 		</div>
 	</div>
 </template>

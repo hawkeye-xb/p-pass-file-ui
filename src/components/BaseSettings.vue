@@ -1,13 +1,36 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
-import { getConfig } from '@/services/index';
+import { getConfig, setConfig, ClientType } from '@/services/index';
 import { IconCopy } from '@arco-design/web-vue/es/icon';
-import { Message } from '@arco-design/web-vue';
+import { Message, Modal } from '@arco-design/web-vue';
 import LanguageSwitch from '@/components/LanguageSwitch.vue'
 import { useI18n } from 'vue-i18n';
 import { themeService } from '@/services/theme';
 
 const { t } = useI18n();
+
+// 添加设备类型相关的代码
+const currentClientType = ref<ClientType>(getConfig('clientType') || ClientType.Storage);
+
+const handleClientTypeChange = (value: string | number) => {
+  // 如果点击的是当前类型，直接返回
+  if (value === currentClientType.value) {
+    return;
+  }
+
+  Modal.warning({
+    title: t('settings.clientType.confirmTitle'),
+    content: t('settings.clientType.confirmContent'),
+    okText: t('settings.common.confirm'),
+    cancelText: t('settings.common.cancel'),
+    closable: true,
+    maskClosable: true,
+    onOk: () => {
+      setConfig('clientType', value as ClientType);
+      window.electron?.relaunchApp();
+    }
+  });
+};
 
 const deviceId = ref('')
 deviceId.value = getConfig('deviceId') || '';
@@ -34,12 +57,6 @@ const handleThemeChange = (value: 'system' | 'light' | 'dark') => {
   }
 }
 
-const handleSystemThemeChange = (theme: 'light' | 'dark') => {
-  if (currentTheme.value === 'system') {
-    themeService.setTheme(theme);
-  }
-}
-
 onMounted(async () => {
   const theme = await window.electron?.theme.getCurrentTheme();
   if (theme) {
@@ -51,6 +68,29 @@ onMounted(async () => {
 </script>
 
 <template>
+  <!-- 添加设备类型选择器，放在最上面 -->
+  <div class="settings-list-item">
+    <div class="settings-list-item-label">{{ t('settings.clientType.label') }}</div>
+    <div class="">
+      <div class="client-type-switch">
+        <div
+          class="client-type-option"
+          :class="{ active: currentClientType === 'storage' }"
+          @click="handleClientTypeChange('storage')"
+        >
+          {{ t('settings.clientType.storage') }}
+        </div>
+        <div
+          class="client-type-option"
+          :class="{ active: currentClientType === 'usage' }"
+          @click="handleClientTypeChange('usage')"
+        >
+          {{ t('settings.clientType.usage') }}
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="settings-list-item">
     <div class="settings-list-item-label">{{ t('settings.deviceId.label') }}</div>
     <div class="settings-list-item-content">
@@ -216,5 +256,14 @@ onMounted(async () => {
   color: var(--color-text-2);
   margin-top: 4px;
   display: block;
+}
+
+/* 添加设备类型选择器的样式 */
+:deep(.arco-tabs) {
+  margin: 8px 0;
+}
+
+:deep(.arco-tabs-nav) {
+  margin-bottom: 0;
 }
 </style>
